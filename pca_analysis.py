@@ -22,9 +22,11 @@ def load_Trajs(names, topology):
 def plot_PCA1(trajectory):
     pca1 = PCA(n_components=2)
     trajectory.superpose(trajectory, 0)
-    reduced_cartesian = pca1.fit_transform(trajectory.xyz.reshape(trajectory.n_frames, trajectory.n_atoms * 3))
+    reduced_cartesian = pca1.fit_transform(trajectory.xyz.reshape(
+        trajectory.n_frames, trajectory.n_atoms * 3))
     plt.figure()
-    plt.scatter(reduced_cartesian[:, 0], reduced_cartesian[:, 1], marker='x', c=trajectory.time)
+    plt.scatter(reduced_cartesian[:, 0], reduced_cartesian[:, 1], marker='x',
+                c=trajectory.time)
     plt.xlabel('PC1')
     plt.ylabel('PC2')
     plt.title('Cartesian coordinate PCA')
@@ -38,7 +40,8 @@ def plot_PCA2(trajectory):
     pairwise_distances = md.geometry.compute_distances(trajectory, atom_pairs)
     reduced_distances = pca2.fit_transform(pairwise_distances)
     plt.figure()
-    plt.scatter(reduced_distances[:, 0], reduced_distances[:, 1], marker='x', c=trajectory.time)
+    plt.scatter(reduced_distances[:, 0], reduced_distances[:, 1],
+                marker='x', c=trajectory.time)
     plt.xlabel('PC1')
     plt.ylabel('PC2')
     plt.title('Pairwise distance PCA: alanine dipeptide')

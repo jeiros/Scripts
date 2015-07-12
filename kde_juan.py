@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
-RUN THE SCRIPT AS 
-        $ python ./kde_juan.py myevecs000-050ns_run1.dat myevecs000-050ns_run2.dat
+RUN THE SCRIPT AS
+$ python ./kde_juan.py myevecs000-050ns_run1.dat myevecs000-050ns_run2.dat
 """
 import numpy as np
 import pylab as pl
@@ -12,8 +12,9 @@ import sys
 
 
 def parse_data(files):
-    """Returns a list called data that stores the X and Y values for each file
-        Find the minimum and maximum values of X and Y between all the files in order to always have the same edges"""
+    """Returns a list called data that stores the X and Y values for each file.
+    Find the minimum and maximum values of X and Y between all the files in
+    order to always have the same edges"""
     data = []
     minx = 0
     miny = 0
@@ -28,7 +29,8 @@ def parse_data(files):
         maxy = max(f_coly.max(), maxy)
         data.append([f_colx, f_coly])
 
-    # Added +-10 to the edges so the KDE is better seen (if not sometimes its cut for the data that is in the limits of the plot)
+    # Added +-10 to the edges so the KDE is better seen (if not sometimes its
+    # cut for the data that is in the limits of the plot)
     minx = minx - 10
     maxx = maxx + 10
     miny = miny - 10
@@ -37,7 +39,8 @@ def parse_data(files):
 
 
 def generate_kde(data):
-    """ Returns a list called kernels with the kernel density estimator for each value stored in the data list"""
+    """ Returns a list called kernels with the kernel density estimator for
+    each value stored in the data list"""
     kernels = []
     for i in range(0, len(sys.argv) - 1):
         values = np.vstack((data[i][0], data[i][1]))
@@ -46,8 +49,11 @@ def generate_kde(data):
 
 
 def generate_shape(kernels, minx, maxx, miny, maxy):
-    """Returns a list called shapes that stores the needed values to plot the shape of the KDE
-    This is actually copied from here <http://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.stats.gaussian_kde.html>"""
+    """Returns a list called shapes that stores the needed values to plot the
+    shape of the KDE
+    This is actually copied from here
+    <http://docs.scipy.org/doc/scipy-0.14.0/reference/generated/
+    scipy.stats.gaussian_kde.html>"""
     shapes = []
     for i in range(0, len(kernels)):
         X, Y = np.mgrid[minx:maxx:100j, miny:maxy:100j]
@@ -60,8 +66,10 @@ def generate_shape(kernels, minx, maxx, miny, maxy):
 
 
 def generate_title_from_file(title):
-    """This function removes the "myevecs" string and ".dat" from the files to create the title
-     The input files should look like "myevcs000-050ns_run1.dat" and the title that is created is 000-050ns_run1"""
+    """This function removes the "myevecs" string and ".dat" from the files to
+    create the title. The input files should look like
+    "myevcs000-050ns_run1.dat" and the title that is created is 000-050ns_run
+    """
     return title.replace("myevecs", "").replace(".dat", "")
 
 
@@ -70,15 +78,19 @@ def plot(shapes, data, minx, maxx, miny, maxy):
     for i in range(0, len(shapes)):
         figs.append(plt.figure())
         ax = figs[i].add_subplot(111)
-        figs[i].suptitle(generate_title_from_file(sys.argv[i + 1]), fontsize=14)
-        ax.imshow(np.rot90(shapes[i]), cmap=plt.cm.gist_earth_r, extent=[minx, maxx, miny, maxy])
+        figs[i].suptitle(generate_title_from_file(sys.argv[i + 1]),
+                         fontsize=14)
+        ax.imshow(np.rot90(shapes[i]), cmap=plt.cm.gist_earth_r,
+                  extent=[minx, maxx, miny, maxy])
         ax.set_xlabel('PCA1')
         ax.set_ylabel('PCA2')
         ax.set_xlim([minx, maxx])
         ax.set_ylim([miny, maxy])
-        # ax.plot(data[i][0], data[i][1], 'k.', markersize=2)             # Comment or uncomment this line to plot the dots
-        figs[i].savefig(sys.argv[i + 1].replace(".dat", "") + ".png")      # Comment or uncomment this line if we want to save the plots as a .png file
-        #   with the name "myevecs000-050ns_run1.png"
+        # ax.plot(data[i][0], data[i][1], 'k.', markersize=2) # Comment or 
+        # uncomment this line to plot the dots
+        figs[i].savefig(sys.argv[i + 1].replace(".dat", "") + ".png")
+        # Comment or uncomment this line if we want to save the plots as
+        # a .png file with the name "myevecs000-050ns_run1.png"
         plt.show()
 
 
