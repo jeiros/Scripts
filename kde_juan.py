@@ -9,6 +9,12 @@ from scipy import stats
 from scipy import interpolate
 import matplotlib.pyplot as plt
 import sys
+import argparse
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument()
+parser.parse_args()
 
 
 def parse_data(files):
