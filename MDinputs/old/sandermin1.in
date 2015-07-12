@@ -1,0 +1,6 @@
+Stage 1 - minimisation of TC5b
+ &cntrl
+  imin=1, maxcyc=2500, ncyc=1000,
+ cut=12.,ntb=1,
+  ntpr=100
+ /

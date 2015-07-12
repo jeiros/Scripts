@@ -5,7 +5,7 @@
 SortMatrix = zeros(128);
 veccount = zeros(128,1);
 // each line is a cluster that contains all the frames in that cluster
-// and the first line contains the number of frams in that cluster
+// and the first line contains the number of frames in that cluster
 for i = 1:NoFrames
    SortMatrix(Labels_file(1,i)+1, veccount(Labels_file(1,i)+1, 1) +1) = i;
    veccount(Labels_file(1,i)+1, 1) = veccount(Labels_file(1,i)+1, 1) +1;
