@@ -29,6 +29,8 @@ def printTrajs(ds):
         print(traj)
 
 # loadTrajs2 is a slower version of loadTrajs
+
+
 # def loadTrajs2(names, topology):
 #     filenames = sorted(glob.glob(names))
 #     trajectories = [md.load(filename, top=topology) for filename in filenames]
