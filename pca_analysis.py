@@ -1,6 +1,9 @@
 #!/usr/bin/env python
-"""RUN THE SCRIPT AS:
-   $ ./clustering.py "../nameofTrajs*.nc" "../../topology.prmtop"
+"""
+Trying to implement the following example
+http://mdtraj.org/latest/examples/pca.html
+
+Gives memory error for the moment
 """
 
 import mdtraj as md
@@ -11,7 +14,20 @@ import os
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 from itertools import combinations
+import argparse
 
+parser = argparse.ArgumentParser(usage="{} Trajectories*.nc Topology.prmtop".
+                                 format(sys.argv[0]),
+                                 epilog="Load up an AMBER trajectories and their\
+                                 corresponding topology with MDtraj. Plot\
+                                 the PCA done with sklearn's PCA class")
+
+parser.add_argument("Trajectories", help="An indefinite amount of AMBER\
+                    trajectories", nargs="+")
+parser.add_argument("Topology", help="The topology .prmtop file that matches\
+                    the trajectories")
+
+args = parser.parse_args()
 
 def load_Trajs(names, topology):
     filenames = sorted(glob.glob(names))

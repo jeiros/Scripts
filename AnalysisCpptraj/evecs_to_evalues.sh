@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# Plots the amount of variance explained by every Principal Component
 #Use as ./evecs_to_evalues.sh run1 000-050ns
 
 awk 'length < 30' evecs-ca$2.dat > evalues$2_$1.dat
