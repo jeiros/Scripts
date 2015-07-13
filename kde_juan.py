@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
-RUN THE SCRIPT AS
-$ python ./kde_juan.py myevecs000-050ns_run1.dat myevecs000-050ns_run2.dat
+Plots the PC1 vs PC2 projection using a kernel density estimator to smooth the
+scatter plot
 """
 import numpy as np
 import pylab as pl
@@ -17,8 +17,9 @@ parser = argparse.ArgumentParser(usage="{} file1 [file2 [file3 [... ] ] ]".
                                  plots for every evecs file passed as \
                                  argument. Forces the axis to be the same for \
                                  all of them for easier comparison")
-
-parser.parse_args()
+parser.add_argument("-s", "--save", help="Save the plots as .png images")
+parser.add_argument()
+args = parser.parse_args()
 
 
 def parse_data(files):
@@ -71,7 +72,6 @@ def generate_shape(kernels, minx, maxx, miny, maxy):
         shape = X.shape
         sh = np.reshape(kernels[i](positions).T, shape)
         shapes.append(sh)
-
     return shapes
 
 
@@ -105,10 +105,11 @@ def plot(shapes, data, minx, maxx, miny, maxy):
 
 
 def main():
-    data, minx, maxx, miny, maxy = parse_data(sys.argv)
-    kernels = generate_kde(data)
-    shapes = generate_shape(kernels, minx, maxx, miny, maxy)
-    plot(shapes, data, minx, maxx, miny, maxy)
+    if args:
+        data, minx, maxx, miny, maxy = parse_data(sys.argv)
+        kernels = generate_kde(data)
+        shapes = generate_shape(kernels, minx, maxx, miny, maxy)
+        plot(shapes, data, minx, maxx, miny, maxy)
 
 if __name__ == "__main__":
     main()
