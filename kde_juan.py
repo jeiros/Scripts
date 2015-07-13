@@ -17,12 +17,14 @@ parser = argparse.ArgumentParser(usage="{} file1 [file2 [file3 [... ] ] ]".
                                  plots for every evecs file passed as \
                                  argument. Forces the axis to be the same for \
                                  all of them for easier comparison")
-parser.add_argument("-s", "--save", help="Save the plots as .png images",
-                    action="store_false")
-parser.add_argument("-d", "--dots", help="Add the plots of the distribution \
-                    to the plot.", action="store_false")
+
 parser.add_argument("files", help="An indefinite amount of files to plot",
-                    action="append")
+                    nargs="+")
+
+parser.add_argument("-s", "--save", help="Save the plots as .png images",
+                    action="store_true", default=False)
+parser.add_argument("-d", "--dots", help="Add the plots of the distribution \
+                    to the plot.", action="store_true", default=False)
 args = parser.parse_args()
 
 
@@ -100,8 +102,8 @@ def plot(shapes, data, minx, maxx, miny, maxy):
         ax.set_ylabel('PCA2')
         ax.set_xlim([minx, maxx])
         ax.set_ylim([miny, maxy])
-        # ax.plot(data[i][0], data[i][1], 'k.', markersize=2) # Comment or 
-        # uncomment this line to plot the dots
+        if args.dots:
+            ax.plot(data[i][0], data[i][1], 'k.', markersize=2)
         if args.save:
             figs[i].savefig(sys.argv[i + 1].replace(".dat", "") + ".png")
         plt.show()
