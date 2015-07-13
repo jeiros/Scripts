@@ -25,13 +25,13 @@ parser = argparse.ArgumentParser(usage="{} Trajectories*.nc Topology.prmtop".
                                  corresponding topology with MDtraj. Cluster \
                                  them using K means and save transition\
                                  matrices")
-
 parser.add_argument("Trajectories", help="An indefinite amount of AMBER\
                     trajectories", nargs="+")
 parser.add_argument("Topology", help="The topology .prmtop file that matches\
                     the trajectories")
-parser.add_argument("-o", "--out_folder", help="Name of the folder in\
-                    which the results are stored\nDefault %default", default="msmResults", metavar="")
+parser.add_argument("-o", "--out_folder", default="msmResults", help="Name of\
+                    the folder in which the results are stored\nDefault is \
+                    {}".format(default), metavar="")
 args = parser.parse_args()
 
 lag_times = [1, 20, 50, 100, 200, 400]
