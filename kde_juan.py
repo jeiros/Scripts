@@ -12,11 +12,11 @@ import sys
 import argparse
 
 
-parser = argparse.ArgumentParser(usage="{} file1 [file2 [file3 [... ] ] ]".format(prog),
-                                 epilog="Plot a series of KDE plots for every\
-                                 evecs file passed as argument. Forces\
-                                 the axis to be the same for all of them for\
-                                 easier comparison")
+parser = argparse.ArgumentParser(usage="{} file1 [file2 [file3 [... ] ] ]".
+                                 format(sys.argv[0]), epilog="Plot a series of KDE \
+                                 plots for every evecs file passed as \
+                                 argument. Forces the axis to be the same for \
+                                 all of them for easier comparison")
 
 parser.parse_args()
 
