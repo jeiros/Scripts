@@ -19,19 +19,21 @@ import argparse
 import sys
 
 
-parser = argparse.ArgumentParser(usage="{} Trajectories*.nc Topology.prmtop".
+parser = argparse.ArgumentParser(usage="\n{} Trajectories*.nc Topology.prmtop".
                                  format(sys.argv[0]),
+                                 formatter_class=argparse.
+                                 ArgumentDefaultsHelpFormatter,
                                  epilog="Load up AMBER trajectories and their\
                                  corresponding topology with MDtraj. Cluster \
                                  them using K means and save transition\
-                                 matrices")
+                                 matrices in a specified folder")
 parser.add_argument("Trajectories", help="An indefinite amount of AMBER\
                     trajectories", nargs="+")
 parser.add_argument("Topology", help="The topology .prmtop file that matches\
                     the trajectories")
 parser.add_argument("-o", "--out_folder", default="msmResults", help="Name of\
-                    the folder in which the results are stored\nDefault is \
-                    {}".format(default), metavar="")
+                    the folder in which the results are stored", metavar="")
+
 args = parser.parse_args()
 
 lag_times = [1, 20, 50, 100, 200, 400]
@@ -102,21 +104,21 @@ def MakeMSM(LabeledTrajs):
 
 def saveTransMatrices(transmat_matrix):
     """Retrieve each of the i x j Transition Matrices and store each one
-    in different files in the msmResults directory. The files are named
+    in different files in the results directory. The files are named
     Transmat_Nclusters_Nlagtime"""
 
     for i in range(len(cluster_list)):
         for j in range(len(lag_times)):
             item = transmat_matrix[i][j]
-            if os.path.exists("./msmResults"):
-                np.savetxt(
-                    "./msmResults/Transmat_{0}clusters_{1}lagtime.dat".format(
-                        str(cluster_list[i]), str(lag_times[j])), item)
+            if os.path.exists("./{}".format(args.out_folder)):
+                np.savetxt("./{0}/Transmat_{1}clusters_{2}lagtime.dat".
+                           format(args.out_folder, str(cluster_list[i]),
+                           str(lag_times[j])), item)
             else:
-                os.mkdir("./msmResults")
-                np.savetxt(
-                    "./msmResults/Transmat_{0}clusters_{1}lagtime.dat".format(
-                        str(cluster_list[i]), str(lag_times[j])), item)
+                os.mkdir("./{}".format(args.out_folder))
+                np.savetxt("./{0}/Transmat_{1}clusters_{2}lagtime.dat".
+                           format(args.out_folder, str(cluster_list[i]),
+                           str(lag_times[j])), item)
 
 
 def main():
