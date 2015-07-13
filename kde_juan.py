@@ -86,7 +86,7 @@ def generate_title_from_file(title):
     create the title. The input files should look like
     "myevcs000-050ns_run1.dat" and the title that is created is 000-050ns_run
     """
-    return title.replace("myevecs", "").replace(".dat", "")
+    return title.replace("myevecs", "").replace(".dat", "").replace("_C", "C")
 
 
 def plot(shapes, data, minx, maxx, miny, maxy):
