@@ -12,7 +12,7 @@ import sys
 import argparse
 
 
-parser = argparse.ArgumentParser()
+parser = argparse.ArgumentParser(description="Plot a series of KDE plots for")
 parser.add_argument()
 parser.parse_args()
 
