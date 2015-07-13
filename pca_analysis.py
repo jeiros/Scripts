@@ -66,10 +66,11 @@ def plot_PCA2(trajectory):
 
 
 def main():
-    trajectory = load_Trajs(sys.argv[1], sys.argv[2])
-    plot1 = plot_PCA1(trajectory)
-    # plot2 = plot_PCA2(trajectory)
+    print('\n', args, '\n')
+    if args:
+        trajectory = load_Trajs(args.Trajectories, args.Topology)
+        plot1 = plot_PCA1(trajectory)
+        # plot2 = plot_PCA2(trajectory)
 
 if __name__ == "__main__":
-    import sys
     main()

@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 
-"""RUN THE SCRIPT AS:
-   $ ./clustering.py "../nameofTrajs*.nc" "../../topology.prmtop"
+"""
+Trying to apply MSM analysis on my trajectories
+http://msmbuilder.org/latest/
+This script takes trajectories and topology from AMBER and saves in a directory
+different transicion matrices for a combination of lag times and cluster
+centers
 """
 
 import mdtraj as md
@@ -11,7 +15,23 @@ import msmbuilder.msm as msm
 import glob
 import numpy as np
 import os
+import argparse
+import sys
 
+
+parser = argparse.ArgumentParser(usage="{} Trajectories*.nc Topology.prmtop".
+                                 format(sys.argv[0]),
+                                 epilog="Load up AMBER trajectories and their\
+                                 corresponding topology with MDtraj. Cluster \
+                                 them using K means and save transition\
+                                 matrices")
+
+parser.add_argument("Trajectories", help="An indefinite amount of AMBER\
+                    trajectories", nargs="+")
+parser.add_argument("Topology", help="The topology .prmtop file that matches\
+                    the trajectories")
+
+args = parser.parse_args()
 
 lag_times = [1, 20, 50, 100, 200, 400]
 cluster_list = [8, 16, 32, 64, 128, 256, 512]  # 2^n with n(3..9)
@@ -71,12 +91,9 @@ def MakeMSM(LabeledTrajs):
 
     for i in range(len(LabeledTrajs)):
         for j in range(len(lag_times)):
-            print(i, j)
             MSM = msm.MarkovStateModel(lag_times[j], verbose=False)
             parameters = MSM.fit(LabeledTrajs[i])
             transmat_matrix[i][j] = parameters.transmat_
-            print(parameters.transmat_)
-
     return transmat_matrix
 
 
@@ -100,10 +117,11 @@ def saveTransMatrices(transmat_matrix):
 
 
 def main():
-    ds = loadTrajs(sys.argv[1], sys.argv[2])
-    clusters = MakeSeveralClusters(ds, cluster_list)
-    MarkovModel = MakeMSM(clusters)
-    saveTransMatrices(MarkovModel)
+    if args:
+        ds = loadTrajs(args.Trajectories, args.Topology)
+        clusters = MakeSeveralClusters(ds, cluster_list)
+        MarkovModel = MakeMSM(clusters)
+        saveTransMatrices(MarkovModel)
 
 if __name__ == "__main__":
     import sys
