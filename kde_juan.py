@@ -22,9 +22,9 @@ parser.add_argument("files", help="An indefinite amount of files to plot",
                     nargs="+")
 
 parser.add_argument("-s", "--save", help="Save the plots as .png images",
-                    action="store_true", default=False)
+                    action="store_true")
 parser.add_argument("-d", "--dots", help="Add the plots of the distribution \
-                    to the plot.", action="store_true", default=False)
+                    to the plot.", action="store_true")
 args = parser.parse_args()
 
 
@@ -37,7 +37,7 @@ def parse_data(files):
     miny = 0
     maxx = 0
     maxy = 0
-    for file in sys.argv[1:]:
+    for file in args.files:
         f_colx = np.loadtxt(file, usecols=(1,), skiprows=1)
         f_coly = np.loadtxt(file, usecols=(2,), skiprows=1)
         minx = min(f_colx.min(), minx)
@@ -59,7 +59,7 @@ def generate_kde(data):
     """ Returns a list called kernels with the kernel density estimator for
     each value stored in the data list"""
     kernels = []
-    for i in range(0, len(sys.argv) - 1):
+    for i in range(0, len(args.files)):
         values = np.vstack((data[i][0], data[i][1]))
         kernels.append(stats.gaussian_kde(values))
     return kernels
@@ -106,13 +106,14 @@ def plot(shapes, data, minx, maxx, miny, maxy):
             ax.plot(data[i][0], data[i][1], 'k.', markersize=2)
         if args.save:
             figs[i].savefig(sys.argv[i + 1].replace(".dat", "") + ".png")
-        plt.show()
+        else:
+            plt.show()
 
 
 def main():
     print(args)
     if args.files:
-        data, minx, maxx, miny, maxy = parse_data(sys.argv)
+        data, minx, maxx, miny, maxy = parse_data(args.files)
         kernels = generate_kde(data)
         shapes = generate_shape(kernels, minx, maxx, miny, maxy)
         plot(shapes, data, minx, maxx, miny, maxy)
