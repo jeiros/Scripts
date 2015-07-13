@@ -17,8 +17,12 @@ parser = argparse.ArgumentParser(usage="{} file1 [file2 [file3 [... ] ] ]".
                                  plots for every evecs file passed as \
                                  argument. Forces the axis to be the same for \
                                  all of them for easier comparison")
-parser.add_argument("-s", "--save", help="Save the plots as .png images")
-parser.add_argument()
+parser.add_argument("-s", "--save", help="Save the plots as .png images",
+                    action="store_false")
+parser.add_argument("-d", "--dots", help="Add the plots of the distribution \
+                    to the plot.", action="store_false")
+parser.add_argument("files", help="An indefinite amount of files to plot",
+                    action="append")
 args = parser.parse_args()
 
 
@@ -98,14 +102,14 @@ def plot(shapes, data, minx, maxx, miny, maxy):
         ax.set_ylim([miny, maxy])
         # ax.plot(data[i][0], data[i][1], 'k.', markersize=2) # Comment or 
         # uncomment this line to plot the dots
-        figs[i].savefig(sys.argv[i + 1].replace(".dat", "") + ".png")
-        # Comment or uncomment this line if we want to save the plots as
-        # a .png file with the name "myevecs000-050ns_run1.png"
+        if args.save:
+            figs[i].savefig(sys.argv[i + 1].replace(".dat", "") + ".png")
         plt.show()
 
 
 def main():
-    if args:
+    print(args)
+    if args.files:
         data, minx, maxx, miny, maxy = parse_data(sys.argv)
         kernels = generate_kde(data)
         shapes = generate_shape(kernels, minx, maxx, miny, maxy)
