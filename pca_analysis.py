@@ -18,16 +18,16 @@ import argparse
 
 parser = argparse.ArgumentParser(usage="{} Trajectories*.nc Topology.prmtop".
                                  format(sys.argv[0]),
-                                 epilog="Load up an AMBER trajectories and their\
-                                 corresponding topology with MDtraj. Plot\
-                                 the PCA done with sklearn's PCA class")
+                                 epilog="Load up an AMBER trajectories and\
+                                 their corresponding topology with MDtraj.\
+                                 Plot the PCA done with sklearn's PCA class")
 
 parser.add_argument("Trajectories", help="An indefinite amount of AMBER\
                     trajectories", nargs="+")
 parser.add_argument("Topology", help="The topology .prmtop file that matches\
                     the trajectories")
-
 args = parser.parse_args()
+
 
 def load_Trajs(names, topology):
     filenames = sorted(glob.glob(names))

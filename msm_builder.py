@@ -74,6 +74,7 @@ def LabelTrajectories(TrajectorySet, nClusters):
 def function():
     pass
 
+
 def MakeSeveralClusters(TrajectorySet, cluster_list):
     """Returns a list with clustering method using different number of
     clusters 2^n with n ranging from 3 to 9 (cluster_list)"""
@@ -113,12 +114,12 @@ def saveTransMatrices(transmat_matrix):
             if os.path.exists("./{}".format(args.out_folder)):
                 np.savetxt("./{0}/Transmat_{1}clusters_{2}lagtime.dat".
                            format(args.out_folder, str(cluster_list[i]),
-                           str(lag_times[j])), item)
+                                  str(lag_times[j])), item)
             else:
                 os.mkdir("./{}".format(args.out_folder))
                 np.savetxt("./{0}/Transmat_{1}clusters_{2}lagtime.dat".
                            format(args.out_folder, str(cluster_list[i]),
-                           str(lag_times[j])), item)
+                                  str(lag_times[j])), item)
 
 
 def main():
