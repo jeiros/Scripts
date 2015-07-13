@@ -83,6 +83,3 @@ cpptraj <<- EOF
 		pcmin -100 pcmax 100 tmode 1 trajoutmask @CA,C,O,N,H trajoutfmt netcdf
 
 EOF
-
-
-
