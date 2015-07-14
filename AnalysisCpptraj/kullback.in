@@ -1,0 +1,26 @@
+readdata myevecs_CTnI_runs.000-600ns.dat name run1
+readdata myevecs_CTnT_hmr.000-650ns.dat name run2
+readdata myevecs_CTnT_runs.000-650ns.dat name run3
+# readdata myevecs_WT-run3.000-550ns.dat name run4
+
+# kde run1:2 kldiv run2:2 klout KL-PC1.dat bins 200 name PC1_r1-r2
+# kde run1:2 kldiv run3:2 klout KL-PC1.dat bins 200 name PC1_r1-r3
+# kde run2:2 kldiv run3:2 klout KL-PC1.dat bins 200 name PC1_r2-r3
+
+
+# kde run1:3 kldiv run2:3 klout KL-PC2.dat bins 200 name PC2_r1-r2
+# kde run1:3 kldiv run3:3 klout KL-PC2.dat bins 200 name PC2_r1-r3
+# kde run2:3 kldiv run3:3 klout KL-PC2.dat bins 200 name PC2_r2-r3
+
+
+
+# kde run1:4 kldiv run2:4 klout KL-PC3.dat bins 200 name PC3_r1-r2
+# kde run1:4 kldiv run3:4 klout KL-PC3.dat bins 200 name PC3_r1-r3
+# kde run2:4 kldiv run3:4 klout KL-PC3.dat bins 200 name PC3_r2-r3
+
+
+
+
+kde run1:2 out kde-PC.agr bins 400 name KDE-1
+hist run1:2,*,*,*,200 out pca.hist.agr normint name HIST1
+run
