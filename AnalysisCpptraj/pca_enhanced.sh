@@ -34,11 +34,11 @@ cpptraj <<- EOF
 
 	#Diagonalize the cov matrix and get first 3 eigenvectors
 	runanalysis diagmatrix matrix_covar out \
-		./evecs-ca_${name}.${simtime}ns.dat vecs 200 name \
+		./evecs-ca_${name}.${simtime}ns.dat vecs 20 name \
 		myEvecs
 
 	# Project fit and saved coordinates along eigenvectors
-	crdaction loaded_trajs projection PROJECT modes myEvecs beg 1 end 3 \
+	crdaction loaded_trajs projection PROJECT modes myEvecs beg 1 end 20 \
 		@CA,C,O,N,H out ./myevecs_${name}.${simtime}ns.dat
 
 	# Make normalized histogram of the 3 calculated projections
