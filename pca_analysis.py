@@ -35,22 +35,22 @@ def load_Trajs(names, topology):
     return trajectories
 
 
-def plot_PCA1(trajectory):
-    pca1 = PCA(n_components=2)
-    trajectory.superpose(trajectory, 0)
-    reduced_cartesian = pca1.fit_transform(trajectory.xyz.reshape(
-        trajectory.n_frames, trajectory.n_atoms * 3))
-    plt.figure()
-    plt.scatter(reduced_cartesian[:, 0], reduced_cartesian[:, 1], marker='x',
-                c=trajectory.time)
-    plt.xlabel('PC1')
-    plt.ylabel('PC2')
-    plt.title('Cartesian coordinate PCA')
-    cbar = plt.colorbar()
-    cbar.set_label('Time [ps]')
+def pca_cartesian(filenames, topology):
+    pca = PCA(n_components=2)
+    first_frame = md.load_frame(filenames[0], 0, top=topology)
+    pca_fits = []
+    sim_frame = []
+    for fragment in filenames:
+        for chunk in md.iterload(fragment, chunk=100, top=topology):
+            sim_frame.append(chunk.time)
+            chunk_superposed = chunk.superpose(first_frame)
+            pca_fits.append(pca.fit_transform(chunk.xyz.reshape(
+                            chunk.n_frames, chunk.n_atoms * 3)))
+    # print(len(sim_frame), len(pca_fits))
+    return (np.concatenate(pca_fits), np.concatenate(sim_frame))
 
 
-def plot_PCA2(trajectory):
+def pca_pwise_distance(trajectory):
     pca2 = PCA(n_components=2)
     atom_pairs = list(combinations(range(trajectory.n_atoms), 2))
     pairwise_distances = md.geometry.compute_distances(trajectory, atom_pairs)
@@ -65,17 +65,12 @@ def plot_PCA2(trajectory):
     cbar.set_label('Time [ps]')
 
 
-def plot_PCA3(filenames, topology):
-    pca = PCA(n_components=2)
-    first_frame = md.load_frame(filenames[0], 0, top=topology)
-    pca_fits = []
-    for fragment in filenames:
-        for chunk in md.iterload(fragment, chunk=100, top=topology):
-            chunk.superpose(chunk, first_frame)
-            pca_fits.append(
-                            pca.fit_transform(chunk.xyz.reshape(
-                            chunk.n_frames, chunk.n_atoms * 3)))
-    data_plot = np.concatenate(pca_fits)
+def load_Trajectories(filenames, topology):
+    pass
+
+
+def PCA_hexbinplot(pca_data):
+    pass
 
 
 def rmsd(filenames, topology):
