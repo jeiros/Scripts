@@ -8,7 +8,7 @@ Gives memory error for the moment
 
 import mdtraj as md
 import sys
-import glob
+from glob import glob
 import numpy as np
 import os
 import matplotlib.pyplot as plt
@@ -65,12 +65,34 @@ def plot_PCA2(trajectory):
     cbar.set_label('Time [ps]')
 
 
+def plot_PCA3(filenames, topology):
+    pca = PCA(n_components=2)
+    first_frame = md.load_frame(filenames[0], 0, top=topology)
+    pca_fits = []
+    for fragment in filenames:
+        for chunk in md.iterload(fragment, chunk=100, top=topology):
+            chunk.superpose(chunk, first_frame)
+            pca_fits.append(
+                            pca.fit_transform(chunk.xyz.reshape(
+                            chunk.n_frames, chunk.n_atoms * 3)))
+    data_plot = np.concatenate(pca_fits)
+
+
+def rmsd(filenames, topology):
+    rmsds = []
+    first_frame = md.load_frame(filenames[0], 0, top=topology)
+    for fragment in filenames:
+        for chunk in md.iterload(fragment, chunk=100, top=topology):
+            rmsds.append(md.rmsd(chunk, first_frame))
+    return np.concatenate(rmsds)
+
+
 def main():
     print('\n', args, '\n')
     if args:
-        trajectory = load_Trajs(args.Trajectories, args.Topology)
-        plot1 = plot_PCA1(trajectory)
-        # plot2 = plot_PCA2(trajectory)
+        rmsds = rmsd(args.Trajectories, args.Topology)
+        print(rmsds)
+
 
 if __name__ == "__main__":
     main()
