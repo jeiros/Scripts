@@ -28,6 +28,20 @@ Run:\t\t\t%s\nSim:\t\t\t%s\nCluster:\t\t%s\nPhosphorylation type:\t%s
 	exit 1
 fi
 
+hard_drive=/mnt/ntfs
+
+if [[ -d  "$hard_drive" ]]; then
+	printf "The hard drive is mounted\n\n"
+else
+	printf "The hard drive is not mounted\n"
+	printf "Please mount it and rerun script"
+	printf "Exiting now...\n\n"
+	exit 1
+fi
+
+
+
+
 
 cd ${DESTINATION}/
 printf "\n\nUntaring the simulation\nRun:\t\t\t%s\nSim:\t\t\t%s\nCluster:\t\t%s\nPhosphorylation type:\t%s\n" ${run} ${sim} ${cluster} ${phosphotype}
