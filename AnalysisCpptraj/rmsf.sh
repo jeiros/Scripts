@@ -3,25 +3,26 @@
 
 WORKDIR=$PWD
 
-cluster=$1
-simtime=000-250
+simtime=$1        # Can be 000-050, 000-0500, 100-150 ...
+name=$2        # Can be CTnI_hmr CTnI_runs CTnT_hmr CTnT_runs with _run1 _run2 ...
+                                # Example: CTnI_hmr-run3-S1P
+                                # Example: WT-run3
+prmtop=$3
+trajs=$4
 
 
-echo $cluster
-echo $simtime
 
-cd ${WORKDIR}/${cluster}/run1/S1P/
 
 cpptraj <<- EOF
-	parm ./repstr.c0_phosS1P_nowat.prmtop
-	trajin ./05_Prod*.nc
+	parm ${prmtop}
+	trajin ${trajs}
 	rms first
-	average avg_${cluster}_${simtime}ns.nc
-	run
-	reference avg_${cluster}_${simtime}ns.nc [ref1]
-	rms ref [ref1] mass @CA,C,O,N,H
-	atomicfluct out ${WORKDIR}/rmsf_${cluster}.${simtime}ns.dat @CA,C,O,N,H byres
+    average crdset average_structure
+    createcrd loaded_trajs
+    run
+	crdaction loaded_trajs rms ref average_structure @CA,C,O,N,H
+	atomicfluct out rmsf_${name}.${simtime}ns.dat @CA,C,O,N,H byres
 	run
 EOF
-cd ${WORKDIR}
+
 

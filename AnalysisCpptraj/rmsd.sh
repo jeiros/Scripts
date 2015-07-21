@@ -11,8 +11,8 @@ trajs=$4
 
 
 cpptraj <<- EOF
-	parm ./${prmtop}
-	trajin ./${trajs}
-	rms rmsd @CA,C,O,N,H first out ./rmsd_${name}.${simtime}ns.agr mass
+	parm ${prmtop}
+	trajin ${trajs}
+	rms rmsd @CA,C,O,N,H first out ./rmsd_${name}.${simtime}ns.dat mass
 	run
 EOF
