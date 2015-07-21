@@ -59,7 +59,7 @@ def generate_kde(data):
     """ Returns a list called kernels with the kernel density estimator for
     each value stored in the data list"""
     kernels = []
-    for i in range(0, len(args.files)):
+    for i in range(len(args.files)):
         values = np.vstack((data[i][0], data[i][1]))
         kernels.append(stats.gaussian_kde(values))
     return kernels
@@ -72,7 +72,7 @@ def generate_shape(kernels, minx, maxx, miny, maxy):
     <http://docs.scipy.org/doc/scipy-0.14.0/reference/generated/
     scipy.stats.gaussian_kde.html>"""
     shapes = []
-    for i in range(0, len(kernels)):
+    for i in range(len(kernels)):
         X, Y = np.mgrid[minx:maxx:100j, miny:maxy:100j]
         positions = np.vstack([X.ravel(), Y.ravel()])
         shape = X.shape
@@ -91,7 +91,7 @@ def generate_title_from_file(title):
 
 def plot(shapes, data, minx, maxx, miny, maxy):
     figs = []
-    for i in range(0, len(shapes)):
+    for i in range(len(shapes)):
         figs.append(plt.figure())
         ax = figs[i].add_subplot(111)
         figs[i].suptitle(generate_title_from_file(sys.argv[i + 1]),
