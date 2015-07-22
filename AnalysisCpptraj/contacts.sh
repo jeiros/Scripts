@@ -1,26 +1,25 @@
 #!/bin/bash
 
 
-WORKDIR=$PWD
+simtime=$1        # Can be 000-050, 000-0500, 100-150 ...
+name=$2        # Can be CTnI_hmr CTnI_runs CTnT_hmr CTnT_runs with _run1 _run2 ...
+                                # Example: CTnI_hmr-run3-S1P
+                                # Example: WT-run3
+prmtop=$3
 
-cluster=$1
-simtime=000-250
-
-
-echo $cluster
-echo $simtime
-
-cd ${WORKDIR}/${cluster}/run1/S1P/
+mask1=$4
+mask2=$5
+trajs=$6
 
 cpptraj <<- EOF
-	parm ./repstr.c0_phosS1P_nowat.prmtop
-	trajin ./05_Prod*.nc
-	rms first 
-	average avg_${cluster}_${simtime}ns.nc
-	run
-	reference avg_${cluster}_${simtime}ns.nc [ref1]
-	nativecontacts :1-161@CA :249-419@CA  distance 5.4 ref [ref1] byresidue resout ${WORKDIR}/TnCI_${cluster}.${simtime}ns.dat
-	nativecontacts :1-161@CA :162-248@CA  distance 5.4 ref [ref1] byresidue resout ${WORKDIR}/TnCT_${cluster}.${simtime}ns.dat
- 	nativecontacts :162-248@CA :249-419@C distance 5.4 ref [ref1] byresidue resout ${WORKDIR}/TnIT_${cluster}.${simtime}ns.dat
+    parm ${prmtop}
+    trajin ${trajs}
+    rms first
+    average crdset average_structure
+    createcrd loaded_trajs
+    run
+    crdaction loaded_trajs rms ref average_structure
+
+    nativecontacts ${mask1} ${mask2} ref average_structure byresidue resout cmap_${name}_${simtime}ns.dat
  	run
 EOF
