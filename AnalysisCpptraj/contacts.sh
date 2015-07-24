@@ -7,9 +7,7 @@ name=$2        # Can be CTnI_hmr CTnI_runs CTnT_hmr CTnT_runs with _run1 _run2 .
                                 # Example: WT-run3
 prmtop=$3
 
-mask1=$4
-mask2=$5
-trajs=$6
+trajs=$4
 
 cpptraj <<- EOF
     parm ${prmtop}
@@ -20,6 +18,9 @@ cpptraj <<- EOF
     run
     crdaction loaded_trajs rms ref average_structure
 
-    nativecontacts ${mask1} ${mask2} ref average_structure byresidue resout cmap_${name}_${simtime}ns.dat
+    nativecontacts :1-89    :396-412 ref average_structure byresidue resout cmap_${name}.${simtime}ns_NcTnC-switch.dat
+    nativecontacts :1-89    :386-395 ref average_structure byresidue resout cmap_${name}.${simtime}ns_NcTnC-inhib.dat
+    nativecontacts :1-89    :249-289 ref average_structure byresidue resout cmap_${name}.${simtime}ns_NcTnC-NcTnI.dat
+    nativecontacts :249-289 :386-395 ref average_structure byresidue resout cmap_${name}.${simtime}ns_NcTnI-inhib.dat
  	run
 EOF
