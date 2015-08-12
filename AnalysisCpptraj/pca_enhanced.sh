@@ -23,8 +23,8 @@ printf "%s\t\t\tTopology file\n" ${prmtop}
 printf "%s\t Trajectories\n\n" ${trajs}
 
 cpptraj <<- EOF
-	parm ./${prmtop}
-	trajin ./${trajs}
+	parm ${prmtop}
+	trajin ${trajs}
 	# Fit to first frame, create average structure, save coordinates
 	rms first
 	average crdset average_structure
@@ -66,7 +66,7 @@ cpptraj <<- EOF
 	# Create a topology for the backbone only
 	parm ./${prmtop}
 	parmstrip !(@CA,C,O,N,H)
-	parmwrite out ./repstr.c0_phosS1P_nowat_backbone.prmtop 
+	parmwrite out ./backbone.prmtop 
 
 	#Create a .nc trajectory with the modes of motion of the 1st PC
 	runanalysis modes name Evecs trajout ./${name}_${simtime}_1PCA.nc \

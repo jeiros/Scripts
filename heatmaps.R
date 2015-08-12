@@ -16,11 +16,21 @@ heat_map <- function(data, Title = "", xlab = "", ylab = "", stride_x = 3, strid
   
   library(ggplot2)
   
-  colnames(data) <- c("Res1", "Res2", "Contact")
-  data$Res2 <- data$Res2 - 248
-  if (max(data$Res1) > 89) {
+  colnames(data) <- c("Res1", "Res2", "Contact") 
+
+  if ((max(data$Res1) > 161) & (max(data$Res1) < 249)) {
+    data$Res1 <- data$Res1 - 162
+  } else if (max(data$Res1) >= 249) {
     data$Res1 <- data$Res1 - 248
   }
+  if ((max(data$Res2) > 161) & (max(data$Res2) < 249)) {
+    data$Res2 <- data$Res2 - 162
+  } else if (max(data$Res2) >= 249) {
+    data$Res2 <- data$Res2 - 248
+  }
+
+
+
   p <- ggplot(data, aes(Res1, Res2)) + geom_tile(aes(fill = Contact)) +
     scale_x_continuous(breaks = seq.int(min(data$Res1),max(data$Res1), by = stride_x)) +
     scale_y_continuous(breaks = seq.int(min(data$Res2),max(data$Res2), by = stride_y)) +

@@ -10,7 +10,7 @@ setwd("/home/je714/Troponin/IAN_Troponin/completehowarthcut/phospho/hmr_runs/try
 
 
 pc1 <- read.table("./KL-PC1.dat", quote="\"")
-pc2 <- read.table("./KL-PC3.dat", quote="\"")
+pc2 <- read.table("./KL-PC2.dat", quote="\"")
 pc3 <- read.table("./KL-PC3.dat", quote="\"")
 
 
