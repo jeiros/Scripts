@@ -19,12 +19,12 @@ heat_map <- function(data, Title = "", xlab = "", ylab = "", stride_x = 3, strid
   colnames(data) <- c("Res1", "Res2", "Contact") 
 
   if ((max(data$Res1) > 161) & (max(data$Res1) < 249)) {
-    data$Res1 <- data$Res1 - 162
+    data$Res1 <- data$Res1 - 161
   } else if (max(data$Res1) >= 249) {
     data$Res1 <- data$Res1 - 248
   }
   if ((max(data$Res2) > 161) & (max(data$Res2) < 249)) {
-    data$Res2 <- data$Res2 - 162
+    data$Res2 <- data$Res2 - 161
   } else if (max(data$Res2) >= 249) {
     data$Res2 <- data$Res2 - 248
   }
