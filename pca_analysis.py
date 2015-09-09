@@ -26,6 +26,8 @@ parser.add_argument("Trajectories", help="An indefinite amount of AMBER\
                     trajectories", nargs="+")
 parser.add_argument("Topology", help="The topology .prmtop file that matches\
                     the trajectories")
+parser.add_argument("-s", "--save", help="Save the plots as .png images",
+                    action="store_true")
 args = parser.parse_args()
 
 
@@ -46,9 +48,9 @@ def pca_cartesian(filenames, topology):
             chunk_superposed = chunk.superpose(first_frame)
             pca_fits.append(pca.fit_transform(chunk.xyz.reshape(
                             chunk.n_frames, chunk.n_atoms * 3)))
-    # print(len(sim_frame), len(pca_fits))
-    return (np.concatenate(pca_fits), np.concatenate(sim_frame))
-
+    print(len(sim_frame), len(pca_fits))
+    results = np.concatenate(pca_fits), np.concatenate(sim_frame)
+    plt.scatter(results[0][:,0], results[0][:,1])
 
 def pca_pwise_distance(trajectory):
     pca2 = PCA(n_components=2)
@@ -62,7 +64,11 @@ def pca_pwise_distance(trajectory):
     plt.ylabel('PC2')
     plt.title('Pairwise distance PCA: alanine dipeptide')
     cbar = plt.colorbar()
-    cbar.set_label('Time [ps]')
+    cbar.set_label('Time [ns]')
+    if args.save:
+        plt.savefig("test.png")
+    else:
+        plt.show()
 
 
 def load_Trajectories(filenames, topology):
@@ -85,8 +91,8 @@ def rmsd(filenames, topology):
 def main():
     print('\n', args, '\n')
     if args:
-        rmsds = rmsd(args.Trajectories, args.Topology)
-        print(rmsds)
+        pca_cartesian(args.Trajectories, args.Topology)
+
 
 
 if __name__ == "__main__":
