@@ -34,7 +34,8 @@ heat_map <- function(data, Title = "", xlab = "", ylab = "", stride_x = 3, strid
   p <- ggplot(data, aes(Res1, Res2)) + geom_tile(aes(fill = Contact)) +
     scale_x_continuous(breaks = seq.int(min(data$Res1),max(data$Res1), by = stride_x)) +
     scale_y_continuous(breaks = seq.int(min(data$Res2),max(data$Res2), by = stride_y)) +
-    scale_fill_gradient(low = "white", high = "steelblue") + theme_classic(15) +
+    scale_fill_gradient(low = "white", high = "steelblue") + 
+    theme_classic(15) +
     labs(title = Title, x = xlab, y = ylab)
   return(p)
 }
