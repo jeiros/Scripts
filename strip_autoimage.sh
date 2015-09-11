@@ -10,6 +10,37 @@ sim=$2		  # Can be 000-050, 050-100, 100-150 ...
 cluster=$3        # Can be CTnI_hmr CTnI_runs CTnT_hmr CTnT_runs
 phosphotype=$4    # Can be S1P or SEP
 
+if [[ -z ${run+x} ]]; then
+	printf "Variable %s is missing" ${run}
+	printf "Exiting now... \n\n"
+	exit 1
+else
+	printf "Variable %s is set" ${run}
+fi
+
+if [[ -z ${sim+x} ]]; then
+	printf "Variable %s is missing" ${sim}
+	printf "Exiting now... \n\n"
+	exit 1
+else
+	printf "Variable %s is set" ${sim}
+fi
+
+if [[ -z ${cluster+x} ]]; then
+	printf "Variable %s is missing" ${cluster}
+	printf "Exiting now... \n\n"
+	exit 1
+else
+	printf "Variable %s is set" ${cluster}
+fi
+
+if [[ -z ${phosphotype+x} ]]; then
+	printf "Variable %s is missing" ${phosphotype}
+	printf "Exiting now... \n\n"
+	exit 1
+else
+	printf "Variable %s is set" ${phosphotype}
+fi
 
 WORKDIR=$PWD
 printf "\nCurrent directory is %s\n" $WORKDIR
