@@ -15,7 +15,7 @@ if [[ -z ${run+x} ]]; then
 	printf "Exiting now... \n\n"
 	exit 1
 else
-	printf "Variable %s is set" ${run}
+	:
 fi
 
 if [[ -z ${sim+x} ]]; then
@@ -23,7 +23,7 @@ if [[ -z ${sim+x} ]]; then
 	printf "Exiting now... \n\n"
 	exit 1
 else
-	printf "Variable %s is set" ${sim}
+	:
 fi
 
 if [[ -z ${cluster+x} ]]; then
@@ -31,7 +31,7 @@ if [[ -z ${cluster+x} ]]; then
 	printf "Exiting now... \n\n"
 	exit 1
 else
-	printf "Variable %s is set" ${cluster}
+	:
 fi
 
 if [[ -z ${phosphotype+x} ]]; then
@@ -39,7 +39,7 @@ if [[ -z ${phosphotype+x} ]]; then
 	printf "Exiting now... \n\n"
 	exit 1
 else
-	printf "Variable %s is set" ${phosphotype}
+	:
 fi
 
 WORKDIR=$PWD
@@ -71,7 +71,17 @@ else
 fi
 
 
+cat << "EOF"
 
+ _____  _   _  _____  _____  _____  _____  _____  _ 
+/  ___|| | | |/  __ \/  __ \|  ___|/  ___|/  ___|| |
+\ `--. | | | || /  \/| /  \/| |__  \ `--. \ `--. | |
+ `--. \| | | || |    | |    |  __|  `--. \ `--. \| |
+/\__/ /| |_| || \__/\| \__/\| |___ /\__/ //\__/ /|_|
+\____/  \___/  \____/ \____/\____/ \____/ \____/ (_)
+                                                    
+                                                    
+EOF
 
 
 cd ${DESTINATION}/
