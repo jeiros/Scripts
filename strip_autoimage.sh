@@ -120,5 +120,13 @@ printf "\n\nMoving everything to the hard drive\n\n"
 mv ${DESTINATION}/ /mnt/ntfs/completehowarthcut/phospho/hmr_runs/${cluster}/${run}/${phosphotype}/${sim}/
 cp ./${cluster}/${run}/${phosphotype}/05_Prod_${cluster}_${sim}ns_${run}.nc /mnt/ntfs/completehowarthcut/phospho/hmr_runs/${cluster}/${run}/${phosphotype}/
 
-
+cat << "EOF"
+______  _____  _   _  _____  _ 
+|  _  \|  _  || \ | ||  ___|| |
+| | | || | | ||  \| || |__  | |
+| | | || | | || . ` ||  __| | |
+| |/ / \ \_/ /| |\  || |___ |_|
+|___/   \___/ \_| \_/\____/ (_)
+                               
+EOF
 
