@@ -71,10 +71,6 @@ def LabelTrajectories(TrajectorySet, nClusters):
     return labels
 
 
-def function():
-    pass
-
-
 def MakeSeveralClusters(TrajectorySet, cluster_list):
     """Returns a list with clustering method using different number of
     clusters 2^n with n ranging from 3 to 9 (cluster_list)"""
