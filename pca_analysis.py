@@ -32,7 +32,7 @@ args = parser.parse_args()
 
 
 def load_Trajs(names, topology):
-    filenames = sorted(glob.glob(names))
+    filenames = sorted(glob(names))
     trajectories = md.load(filenames, top=topology)
     return trajectories
 
