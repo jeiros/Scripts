@@ -1,0 +1,67 @@
+--- conectarse a boren : 
+ssh -X -l jeiros 172.16.31.19
+
+--- para dejar un calculo haciendose, pudiendo matar el terminal:         
+nohup      autodock4 -p nombre.dpf -l nombre.dlg          &   
+
+--- para copiar de boren a ubuntu abrir terminal en el home de ubuntu (importante, si lo abro en boren no funca) y poner:
+
+scp jeiros@172.16.31.19:/home/jeiros/Dockings.../nombrefichero.extension .
+
+ (el punto del final es el directorio de llegada a ubuntu del fichero, el punto es donde has abierto el terminal, osea el home de ubuntu) para copiar de ubuntu a boren es lo mismo invirtiendo el orden de salida y llegada de los ficheros
+
+
+--- para definir una variable, abrir con gedit el archivo .bashrc (este archivo se ejecuta cada vez que abres un terminal) y añadir : 
+export NOMBREVARIABLE=ruta del directorio donde esta instalado el programa  
+ 
+
+--- para añadir la variable nueva que se ha definido al PATH
+export PATH=$NOMBREVARIABLE:$PATH 
+ (en el fondo lo que haces es definir la variable PATH de nuevo como tu nueva variable + lo que ya hay en el PATH)
+
+
+--- para dar o quitar permisos de lectura, escritura o ejecucion de directorios: 
+ 
+ las carpetas tienen delante 10 digitos. El primero es d (de directorio) y luego vienen hasta nueve letras. Las 3 primeras son para el usuario (u, de user) , las 3 siguientes para el grupo (g, de group)  y las 3 ultimas para cualquier otra persona (otra persona se podria conectar a mi ordenador desde el exterior) (o, de others). Las 3 letras posibles son r (read) w (write) x (execute). Si hay un guion, quiere decir que esa opcion no está disponible. Para cambiar todo esto, se usa el comando sudo chmod. Se pueden dar mas permisos con un +, o quitar permisos con un -. Por ejemplo, si escribo 
+sudo chmod go-w nombrecarpeta/
+ , estoy quitándole permisos de escritura al grupo y a los demás. 
+
+--- se puede cambiar el dueño de una carpeta y de todas las carpetas de dentro suya, usando el comando:
+sudo chown -R usuario:grupo nombrecarpeta/ 
+
+--- usar la calculadora
+bc -l
+
+--- para hacer un gráfico de Lowest Energy vs. Nº de generaciones, entrar el comando: 
+grep "Lowest energy": docking.dlg | cut -d " " -f14,19 | head -n 17 > test.txt
+
+ esto seleccionará ambas columnas (la energia y las generaciones ) de todos los runs que haya en el documento docking.dlg. Para graficar solo uno de los runs (el primero por ejemplo, no importa, es para ver si el nº de generaciones que hemos escogido está bien, si converge la energía), se seleccionan solo las primeras 17 lineas (este numero puede variar) y se vuelcan en un documento llamado test.txt
+
+ luego entramos en GNUPLOT y ponemos: 
+p 'test.txt' u 2:1
+ poner u 2:1 hara que el eje de las y sea la energia y el eje de las x sean las generaciones
+
+--- para guardar los graficos de gnuplot
+set term png
+set output 'nombre.png'
+replot
+quit
+ importante poner quit, porque cualquier cosa que se hiciese luego machacaría la imagen generada
+
+
+
+
+
+--- para contar dockings con cutoff de rmsd y energia
+
+awk '$2<2 && $4<-18' nombrefichero.dat.ene | wc -l
+
+
+
+
+--- usar sed. cambia la palabra1 por la palabra2 dentro del fichero input y lo escribe en el fichero output
+sed s/palabra1/palabra2/g input > output
+
+
+
+

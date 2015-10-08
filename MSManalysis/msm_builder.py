@@ -37,7 +37,7 @@ parser.add_argument("-o", "--out_folder", default="msmResults", help="Name of\
 args = parser.parse_args()
 
 lag_times = [1, 20, 50, 100, 200, 400]
-cluster_list = [8, 16, 32, 64, 128, 256, 512]  # 2^n with n(3..9)
+cluster_list = [2**n for n in range(3,11)]  # 2^n with n(3..10)
 
 
 def loadTrajs(names, top):
