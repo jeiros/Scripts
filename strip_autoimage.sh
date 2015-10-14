@@ -59,10 +59,11 @@ Run:\t\t\t%s\nSim:\t\t\t%s\nCluster:\t\t%s\nPhosphorylation type:\t%s
 	exit 1
 fi
 
-hard_drive=/mnt/ntfs
+hard_drive=/mnt/hd2/completehowarthcut/phospho/hmr_runs/${cluster}/${run}/${phosphotype}/
 
 if [[ -d  "$hard_drive" ]]; then
-	printf "The hard drive is mounted\n\n"
+	printf "The hard drive is mounted\n"
+	printf "The destination directory in the hard drive exists\n"
 else
 	printf "The hard drive is not mounted\n"
 	printf "Please mount it and rerun script"
@@ -109,6 +110,9 @@ cpptraj <<- EOF
 	run
 EOF
 
+# Move the restart file to the Hard Drive
+scp ${DESTINATION}/*.rst /mnt/hd2/completehowarthcut/phospho/hmr_runs/${cluster}/${run}/${phosphotype}/
+
 
 cd ${DESTINATION}/
 printf "\n\nErasing everything that was untarred\n\n"
@@ -117,8 +121,11 @@ find ! -name '*.tgz' -type f -exec rm -f {} +
 
 cd $WORKDIR
 printf "\n\nMoving everything to the hard drive\n\n"
-mv ${DESTINATION}/ /mnt/ntfs/completehowarthcut/phospho/hmr_runs/${cluster}/${run}/${phosphotype}/${sim}/
-cp ./${cluster}/${run}/${phosphotype}/05_Prod_${cluster}_${sim}ns_${run}.nc /mnt/ntfs/completehowarthcut/phospho/hmr_runs/${cluster}/${run}/${phosphotype}/
+# Move the tared file inside (and its containing directory) to the hard drive
+mv ${DESTINATION}/ /mnt/hd2/completehowarthcut/phospho/hmr_runs/${cluster}/${run}/${phosphotype}/${sim}/
+
+# Copy the stripped and autoimaged trajectory to the hard drive
+scp ./${cluster}/${run}/${phosphotype}/05_Prod_${cluster}_${sim}ns_${run}.nc /mnt/hd2/completehowarthcut/phospho/hmr_runs/${cluster}/${run}/${phosphotype}/
 
 cat << "EOF"
 ______  _____  _   _  _____  _ 
