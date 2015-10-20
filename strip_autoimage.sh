@@ -93,24 +93,17 @@ tar zxvf ${run}_${cluster}_${sim}.tgz
 
 cd $WORKDIR
 printf "\n\nStripping waters out...\n\n"
+printf "\n\nAutoimaging...\n\n"
 cpptraj <<- EOF
 	parm /home/je714/Troponin/IAN_Troponin/completehowarthcut/phospho/structures/${cluster}/repstr.c0_phos${phosphotype}_watsalthmr.prmtop
 	trajin ${DESTINATION}/05_Prod_${cluster}.phos${phosphotype}.${sim}_${run}.nc
 	strip :WAT
-	trajout ${DESTINATION}/${sim}.nc
-	run
-EOF
-printf "\n\nAutoimaging...\n\n"
-
-cpptraj <<- EOF
-	parm ./${cluster}/${run}/${phosphotype}/repstr.c0_phos${phosphotype}_nowat.prmtop
-	trajin ${DESTINATION}/${sim}.nc
 	autoimage
 	trajout ./${cluster}/${run}/${phosphotype}/05_Prod_${cluster}_${sim}ns_${run}.nc
 	run
 EOF
 
-# Move the restart file to the Hard Drive
+printf "Move the restart file to the Hard Drive"
 scp ${DESTINATION}/*.rst /mnt/hd2/completehowarthcut/phospho/hmr_runs/${cluster}/${run}/${phosphotype}/
 
 
