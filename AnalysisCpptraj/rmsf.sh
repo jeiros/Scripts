@@ -1,7 +1,6 @@
 #!/bin/bash
 
 
-WORKDIR=$PWD
 
 simtime=$1        # Can be 000-050, 000-0500, 100-150 ...
 name=$2        # Can be CTnI_hmr CTnI_runs CTnT_hmr CTnT_runs with _run1 _run2 ...
@@ -11,9 +10,7 @@ prmtop=$3
 trajs=$4
 
 
-
 cpptraj <<- EOF
-    # Step 1 - create average structure, rms-fit to first frame
     parm ${prmtop}
     trajin ${trajs}
     rms first @CA,C,O,N,H
@@ -21,6 +18,6 @@ cpptraj <<- EOF
     run
     # Step 2 - rms fit to average and calculate atomic flucts
     rms ref average_structure @CA,C,O,N,H
-    atomicfluct out rmsf_danroe.dat @CA,C,O,N,H byres
+    atomicfluct out rmsf_${name}.${simtime}ns.dat @CA,C,O,N,H byres
     run
 EOF
