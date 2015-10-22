@@ -75,8 +75,8 @@ def hex_plot(pca_array):
     PC1 = pca_array[:,0]
     PC2 = pca_array[:,1]
     plt.figure()
-    plt.xlabel('PC1 (nm)')
-    plt.ylabel('PC2 (nm)')
+    plt.xlabel('PC1 (Å)')
+    plt.ylabel('PC2 (Å)')
     plt.hexbin(x=PC1, y=PC2, bins='log', mincnt=1)
     if args.save:
         plt.savefig("PCA.png", dpi=600)
