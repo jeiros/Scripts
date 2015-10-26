@@ -1,0 +1,9 @@
+#1:preset apply int 1
+#1:disp :CAL
+#1:sel :CAL
+#1:color white sel
+#1:represent sphere sel
+#1:disp :240,242
+#1:disp :271,272
+#1:~disp :Na+,Cl-
+#1:~sel
