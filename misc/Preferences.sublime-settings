@@ -1,0 +1,16 @@
+{
+	"auto_complete": true,
+	"color_scheme": "Packages/User/SublimeLinter/Flatland Dark (SL).tmTheme",
+	"flatland_square_tabs": true,
+	"ignored_packages":
+	[
+		"Vintage"
+	],
+	"show_minimap": true,
+	"sublimelinter": false,
+	"tab_size": 4,
+	"theme": "Flatland Dark.sublime-theme",
+	"translate_tabs_to_spaces": true,
+	"word_wrap": false
+}
+
