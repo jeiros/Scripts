@@ -475,8 +475,8 @@ color scale colors WBlk {1.0 1.0 1.0} {0.5 0.5 0.5} {0.0 0.0 0.0}
 }
 vmdrestoremycolors
 label textsize 1.0
-menu main move 0 0 
+menu main move 100 100
 menu graphics on
-menu graphics move 0 1920
+menu graphics move 100 400
 menu tkcon off
 axes location off
