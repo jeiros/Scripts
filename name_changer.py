@@ -12,7 +12,7 @@ import argparse
 import sys
 
 parser = argparse.ArgumentParser(
-                usage="{} Trajectories*.nc".format(sys.argv[0]),
+		usage="{} Trajectories*.nc".format(sys.argv[0]),
                 epilog="""Changes the naming of the selected trajectory files
                  from 3-digit numbering to 4-digit numbering""")
 
@@ -29,7 +29,7 @@ args = parser.parse_args()
 def namechange(files, pattern):
     for pathname in files:
         basename = os.path.basename(pathname)
-        final_name = []
+	final_name = []
         new_filename = basename
         match = pattern.match(str(basename))
         if match is not None:

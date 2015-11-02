@@ -49,30 +49,46 @@ parser.add_argument("-t", "--title", help="""Name of the png image where the PCA
 args = parser.parse_args()
 
 
-def load_Trajs(names, topology, stride=1, chunk=50):
-    list_chunks = []
+# def load_Trajs(names, topology, stride=1, chunk=50):
+#     list_chunks = []
+#     for file in names:
+#         for frag in md.iterload(file, chunk=chunk, top=topology,
+#                                 stride=stride):
+#             list_chunks.append(frag)
+#     return(list_chunks)
+
+
+def load_Trajs_generator(names, topology, stride=1, chunk=50):
     for file in names:
         for frag in md.iterload(file, chunk=chunk, top=topology,
                                 stride=stride):
-            list_chunks.append(frag)
-    return(list_chunks)
+            yield frag
 
 
-def pca_pwise_distance(list_chunks):
+# def pca_pwise_distance(list_chunks, topology):
+#     pca = PCA(n_components=2)
+#     ca_backbone = topology.select("backbone and name CA")
+#     pair_distances = []
+
+#     for chunk in list_chunks:
+#         pairs = topology.select_pairs(ca_backbone, ca_backbone)
+#         X = md.compute_distances(chunk, pairs)
+#         pair_distances.append(X)
+#     distance_array = np.concatenate(pair_distances)
+#     print("Number of data points: %d" % distance_array.shape[0])
+#     print("Number of features (pairwise distances): %d" % distance_array.shape[1])
+#     Y = pca.fit_transform(distance_array)
+#     return Y
+
+
+def pca_pwise_distance_generator(traj_generator, topology):
     pca = PCA(n_components=2)
-    topology = list_chunks[0].topology
     ca_backbone = topology.select("backbone and name CA")
-    pair_distances = []
-
-    for chunk in list_chunks:
-        pairs = topology.select_pairs(ca_backbone, ca_backbone)
-        X = md.compute_distances(chunk, pairs)
-        pair_distances.append(X)
-    distance_array = np.concatenate(pair_distances)
-    print("Number of data points: %d" % distance_array.shape[0])
-    print("Number of features (pairwise distances): %d" % distance_array.shape[1])
-    Y = pca.fit_transform(distance_array)
-    return Y
+    pairs = topology.select_pairs(ca_backbone, ca_backbone)
+    for trajectory in traj_generator:
+        X = md.compute_distances(trajectory, pairs)
+        Y = pca.fit_transform(X)
+        yield Y
 
 
 def hex_plot(pca_array):
