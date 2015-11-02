@@ -51,6 +51,7 @@ parser.add_argument("-t", "--title", help="""Name of the png image where the PCA
 
 args = parser.parse_args()
 
+
 # Using generators
 def load_Trajs_generator(names, topology, stride, chunk):
     for file in names:
@@ -59,15 +60,14 @@ def load_Trajs_generator(names, topology, stride, chunk):
             yield frag
 
 
-def pca_pwise_distance_generator(traj_generator, topology):
-    pca = PCA(n_components=2)
+def pwise_distance_generator(traj_generator, topology):
     top = md.load_prmtop(topology)
     ca_backbone = top.select("backbone and name CA")
     pairs = top.select_pairs(ca_backbone, ca_backbone)
     for trajectory in traj_generator:
         X = md.compute_distances(trajectory, pairs)
-        Y = pca.fit_transform(X)
-        yield Y
+        yield X
+
 
 # Using lists
 def load_Trajs(names, topology, stride=1, chunk=50):
@@ -81,7 +81,7 @@ def load_Trajs(names, topology, stride=1, chunk=50):
 
 def pca_pwise_distance(list_chunks, topology):
     pca = PCA(n_components=2)
-      = md.load_prmtop(topology)
+    top = md.load_prmtop(topology)
     ca_backbone = top.select("backbone and name CA")
     pairs = top.select_pairs(ca_backbone, ca_backbone)
     pair_distances = []
@@ -93,8 +93,6 @@ def pca_pwise_distance(list_chunks, topology):
     print("Number of features (pairwise distances): %d" % distance_array.shape[1])
     Y = pca.fit_transform(distance_array)
     return Y
-
-
 
 
 # Plotting functions
@@ -138,10 +136,10 @@ def main():
                                                   args.Topology,
                                                   stride=args.stride,
                                                   chunk=args.chunk)
-            pca_generator = pca_pwise_distance_generator(traj_generator,
-                                                         args.Topology)
-            pca_array = np.concatenate(list(pca_generator))
-
+            pwise_distance = pwise_distance_generator(traj_generator,
+                                                      args.Topology)
+            pca = PCA(n_components=2)
+            pca_array = pca.fit_transform(pwise_distance)
         if args.Plot_type == 'scatter':
             scatter_plot(pca_array)
         else:
