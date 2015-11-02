@@ -31,6 +31,9 @@ parser.add_argument("Plot_type", help="""The type of plot to be used. Can
                     be a scatter plot or a hexbin plot.""",
                     choices=['scatter', 'hexbin'])
 
+parser.add_argument("Method", help="""Choose generator method or classic method""",
+                    choices=['generator', 'classic'])
+
 parser.add_argument("-s", "--save", help="Save the plots as .png images",
                     action="store_true")
 
@@ -41,56 +44,60 @@ parser.add_argument("-st", "--stride", help="""Stride for the loading of the
 parser.add_argument("-ch", "--chunk", help="""Number of frames that will be 
                     used by md.iterload to load up the trajectories. Must be
                     a multiplier of the stride.
-                    Default is 50 frames.""", default=1, type=int)
+                    Default is 100 frames.""", default=100, type=int)
 
 parser.add_argument("-t", "--title", help="""Name of the png image where the PCA
                     plot is stored. Default is PCA.""", default="PCA")
 
 args = parser.parse_args()
 
-
-# def load_Trajs(names, topology, stride=1, chunk=50):
-#     list_chunks = []
-#     for file in names:
-#         for frag in md.iterload(file, chunk=chunk, top=topology,
-#                                 stride=stride):
-#             list_chunks.append(frag)
-#     return(list_chunks)
-
-
-def load_Trajs_generator(names, topology, stride=1, chunk=50):
+# Using generators
+def load_Trajs_generator(names, topology, stride, chunk):
     for file in names:
         for frag in md.iterload(file, chunk=chunk, top=topology,
                                 stride=stride):
             yield frag
 
 
-# def pca_pwise_distance(list_chunks, topology):
-#     pca = PCA(n_components=2)
-#     ca_backbone = topology.select("backbone and name CA")
-#     pair_distances = []
-
-#     for chunk in list_chunks:
-#         pairs = topology.select_pairs(ca_backbone, ca_backbone)
-#         X = md.compute_distances(chunk, pairs)
-#         pair_distances.append(X)
-#     distance_array = np.concatenate(pair_distances)
-#     print("Number of data points: %d" % distance_array.shape[0])
-#     print("Number of features (pairwise distances): %d" % distance_array.shape[1])
-#     Y = pca.fit_transform(distance_array)
-#     return Y
-
-
 def pca_pwise_distance_generator(traj_generator, topology):
     pca = PCA(n_components=2)
-    ca_backbone = topology.select("backbone and name CA")
-    pairs = topology.select_pairs(ca_backbone, ca_backbone)
+    top = md.load_prmtop(topology)
+    ca_backbone = top.select("backbone and name CA")
+    pairs = top.select_pairs(ca_backbone, ca_backbone)
     for trajectory in traj_generator:
         X = md.compute_distances(trajectory, pairs)
         Y = pca.fit_transform(X)
         yield Y
 
+# Using lists
+def load_Trajs(names, topology, stride=1, chunk=50):
+    list_chunks = []
+    for file in names:
+        for frag in md.iterload(file, chunk=chunk, top=topology,
+                                stride=stride):
+            list_chunks.append(frag)
+    return(list_chunks)
 
+
+def pca_pwise_distance(list_chunks, topology):
+    pca = PCA(n_components=2)
+      = md.load_prmtop(topology)
+    ca_backbone = top.select("backbone and name CA")
+    pairs = top.select_pairs(ca_backbone, ca_backbone)
+    pair_distances = []
+    for chunk in list_chunks:
+        X = md.compute_distances(chunk, pairs)
+        pair_distances.append(X)
+    distance_array = np.concatenate(pair_distances)
+    print("Number of data points: %d" % distance_array.shape[0])
+    print("Number of features (pairwise distances): %d" % distance_array.shape[1])
+    Y = pca.fit_transform(distance_array)
+    return Y
+
+
+
+
+# Plotting functions
 def hex_plot(pca_array):
     PC1 = pca_array[:, 0]
     PC2 = pca_array[:, 1]
@@ -122,9 +129,19 @@ def scatter_plot(pca_array):
 def main():
     print('\n', args, '\n')
     if args:
-        list_chunks = load_Trajs(sorted(args.Trajectories), args.Topology,
-                                 stride=args.stride, chunk=args.chunk)
-        pca_array = pca_pwise_distance(list_chunks)
+        if args.Method == 'classic':
+            list_chunks = load_Trajs(sorted(args.Trajectories), args.Topology,
+                                     stride=args.stride, chunk=args.chunk)
+            pca_array = pca_pwise_distance(list_chunks, args.Topology)
+        else:
+            traj_generator = load_Trajs_generator(sorted(args.Trajectories),
+                                                  args.Topology,
+                                                  stride=args.stride,
+                                                  chunk=args.chunk)
+            pca_generator = pca_pwise_distance_generator(traj_generator,
+                                                         args.Topology)
+            pca_array = np.concatenate(list(pca_generator))
+
         if args.Plot_type == 'scatter':
             scatter_plot(pca_array)
         else:
