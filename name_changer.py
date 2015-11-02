@@ -10,6 +10,7 @@ import re
 import os
 import argparse
 import sys
+
 parser = argparse.ArgumentParser(
                 usage="{} Trajectories*.nc".format(sys.argv[0]),
                 epilog="""Changes the naming of the selected trajectory files
@@ -17,8 +18,10 @@ parser = argparse.ArgumentParser(
 
 parser.add_argument("Trajectories", help="An indefinite amount of AMBER\
                     trajectories", nargs="+")
-parser.add_argument("-c", "--change", help="""""Actually perform the name 
-    change. Default is false.""""",action="store_true")
+
+parser.add_argument("-c", "--change", help="""Actually perform the name 
+    change. Default is false.""",action="store_true")
+
 args = parser.parse_args()
 
 
@@ -50,7 +53,7 @@ def namechange(files, pattern):
             os.rename(
                 pathname,
                 os.path.join(os.path.dirname(pathname), new_filename))
-        print(basename, "----->", new_filename, "\n")
+        print(basename, "\t", "----->", "\t", new_filename, "\n")
 
 
 def main():

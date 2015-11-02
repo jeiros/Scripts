@@ -6,12 +6,9 @@ http://mdtraj.org/latest/examples/pca.html
 
 import mdtraj as md
 import sys
-from glob import glob
 import numpy as np
-import os
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
-from itertools import combinations
 import argparse
 
 parser = argparse.ArgumentParser(usage="""{} Trajectories*.nc Topology.prmtop""".
@@ -20,7 +17,7 @@ parser = argparse.ArgumentParser(usage="""{} Trajectories*.nc Topology.prmtop"""
                                  trajectories and their corresponding topology
                                  with MDtraj.Calculate a two-component PCA
                                  based on the pairwise distance between alpha
-                                 carbons of the protein bakcbone. Plot a 
+                                 carbons of the protein bakcbone. Plot a
                                  or scatter plot projection of the trajectories
                                  onto the PC space""")
 
@@ -43,7 +40,7 @@ parser.add_argument("-st", "--stride", help="""Stride for the loading of the
 
 parser.add_argument("-ch", "--chunk", help="""Number of frames that will be 
                     used by md.iterload to load up the trajectories. Must be
-                    a multiplier of the stride. 
+                    a multiplier of the stride.
                     Default is 50 frames.""", default=1, type=int)
 
 parser.add_argument("-t", "--title", help="""Name of the png image where the PCA
@@ -52,13 +49,14 @@ parser.add_argument("-t", "--title", help="""Name of the png image where the PCA
 args = parser.parse_args()
 
 
-def load_Trajs(names, topology, stride=1, chunk = 50):
+def load_Trajs(names, topology, stride=1, chunk=50):
     list_chunks = []
     for file in names:
-        for frag in md.iterload(file, chunk = chunk, top = topology,
+        for frag in md.iterload(file, chunk=chunk, top=topology,
                                 stride=stride):
             list_chunks.append(frag)
     return(list_chunks)
+
 
 def pca_pwise_distance(list_chunks):
     pca = PCA(n_components=2)
@@ -71,14 +69,15 @@ def pca_pwise_distance(list_chunks):
         X = md.compute_distances(chunk, pairs)
         pair_distances.append(X)
     distance_array = np.concatenate(pair_distances)
-    print("Number of data points: %d"% distance_array.shape[0])
+    print("Number of data points: %d" % distance_array.shape[0])
     print("Number of features (pairwise distances): %d" % distance_array.shape[1])
     Y = pca.fit_transform(distance_array)
     return Y
 
+
 def hex_plot(pca_array):
-    PC1 = pca_array[:,0]
-    PC2 = pca_array[:,1]
+    PC1 = pca_array[:, 0]
+    PC2 = pca_array[:, 1]
     plt.figure()
     plt.xlabel('PC1 (Å)')
     plt.ylabel('PC2 (Å)')
@@ -90,9 +89,10 @@ def hex_plot(pca_array):
     else:
         plt.show()
 
+
 def scatter_plot(pca_array):
-    PC1 = pca_array[:,0]
-    PC2 = pca_array[:,1]
+    PC1 = pca_array[:, 0]
+    PC2 = pca_array[:, 1]
     plt.figure()
     plt.xlabel('PC1 (Å)')
     plt.ylabel('PC2 (Å)')
@@ -101,6 +101,7 @@ def scatter_plot(pca_array):
         plt.savefig(args.title, dpi=600)
     else:
         plt.show()
+
 
 def main():
     print('\n', args, '\n')

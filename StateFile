@@ -478,5 +478,6 @@ label textsize 1.0
 menu main move 100 100
 menu graphics on
 menu graphics move 100 400
+menu display move 400 100
 menu tkcon off
 axes location off
