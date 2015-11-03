@@ -53,9 +53,9 @@ args = parser.parse_args()
 
 
 # Using generators
-def load_Trajs_generator(names, topology, stride, chunk):
-    for file in names:
-        for frag in md.iterload(file, chunk=chunk, top=topology,
+def load_Trajs_generator(traj_list, topology, stride, chunk):
+    for traj in traj_list:
+        for frag in md.iterload(traj, chunk=chunk, top=topology,
                                 stride=stride):
             yield frag
 
@@ -70,16 +70,24 @@ def pwise_distance_generator(traj_generator, topology):
 
 
 # Using lists
-def load_Trajs(names, topology, stride=1, chunk=50):
+def load_Trajs(traj_list, topology, stride, chunk):
+    """
+    Returns a list of mdtraj.Trajectory objects with 'chunk' frames
+    """
     list_chunks = []
-    for file in names:
-        for frag in md.iterload(file, chunk=chunk, top=topology,
+    for traj in traj_list:
+        for frag in md.iterload(traj, chunk=chunk, top=topology,
                                 stride=stride):
             list_chunks.append(frag)
     return(list_chunks)
 
 
 def pca_pwise_distance(list_chunks, topology):
+    """
+    Takes a list of mdtraj.Trajectory objects and featurize them to backbone -
+    Alpha Carbons pairwise distances. Perform 2 component PCA on the featurized
+    trajectory.
+    """
     pca = PCA(n_components=2)
     top = md.load_prmtop(topology)
     ca_backbone = top.select("backbone and name CA")
@@ -89,9 +97,10 @@ def pca_pwise_distance(list_chunks, topology):
         X = md.compute_distances(chunk, pairs)
         pair_distances.append(X)
     distance_array = np.concatenate(pair_distances)
-    print("Number of data points: %d" % distance_array.shape[0])
-    print("Number of features (pairwise distances): %d" % distance_array.shape[1])
-    Y = pca.fit_transform(distance_array)
+    print("No. of data points: %d" % distance_array.shape[0])
+    print("No. of features (pairwise distances): %d" % distance_array.shape[1])
+    Y = pca.fit_transform(distance_array)  # Error if distance_array is big
+    #                                        (5500, 86736)
     return Y
 
 
