@@ -59,7 +59,7 @@ Run:\t\t\t%s\nSim:\t\t\t%s\nCluster:\t\t%s\nPhosphorylation type:\t%s
 	exit 1
 fi
 
-hard_drive=/mnt/hd2/completehowarthcut/phospho/hmr_runs/${cluster}/${run}/${phosphotype}/
+hard_drive=/Volumes/Seagate_MD/completehowarthcut/phospho/hmr_runs/${cluster}/${run}/${phosphotype}/
 
 if [[ -d  "$hard_drive" ]]; then
 	printf "The hard drive is mounted\n"
@@ -95,7 +95,7 @@ cd $WORKDIR
 printf "\n\nStripping waters out...\n\n"
 printf "\n\nAutoimaging...\n\n"
 cpptraj <<- EOF
-	parm /home/je714/Troponin/IAN_Troponin/completehowarthcut/phospho/structures/${cluster}/repstr.c0_phos${phosphotype}_watsalthmr.prmtop
+	parm /Users/je714/Troponin/IAN_Troponin/completehowarthcut/phospho/structures/${cluster}/repstr.c0_phos${phosphotype}_watsalthmr.prmtop
 	trajin ${DESTINATION}/05_Prod_${cluster}.phos${phosphotype}.${sim}_${run}.nc
 	strip :WAT
 	autoimage
@@ -104,21 +104,20 @@ cpptraj <<- EOF
 EOF
 
 printf "Move the restart file to the Hard Drive"
-scp ${DESTINATION}/*.rst /mnt/hd2/completehowarthcut/phospho/hmr_runs/${cluster}/${run}/${phosphotype}/
+scp ${DESTINATION}/*.rst /Volumes/Seagate_MD/completehowarthcut/phospho/hmr_runs/${cluster}/${run}/${phosphotype}/
 
 
 cd ${DESTINATION}/
 printf "\n\nErasing everything that was untarred\n\n"
-find ! -name '*.tgz' -type f -exec rm -f {} +
-
+ls | grep -v ${run}_${cluster}_${sim}.tgz | xargs rm  #  Erase all files except the tarred trajectory
 
 cd $WORKDIR
 printf "\n\nMoving everything to the hard drive\n\n"
 # Move the tared file inside (and its containing directory) to the hard drive
-mv ${DESTINATION}/ /mnt/hd2/completehowarthcut/phospho/hmr_runs/${cluster}/${run}/${phosphotype}/${sim}/
+mv ${DESTINATION}/ /Volumes/Seagate_MD/completehowarthcut/phospho/hmr_runs/${cluster}/${run}/${phosphotype}/${sim}/
 
 # Copy the stripped and autoimaged trajectory to the hard drive
-scp ./${cluster}/${run}/${phosphotype}/05_Prod_${cluster}_${sim}ns_${run}.nc /mnt/hd2/completehowarthcut/phospho/hmr_runs/${cluster}/${run}/${phosphotype}/
+scp ./${cluster}/${run}/${phosphotype}/05_Prod_${cluster}_${sim}ns_${run}.nc /Volumes/Seagate_MD/completehowarthcut/phospho/hmr_runs/${cluster}/${run}/${phosphotype}/
 
 cat << "EOF"
 ______  _____  _   _  _____  _ 
