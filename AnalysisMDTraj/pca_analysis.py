@@ -62,7 +62,7 @@ def load_Trajs_generator(traj_list, topology, stride, chunk):
 
 def pwise_distance_generator(traj_generator, topology):
     top = md.load_prmtop(topology)
-    ca_backbone = top.select("backbone and name CA")
+    ca_backbone = top.select("name CA")
     pairs = top.select_pairs(ca_backbone, ca_backbone)
     for trajectory in traj_generator:
         X = md.compute_distances(trajectory, pairs)
@@ -88,9 +88,9 @@ def pca_pwise_distance(list_chunks, topology):
     Alpha Carbons pairwise distances. Perform 2 component PCA on the featurized
     trajectory.
     """
-    pca = PCA(n_components=2)
+    # pca = PCA(n_components=2)
     top = md.load_prmtop(topology)
-    ca_backbone = top.select("backbone and name CA")
+    ca_backbone = top.select("name CA")
     pairs = top.select_pairs(ca_backbone, ca_backbone)
     pair_distances = []
     for chunk in list_chunks:
@@ -99,9 +99,14 @@ def pca_pwise_distance(list_chunks, topology):
     distance_array = np.concatenate(pair_distances)
     print("No. of data points: %d" % distance_array.shape[0])
     print("No. of features (pairwise distances): %d" % distance_array.shape[1])
-    Y = pca.fit_transform(distance_array)  # Error if distance_array is big
-    #                                        (5500, 86736)
-    return Y
+    # Y = pca.fit_transform(distance_array)  # Error if distance_array is big
+    # #                                        (5500, 86736)
+    # return Y
+
+    from sklearn.decomposition import IncrementalPCA
+    ipca = IncrementalPCA(n_components=2)
+    Y_ipca = ipca.fit_transform(distance_array)
+    return Y_ipca
 
 
 # Plotting functions
