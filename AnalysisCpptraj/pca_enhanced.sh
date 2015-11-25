@@ -39,7 +39,7 @@ cpptraj <<- EOF
 	#Diagonalize the cov matrix and get first 3 eigenvectors
 	runanalysis diagmatrix matrix_covar out \
 		./evecs-ca_${name}.${simtime}ns.dat vecs 20 name \
-		myEvecs
+		myEvecs nmwiz nmwizfile nmwiz.nmd nmwizvecs 20 nmwizmask @CA,C,O,N,H
 
 	# Project fit and saved coordinates along eigenvectors
 	crdaction loaded_trajs projection PROJECT modes myEvecs beg 1 end 20 \
@@ -71,5 +71,5 @@ cpptraj <<- EOF
 	#Create a .nc trajectory with the modes of motion of the 1st PC
 	runanalysis modes name Evecs trajout ./${name}_${simtime}_1PCA.nc \
 		pcmin -100 pcmax 100 tmode 1 trajoutmask @CA,C,O,N,H trajoutfmt netcdf
-
+	runanalysis modes name Evecs eigenval out evalues.dat
 EOF
