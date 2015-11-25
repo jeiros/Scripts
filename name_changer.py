@@ -12,24 +12,23 @@ import argparse
 import sys
 
 parser = argparse.ArgumentParser(
-		usage="{} Trajectories*.nc".format(sys.argv[0]),
-                epilog="""Changes the naming of the selected trajectory files
-                 from 3-digit numbering to 4-digit numbering""")
+        usage="{} Trajectories*.nc".format(sys.argv[0]),
+        epilog="""Changes the naming of the selected trajectory files from
+         3-digit numbering to 4-digit numbering""")
 
 parser.add_argument("Trajectories", help="An indefinite amount of AMBER\
                     trajectories", nargs="+")
 
 parser.add_argument("-c", "--change", help="""Actually perform the name 
-    change. Default is false.""",action="store_true")
+                    change. Default is false.""", action="store_true")
 
 args = parser.parse_args()
-
 
 
 def namechange(files, pattern):
     for pathname in files:
         basename = os.path.basename(pathname)
-	final_name = []
+        final_name = []
         new_filename = basename
         match = pattern.match(str(basename))
         if match is not None:
@@ -44,7 +43,7 @@ def namechange(files, pattern):
             if len(dict['C']) == 3:
                 dict['C'] = dict['C'].zfill(4)
             for k, v in sorted(dict.items()):
-                # Looping trough the dictionary items we can 
+                # Looping trough the dictionary items we can
                 # create a string concatenating the values
                 # in a list and then join it to make a string
                 final_name.append(v)
