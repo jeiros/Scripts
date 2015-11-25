@@ -95,7 +95,7 @@ cd $WORKDIR
 printf "\n\nStripping waters out...\n\n"
 printf "\n\nAutoimaging...\n\n"
 cpptraj <<- EOF
-	parm /Users/je714/Troponin/IAN_Troponin/completehowarthcut/phospho/structures/${cluster}/repstr.c0_phos${phosphotype}_watsalthmr.prmtop
+	parm ${DESTINATION}/repstr.c0_phos${phosphotype}_watsalthmr.prmtop
 	trajin ${DESTINATION}/05_Prod_${cluster}.phos${phosphotype}.${sim}_${run}.nc
 	strip :WAT
 	autoimage
