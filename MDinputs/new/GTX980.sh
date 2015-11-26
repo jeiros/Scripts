@@ -55,6 +55,7 @@ pbsexec -grace 15 /home/igould/pmemd.cuda_SPFP -O -i 05_Prod.in -o 05_Prod_${clu
 #
 #
 # tar up everything in the temporary directory
+cp /tmp/pbs.$PBS_JOBID/05_Prod_${cluster}.phos${phosptype}.${sim}_${run}.rst /work/je714/phosphoHMR/${cluster}/${run}/${phosptype}/
 tar -zcvf /tmp/pbs.$PBS_JOBID/${run}_${cluster}_${sim}.tgz *
 #
 #
