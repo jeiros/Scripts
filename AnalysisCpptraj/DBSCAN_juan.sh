@@ -5,62 +5,12 @@ topology=${WORKDIR}/striped.prmtop
 
 traj=${WORKDIR}/runs_all.nc
 
-
-
-function get_Kdists {
-for k in {4..10}
-do
-	cpptraj <<- EOF
-		parm $topology
-		trajin $traj 1 last 10
-		rms first
-		cluster dbscan kdist $k rms $mask sieve 20
-		run
-	EOF
-done
-}
-
-function plotKdists {
-gnuplot <<- EOF
-	set term png
-	set output "Kplots.png"
-	plot for [i=4:10] 'Kdist.'.i.'.dat' u 1:2 w l title "Kdist ".i
-EOF
-}
-
-function get_matrix {
-cpptraj <<- EOF
-	parm $topology
-	trajin $traj 1 last 10
-	rms first
-	cluster dbscan minpoints 4 epsilon 5.0 rms $mask savepairdist sieve 10
-	run
-EOF
-}
-
-
-
-function get_clusters {
-for k in {4..6}
-do
-for eps in `seq 3.0 .2 6.0`
-do
-mkdir -p ./K.${k}.eps.${eps}
-cd ./K.${k}.eps.${eps}
-cpptraj <<- EOF
-	parm $topology
-	trajin $traj 1 last 10
-	rms first
-	cluster dbscan minpoints $k epsilon $eps rms mass $mask loadpairdist pairdist ../CpptrajPairDist out cnumvtime.dat summary avg.summary.dat info info.dat sil silhouette summarysplit avg.summarysplit.dat sieve 10
-	run
-EOF
-cd ../
-done
-done
-}
-
 function create_dir {
-
+	# Create a directory where all the clustering data is stored
+	# Only 3 different masks can be given
+	# :232-248 for C-terminus region of cTnT
+	# :249-294 for N-terminus region of cTnI
+	# :383-419 for C-terminus region of CTnI		
 	mask=$1
 
 	if [[ "$mask" == ":232-248" ]]; then
@@ -81,10 +31,79 @@ function create_dir {
 	fi
 }
 
+function get_Kdists {
+	# Quickly get the K-dists plots for k values ranging from 
+	# 4 to 10. Use a sieve of 20 to load the data faster (doing
+	# the plots does not require to be that accurate)
+for k in {4..10}
+do
+	cpptraj <<- EOF
+		parm $topology
+		trajin $traj 1 last 10
+		rms first
+		cluster dbscan kdist $k rms $mask sieve 20
+		run
+	EOF
+done
+}
+
+function plotKdists {
+	# Use gnuplot to graph the K dist plots obtained
+	# with the get_Kdists function. Save the graph 
+	# in Kplots.png		
+gnuplot <<- EOF
+	set term png
+	set output "Kplots.png"
+	plot for [i=4:10] 'Kdist.'.i.'.dat' u 1:2 w l title "Kdist ".i
+EOF
+}
+
+function get_matrix {
+	# Get the pairwise distance matrix so it doesn't have to be 
+	# calculated every time in the get_clusters function
+	# The clustering metric is the all-atom RMSD				
+cpptraj <<- EOF
+	parm $topology
+	trajin $traj 1 last 10
+	rms first
+	cluster dbscan minpoints 4 epsilon 5.0 rms $mask savepairdist sieve 10
+	run
+EOF
+}
+
+
+
+function get_clusters {
+	# Do the actual clustering on the previously save pairwise distance matrix
+	# on RMSD space. k values are 4, 5 and 6, and eps goes from 3.0 to 6.0 in
+	# 0.2 steps. A new directory is created for every combination		
+for k in {4..6}
+do
+for eps in `seq 3.0 .2 6.0`
+do
+mkdir -p ./K.${k}.eps.${eps}
+cd ./K.${k}.eps.${eps}
+cpptraj <<- EOF
+	parm $topology
+	trajin $traj 1 last 10
+	rms first
+	cluster dbscan minpoints $k epsilon $eps rms mass $mask loadpairdist pairdist ../CpptrajPairDist out cnumvtime.dat summary avg.summary.dat info info.dat sil silhouette summarysplit avg.summarysplit.dat sieve 10
+	run
+EOF
+cd ../
+done
+done
+}
+
+
 function get_metrics {
+	# Calculate DBI and pSF statistics
+	# from the clustering. Calls R to 
+	# do the plots		
 cd $WORKDIR
 mask=$1
 
+# Check that mask is one of the 3 that have to be used
 if [[ "$mask" == ":232-248" ]]; then
 	region=CTnT
 	cd ./cluster_CTnT.runs_all
@@ -159,6 +178,8 @@ EOF
 
 
 # Call the functions
+# The $1 argument is the mask that's going to be clustered
+# has to be one of the options in the create_dir function
 create_dir $1
 get_Kdists
 plotKdists
