@@ -36,7 +36,7 @@ cpptraj <<- EOF
 	#Calculate the coordinate covariance matrix
 	crdaction loaded_trajs matrix covar name matrix_covar @CA,C,O,N,H
 
-	#Diagonalize the cov matrix and get first 3 eigenvectors
+	#Diagonalize the cov matrix and get first 20 eigenvectors
 	runanalysis diagmatrix matrix_covar out \
 		./evecs-ca_${name}.${simtime}ns.dat vecs 20 name \
 		myEvecs nmwiz nmwizfile nmwiz.nmd nmwizvecs 20 nmwizmask @CA,C,O,N,H
@@ -68,8 +68,9 @@ cpptraj <<- EOF
 	parmstrip !(@CA,C,O,N,H)
 	parmwrite out ./backbone.prmtop 
 
-	#Create a .nc trajectory with the modes of motion of the 1st PC
+	# Create a .nc trajectory with the modes of motion of the 1st PC
 	runanalysis modes name Evecs trajout ./${name}_${simtime}_1PCA.nc \
 		pcmin -100 pcmax 100 tmode 1 trajoutmask @CA,C,O,N,H trajoutfmt netcdf
+	# Create a file with the eigenvalues
 	runanalysis modes name Evecs eigenval out evalues.dat
 EOF
