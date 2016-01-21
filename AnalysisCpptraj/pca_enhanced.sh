@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Advanced analysis of PCA with cpptraj
+# Advanced analysis of PCA with cpptraj.OMP
 # Must run on the directory where the trajectories
 # and the prmtop are. 
 
@@ -22,7 +22,7 @@ printf "%s\t\t\t\t\tName\n" ${name}
 printf "%s\t\t\tTopology file\n" ${prmtop}
 printf "%s\t Trajectories\n\n" ${trajs}
 
-cpptraj <<- EOF
+cpptraj.OMP <<- EOF
 	parm ${prmtop}
 	trajin ${trajs}
 	# Fit to first frame, create average structure, save coordinates

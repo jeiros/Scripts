@@ -10,7 +10,7 @@ prmtop=$3
 trajs=$4
 
 
-cpptraj <<- EOF
+cpptraj.OMP <<- EOF
 	parm ${prmtop}
 	trajin ${trajs}
 	rms rmsd @CA,C,O,N,H first out ./rmsd_${name}.${simtime}ns.dat mass

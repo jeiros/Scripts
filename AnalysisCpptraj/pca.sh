@@ -13,7 +13,7 @@ echo $simtime
 
 cd ${WORKDIR}/${cluster}/run1/S1P/
 
-cpptraj <<- EOF
+cpptraj.OMP <<- EOF
 	parm ./repstr.c0_phosS1P_nowat.prmtop
 	trajin ./05_Prod*.nc
 	# Fit to first frame, create average structure, save coordinates

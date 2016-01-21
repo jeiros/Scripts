@@ -37,7 +37,7 @@ function get_Kdists {
 	# the plots does not require to be that accurate)
 for k in {4..10}
 do
-	cpptraj <<- EOF
+	cpptraj.OMP <<- EOF
 		parm $topology
 		trajin $traj 1 last 10
 		rms first
@@ -62,7 +62,7 @@ function get_matrix {
 	# Get the pairwise distance matrix so it doesn't have to be 
 	# calculated every time in the get_clusters function
 	# The clustering metric is the all-atom RMSD				
-cpptraj <<- EOF
+cpptraj.OMP <<- EOF
 	parm $topology
 	trajin $traj 1 last 10
 	rms first
@@ -83,7 +83,7 @@ for eps in `seq 3.0 .2 6.0`
 do
 mkdir -p ./K.${k}.eps.${eps}
 cd ./K.${k}.eps.${eps}
-cpptraj <<- EOF
+cpptraj.OMP <<- EOF
 	parm $topology
 	trajin $traj 1 last 10
 	rms first

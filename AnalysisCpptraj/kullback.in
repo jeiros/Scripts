@@ -3,7 +3,7 @@
 
 
 
-cpptraj <<- EOF
+cpptraj.OMP <<- EOF
 
     readdata myevecs_WT_1.000-750ns.dat name run1
     readdata myevecs_WT_2.000-750ns.dat name run2

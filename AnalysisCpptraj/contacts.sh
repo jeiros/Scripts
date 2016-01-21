@@ -18,7 +18,7 @@ printf "%s\t\t\tTopology file\n" ${prmtop}
 printf "%s\t Trajectories\n\n" ${trajs}
 
 
-cpptraj <<- EOF
+cpptraj.OMP <<- EOF
     parm ${prmtop}
     trajin ${trajs}
     rms first
