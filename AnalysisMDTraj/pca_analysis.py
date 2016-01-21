@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 """
-Trying to implement the following example
-http://mdtraj.org/latest/examples/pca.html
+This scripts takes a list of NetCDF MD trajectories and their corresponding 
+topology. Calculate a two-component PCA based on the pairwise distance between
+alpha carbons of the protein bakcbone.
 """
 
 import mdtraj as md
@@ -15,7 +16,7 @@ parser = argparse.ArgumentParser(usage="""{} Trajectories*.nc Topology.prmtop"""
                                  format(sys.argv[0]),
                                  epilog="""Load up a list of AMBER NetCDF 
                                  trajectories and their corresponding topology
-                                 with MDtraj.Calculate a two-component PCA
+                                 with MDtraj. Calculate a two-component PCA
                                  based on the pairwise distance between alpha
                                  carbons of the protein bakcbone. Plot a
                                  or scatter plot projection of the trajectories
@@ -30,9 +31,6 @@ parser.add_argument("Topology", help="""The topology .prmtop file that matches
 parser.add_argument("Plot_type", help="""The type of plot to be used. Can 
                     be a scatter plot or a hexbin plot.""",
                     choices=['scatter', 'hexbin'])
-
-parser.add_argument("Method", help="""Choose generator method or classic method""",
-                    choices=['generator', 'classic'])
 
 parser.add_argument("-s", "--save", help="Save the plots as .png images",
                     action="store_true")
@@ -52,33 +50,27 @@ parser.add_argument("-t", "--title", help="""Name of the png image where the PCA
 args = parser.parse_args()
 
 
-# Using generators
-def load_Trajs_generator(traj_list, topology, stride, chunk):
-    for traj in traj_list:
-        for frag in md.iterload(traj, chunk=chunk, top=topology,
-                                stride=stride):
-            yield frag
-
-
-def pwise_distance_generator(traj_generator, topology):
-    top = md.load_prmtop(topology)
-    ca_backbone = top.select("name CA")
-    pairs = top.select_pairs(ca_backbone, ca_backbone)
-    for trajectory in traj_generator:
-        X = md.compute_distances(trajectory, pairs)
-        yield X
-
-
-def ipca_pwise_distances(pwise_generator):
-    ipca = IncrementalPCA(n_components=2)
-    for element in pwise_generator:
-        yield ipca.partial_fit(element)
-
-
-# Using lists
 def load_Trajs(traj_list, topology, stride, chunk):
     """
-    Returns a list of mdtraj.Trajectory objects with 'chunk' frames
+    Iteratively loads a list of NetCDF files and returns them
+    as a list of mdtraj.Trajectory objects
+
+    Parameters
+    ----------
+    traj_list: list of str
+            List with the names of trajectory files
+    topology:  str
+            Name of the topology file
+    stride: int
+            Frames to be used when loading the trajectories
+    chunk:  int
+            Number of frames to load at once from disk per iteration.
+            If 0, load all.
+
+    Returns
+    -------
+    list_chunks: list
+            List of mdtraj.Trajectory objects, each of 'chunk' lenght
     """
     list_chunks = []
     for traj in traj_list:
@@ -91,10 +83,21 @@ def load_Trajs(traj_list, topology, stride, chunk):
 def pca_pwise_distance(list_chunks, topology):
     """
     Takes a list of mdtraj.Trajectory objects and featurize them to backbone -
-    Alpha Carbons pairwise distances. Perform 2 component PCA on the featurized
-    trajectory.
+    Alpha Carbons pairwise distances. Perform 2 component Incremental 
+    PCA on the featurized trajectory.
+
+    Parameters
+    ----------
+    list_chunks: list of mdTraj.Trajectory objects
+    topology: str
+            Name of the Topology file
+
+    Returns
+    -------
+    Y: np.array shape(frames, features)
+
     """
-    pca = PCA(n_components=2)
+    pca = IncrementalPCA(n_components=2)
     top = md.load_prmtop(topology)
     ca_backbone = top.select("name CA")
     pairs = top.select_pairs(ca_backbone, ca_backbone)
@@ -105,8 +108,7 @@ def pca_pwise_distance(list_chunks, topology):
     distance_array = np.concatenate(pair_distances)
     print("No. of data points: %d" % distance_array.shape[0])
     print("No. of features (pairwise distances): %d" % distance_array.shape[1])
-    Y = pca.fit_transform(distance_array)  # Error if distance_array is big
-    #                                        (5500, 86736)
+    Y = pca.fit_transform(distance_array)
     return Y
 
 
@@ -142,19 +144,9 @@ def scatter_plot(pca_array):
 def main():
     print('\n', args, '\n')
     if args:
-        if args.Method == 'classic':
-            list_chunks = load_Trajs(sorted(args.Trajectories), args.Topology,
-                                     stride=args.stride, chunk=args.chunk)
-            pca_array = pca_pwise_distance(list_chunks, args.Topology)
-        else:
-            traj_generator = load_Trajs_generator(sorted(args.Trajectories),
-                                                  args.Topology,
-                                                  stride=args.stride,
-                                                  chunk=args.chunk)
-            pwise_distance = pwise_distance_generator(traj_generator,
-                                                      args.Topology)
-            pca = PCA(n_components=2)
-            pca_array = pca.fit_transform(pwise_distance)
+        list_chunks = load_Trajs(sorted(args.Trajectories), args.Topology,
+                                 stride=args.stride, chunk=args.chunk)
+        pca_array = pca_pwise_distance(list_chunks, args.Topology)
         if args.Plot_type == 'scatter':
             scatter_plot(pca_array)
         else:
@@ -163,42 +155,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-
-# import mdtraj as md
-# import numpy as np
-# import matplotlib.pyplot as plt
-# from sklearn.decomposition import PCA, IncrementalPCA
-# import glob
-
-# filenames = sorted(glob.glob("05*"))
-# top = "repstr.c0_phosS1P_nowat.prmtop"
-
-# def load_Trajs_generator(traj_list, topology, stride, chunk):
-#     for traj in traj_list:
-#         for frag in md.iterload(traj, chunk=chunk, top=topology,
-#                                 stride=stride):
-#             yield frag
-
-
-# def pwise_distance_generator(traj_generator, topology):
-#     top = md.load_prmtop(topology)
-#     ca_backbone = top.select("name CA")
-#     pairs = top.select_pairs(ca_backbone, ca_backbone)
-#     for trajectory in traj_generator:
-#         X = md.compute_distances(trajectory, pairs)
-#         yield X
-
-
-# def ipca_pwise_distances(pwise_generator):
-#     ipca = IncrementalPCA(n_components=2)
-#     for element in pwise_generator:
-#         yield ipca.partial_fit(element)
-
-# trajs_generator = load_Trajs_generator(filenames, top, stride=1, chunk=100)
-# pwise_generator = pwise_generator(trajs_generator, top)
-# ipca = ipca_pwise_distances(pwise_generator)
-
-
