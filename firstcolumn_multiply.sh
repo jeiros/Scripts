@@ -5,4 +5,8 @@
 input=$1
 output=$2
 
-awk '{printf($1*0.02"\t\t");for(i=2;i<=NF;++i) printf("%s\t\t", $i); printf("\n")}' ${input} > ${output}
+if [[ $# -ne 2 ]]; then
+  printf "Provide two arguments please\n"
+else
+  awk '{printf($1*0.02"\t\t");for(i=2;i<=NF;++i) printf("%s\t\t", $i); printf("\n")}' ${input} > ${output}
+fi
