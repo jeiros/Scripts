@@ -9,7 +9,7 @@ import mdtraj as md
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.decomposition import PCA, IncrementalPCA
+from sklearn.decomposition import IncrementalPCA
 import argparse
 
 parser = argparse.ArgumentParser(usage="""{} Trajectories*.nc Topology.prmtop""".
