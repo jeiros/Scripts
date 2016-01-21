@@ -19,25 +19,8 @@ rmsfs_averaging <- function(data){
   return(clean)
 }
 
-doplot <- function(data){
-  
-  last_res <- max(data$Residue)
-  
-  axis_breaks <- scale_x_continuous(breaks = round(seq(from = 1, to = last_res, length.out = 10)))
-  
-  plot <- ggplot(data, aes(x = Residue, y = Mean, color = Group)) + ylab("RMSF (Å)") + axis_breaks + 
-    geom_ribbon(aes(ymin = CI_left, ymax = CI_right), alpha = 0.2) + geom_line() + xlab("Residue number")
-  #return(plot)
-  p <- ggplot(data, aes(x = Residue, y = Mean, color = Group)) + geom_line() +
-    scale_color_manual("System", labels = c("S1P phosphorylation", "SEP phosphorylation"), values = c("red", "blue")) +
-    geom_ribbon(aes(ymin = CI_left, ymax = CI_right, colour = NULL, fill = Group, alpha = 0.1)) +
-    guides(alpha = F) + scale_fill_discrete("System", labels = c("S1P phosphorylation", "SEP phosphorylation")) + ylab("RMSF (Å)") + xlab("Residue number") + axis_breaks + theme_bw(15)
-  return(p)
-}
-
 rmsfs_return <- function(data) {
   even <- seq_len(ncol(data)) %% 2
-  resids <- data.frame(data[even])  # Select the columns with the residue numbers
   rmsfs <- data.frame(data[!even])  # Select the columns with the RMSFs values
   return(rmsfs)
 }
@@ -81,23 +64,62 @@ pvalue_plotter <- function(df) {
   return(plot)
 }
 
-# ff99SB <- read.table("rmsf_99SB.dat")
-# S1P <- read.table("all_rmsf_S1P.dat")
-# SEP <- read.table("all_rmsf_SEP.dat")
-# all_phos <- read.table("all_rmsf_anyphos.dat")
-# View(all_phos)
-# View(ff99SB)
-# View(S1P)
-# View(SEP)
-# View(all_phos)
-# source('~/Scripts/Rplots/rmsf_ff14SB_ff99SB.R')
-# ff99SB_clean <- rmsfs_averaging(ff99SB)
-# View(ff99SB_clean)
-# S1P_clean <- rmsfs_averaging(S1P)
-# SEP_clean <- rmsfs_averaging(SEP)
-# all_phos_clean <- rmsfs_averaging(all_phos)
-# View(all_phos_clean)
-# ff99SB_rmsfs <- rmsfs_return(ff99SB)
-# S1P_rmsfs <- rmsfs_return(S1P)
-# SEP_rmsfs <- rmsfs_return(SEP)
-# all_phos_rmsfs <- rmsfs_return(all_phos)
+doplot <- function(data, title){
+  
+  last_res <- max(data$Residue)
+  
+  axis_breaks <- scale_x_continuous(breaks = round(seq(from = 1, to = last_res, length.out = 10)))
+  
+  p <- ggplot(data, aes(x = Residue, y = Mean, color = Group)) + geom_line() +
+    scale_color_manual("System", labels = c("Wild Type", "Phosphorylated"), values = c("red", "blue")) +
+    geom_ribbon(aes(ymin = CI_left, ymax = CI_right, colour = NULL, fill = Group, alpha = 0.1)) +
+    guides(alpha = F) + scale_fill_discrete("System", labels = c("Wild Type", "Phosphorylated")) +
+    ylab("RMSF (Å)") + xlab("Residue number") + axis_breaks + theme_bw(15) +
+    ggtitle(title)
+  return(p)
+}
+
+rmsf_comparison_plot <- function(d1, d2) {
+  library(ggplot2)
+  # Columns of d1 and d2 must be
+  # Residue Mean Stdev CI_left CI_right 
+  TnC <- rbind(data.frame(d1[1:161,], Group = "d1"),
+               data.frame(d2[1:161,], Group = "d2"))
+
+  TnT <- rbind(data.frame(d1[162:248,], Group = "d1"),
+               data.frame(d2[162:248,], Group = "d2"))
+  TnT$Residue <- TnT$Residue - 161
+
+  TnI <- rbind(data.frame(d1[249:419,], Group = "d1"),
+               data.frame(d2[249:419,], Group = "d2"))
+  TnI$Residue <- TnI$Residue - 248
+
+  tnc_plot <- doplot(TnC, "cTnC")
+  tnt_plot <- doplot(TnT, "cTnT")
+  tni_plot <- doplot(TnI, "cTnI")
+
+  source("/Users/je714/Scripts/Rplots/Multiple_plot_function.R")
+  return(multiplot(tnc_plot, tnt_plot, tni_plot))
+}
+
+
+ff99SB <- read.table("rmsf_99SB.dat")
+S1P <- read.table("all_rmsf_S1P.dat")
+SEP <- read.table("all_rmsf_SEP.dat")
+all_phos <- read.table("all_rmsf_anyphos.dat")
+View(all_phos)
+View(ff99SB)
+View(S1P)
+View(SEP)
+View(all_phos)
+source('~/Scripts/Rplots/rmsf_ff14SB_ff99SB.R')
+ff99SB_clean <- rmsfs_averaging(ff99SB)
+View(ff99SB_clean)
+S1P_clean <- rmsfs_averaging(S1P)
+SEP_clean <- rmsfs_averaging(SEP)
+all_phos_clean <- rmsfs_averaging(all_phos)
+View(all_phos_clean)
+ff99SB_rmsfs <- rmsfs_return(ff99SB)
+S1P_rmsfs <- rmsfs_return(S1P)
+SEP_rmsfs <- rmsfs_return(SEP)
+all_phos_rmsfs <- rmsfs_return(all_phos)
