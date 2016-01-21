@@ -1,54 +1,68 @@
-readdata myevecs_WT_1.000-750ns.dat name run1
-readdata myevecs_WT_2.000-750ns.dat name run2
-readdata myevecs_WT_3.000-750ns.dat name run3
-readdata myevecs_WT_4.000-750ns.dat name run4
-readdata myevecs_WT_5.000-750ns.dat name run5
-readdata myevecs_WT_6.000-750ns.dat name run6
-readdata myevecs_WT_7.000-750ns.dat name run7
-readdata myevecs_WT_8.000-750ns.dat name run8
-readdata myevecs_WT_9.000-750ns.dat name run9
-readdata myevecs_WT_10.000-750ns.dat name run10
-readdata myevecs_WT_11.000-750ns.dat name run11
-
-kde run1:2 kldiv run2:2 klout KL-PC1.dat bins 400 name PC1_r1-r2
-kde run1:2 kldiv run3:2 klout KL-PC1.dat bins 400 name PC1_r1-r3
-kde run1:2 kldiv run4:2 klout KL-PC1.dat bins 400 name PC1_r1-r4
-kde run1:2 kldiv run5:2 klout KL-PC1.dat bins 400 name PC1_r1-r5
-kde run1:2 kldiv run6:2 klout KL-PC1.dat bins 400 name PC1_r1-r6
-kde run1:2 kldiv run7:2 klout KL-PC1.dat bins 400 name PC1_r1-r7
-# kde run1:2 kldiv run8:2 klout KL-PC1.dat bins 400 name PC1_r1-r8
-# kde run1:2 kldiv run9:2 klout KL-PC1.dat bins 400 name PC1_r1-r9
-# kde run1:2 kldiv run10:2 klout KL-PC1.dat bins 400 name PC1_r1-r10
-# kde run1:2 kldiv run11:2 klout KL-PC1.dat bins 400 name PC1_r1-11
-
-
-# kde run1:3 kldiv run2:3 klout KL-PC2.dat bins 400 name PC2_r1-r2
-# kde run1:3 kldiv run3:3 klout KL-PC2.dat bins 400 name PC2_r1-r3
-# kde run2:3 kldiv run3:3 klout KL-PC2.dat bins 400 name PC2_r2-r3
-
-kde run1:3 kldiv run2:3 klout KL-PC2.dat bins 400 name PC2_r1-r2
-kde run1:3 kldiv run3:3 klout KL-PC2.dat bins 400 name PC2_r1-r3
-kde run1:3 kldiv run4:3 klout KL-PC2.dat bins 400 name PC2_r1-r4
-kde run1:3 kldiv run5:3 klout KL-PC2.dat bins 400 name PC2_r1-r5
-kde run1:3 kldiv run6:3 klout KL-PC2.dat bins 400 name PC2_r1-r6
-kde run1:3 kldiv run7:3 klout KL-PC2.dat bins 400 name PC2_r1-r7
-
-
-# kde run1:4 kldiv run2:4 klout KL-PC3.dat bins 400 name PC3_r1-r2
-# kde run1:4 kldiv run3:4 klout KL-PC3.dat bins 400 name PC3_r1-r3
-# kde run2:4 kldiv run3:4 klout KL-PC3.dat bins 400 name PC3_r2-r3
-
-kde run1:4 kldiv run2:4 klout KL-PC3.dat bins 400 name PC3_r1-r2
-kde run1:4 kldiv run3:4 klout KL-PC3.dat bins 400 name PC3_r1-r3
-kde run1:4 kldiv run4:4 klout KL-PC3.dat bins 400 name PC3_r1-r4
-kde run1:4 kldiv run5:4 klout KL-PC3.dat bins 400 name PC3_r1-r5
-kde run1:4 kldiv run6:4 klout KL-PC3.dat bins 400 name PC3_r1-r6
-kde run1:4 kldiv run7:4 klout KL-PC3.dat bins 400 name PC3_r1-r7
+#!/bin/bash
 
 
 
 
+cpptraj <<- EOF
 
-# kde run1:2 out kde-PC.dat bins 400 name KDE-1
-# hist run1:2,*,*,*,400 out pca.hist.dat normint name HIST1
-run
+    readdata myevecs_WT_1.000-750ns.dat name run1
+    readdata myevecs_WT_2.000-750ns.dat name run2
+    readdata myevecs_WT_3.000-750ns.dat name run3
+    readdata myevecs_WT_4.000-750ns.dat name run4
+    readdata myevecs_WT_5.000-750ns.dat name run5
+    readdata myevecs_WT_6.000-750ns.dat name run6
+    readdata myevecs_WT_7.000-750ns.dat name run7
+    # readdata myevecs_WT_8.000-750ns.dat name run8
+    # readdata myevecs_WT_9.000-750ns.dat name run9
+    # readdata myevecs_WT_10.000-750ns.dat name run10
+    # readdata myevecs_WT_11.000-750ns.dat name run11
+
+
+    # PC1 of first run vs runs 2 to 7
+
+    kde run1:2 kldiv run2:2 klout KL-PC1.dat bins 400 name PC1_r1-r2
+    kde run1:2 kldiv run3:2 klout KL-PC1.dat bins 400 name PC1_r1-r3
+    kde run1:2 kldiv run4:2 klout KL-PC1.dat bins 400 name PC1_r1-r4
+    kde run1:2 kldiv run5:2 klout KL-PC1.dat bins 400 name PC1_r1-r5
+    kde run1:2 kldiv run6:2 klout KL-PC1.dat bins 400 name PC1_r1-r6
+    kde run1:2 kldiv run7:2 klout KL-PC1.dat bins 400 name PC1_r1-r7
+    # kde run1:2 kldiv run8:2 klout KL-PC1.dat bins 400 name PC1_r1-r8
+    # kde run1:2 kldiv run9:2 klout KL-PC1.dat bins 400 name PC1_r1-r9
+    # kde run1:2 kldiv run10:2 klout KL-PC1.dat bins 400 name PC1_r1-r10
+    # kde run1:2 kldiv run11:2 klout KL-PC1.dat bins 400 name PC1_r1-11
+
+
+    # kde run1:3 kldiv run2:3 klout KL-PC2.dat bins 400 name PC2_r1-r2
+    # kde run1:3 kldiv run3:3 klout KL-PC2.dat bins 400 name PC2_r1-r3
+    # kde run2:3 kldiv run3:3 klout KL-PC2.dat bins 400 name PC2_r2-r3
+
+
+    # PC2 of first run vs runs 2 to 7
+    kde run1:3 kldiv run2:3 klout KL-PC2.dat bins 400 name PC2_r1-r2
+    kde run1:3 kldiv run3:3 klout KL-PC2.dat bins 400 name PC2_r1-r3
+    kde run1:3 kldiv run4:3 klout KL-PC2.dat bins 400 name PC2_r1-r4
+    kde run1:3 kldiv run5:3 klout KL-PC2.dat bins 400 name PC2_r1-r5
+    kde run1:3 kldiv run6:3 klout KL-PC2.dat bins 400 name PC2_r1-r6
+    kde run1:3 kldiv run7:3 klout KL-PC2.dat bins 400 name PC2_r1-r7
+
+
+    # kde run1:4 kldiv run2:4 klout KL-PC3.dat bins 400 name PC3_r1-r2
+    # kde run1:4 kldiv run3:4 klout KL-PC3.dat bins 400 name PC3_r1-r3
+    # kde run2:4 kldiv run3:4 klout KL-PC3.dat bins 400 name PC3_r2-r3
+
+    # PC3 of first run vs runs 2 to 7
+    kde run1:4 kldiv run2:4 klout KL-PC3.dat bins 400 name PC3_r1-r2
+    kde run1:4 kldiv run3:4 klout KL-PC3.dat bins 400 name PC3_r1-r3
+    kde run1:4 kldiv run4:4 klout KL-PC3.dat bins 400 name PC3_r1-r4
+    kde run1:4 kldiv run5:4 klout KL-PC3.dat bins 400 name PC3_r1-r5
+    kde run1:4 kldiv run6:4 klout KL-PC3.dat bins 400 name PC3_r1-r6
+    kde run1:4 kldiv run7:4 klout KL-PC3.dat bins 400 name PC3_r1-r7
+
+
+
+
+
+    kde run1:2 out kde-PC.dat bins 400 name KDE-1
+    hist run1:2,*,*,*,400 out pca.hist.dat normint name HIST1
+    run
+EOF

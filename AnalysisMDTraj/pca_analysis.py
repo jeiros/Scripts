@@ -83,7 +83,7 @@ def load_Trajs(traj_list, topology, stride, chunk):
 def pca_pwise_distance(list_chunks, topology):
     """
     Takes a list of mdtraj.Trajectory objects and featurize them to backbone -
-    Alpha Carbons pairwise distances. Perform 2 component Incremental 
+    Alpha Carbons pairwise distances. Perform 2 component Incremental
     PCA on the featurized trajectory.
 
     Parameters
