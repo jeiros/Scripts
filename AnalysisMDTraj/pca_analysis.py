@@ -32,7 +32,7 @@ parser.add_argument("Plot_type", help="""The type of plot to be used. Can
                     be a scatter plot or a hexbin plot.""",
                     choices=['scatter', 'hexbin'])
 
-parser.add_argument("-s", "--save", help="Save the plots as .png images",
+parser.add_argument("-s", "--save", help="Save the plots as .eps images",
                     action="store_true")
 
 parser.add_argument("-st", "--stride", help="""Stride for the loading of the
@@ -44,8 +44,8 @@ parser.add_argument("-ch", "--chunk", help="""Number of frames that will be
                     a multiplier of the stride.
                     Default is 100 frames.""", default=100, type=int)
 
-parser.add_argument("-t", "--title", help="""Name of the png image where the PCA
-                    plot is stored. Default is PCA.""", default="PCA")
+parser.add_argument("-t", "--title", help="""Name of the eps image where the PCA
+                    plot is stored. Default is PCA.""", default="PCA.eps")
 
 args = parser.parse_args()
 
@@ -123,7 +123,7 @@ def hex_plot(pca_array):
     cb = plt.colorbar()
     cb.set_label('log10(N)')
     if args.save:
-        plt.savefig(args.title, dpi=600)
+        plt.savefig(args.title, dpi=100, format='eps')
     else:
         plt.show()
 
@@ -136,7 +136,7 @@ def scatter_plot(pca_array):
     plt.ylabel('PC2 (Å)')
     plt.scatter(x=PC1, y=PC2, marker='x')
     if args.save:
-        plt.savefig(args.title, dpi=600)
+        plt.savefig(args.title, dpi=900, format='eps')
     else:
         plt.show()
 
