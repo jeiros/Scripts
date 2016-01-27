@@ -123,7 +123,7 @@ def hex_plot(pca_array):
     cb = plt.colorbar()
     cb.set_label('log10(N)')
     if args.save:
-        plt.savefig(args.title, dpi=100, format='eps')
+        plt.savefig(args.title, dpi=900, format='eps')
     else:
         plt.show()
 
