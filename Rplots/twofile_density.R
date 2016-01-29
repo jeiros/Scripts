@@ -17,8 +17,8 @@ d2 <- read.table(args[2])
 dfNew <- rbind(data.frame(d1, Group = "d1"),
                data.frame(d2, Group = "d2"))
 
-substr_1 <- substr(args[1], nchar(args[1]) - 19, nchar(args[1]) - 14)
-substr_2 <- substr(args[2], nchar(args[2]) - 19, nchar(args[2]) - 14)
+substr_1 <- substr(args[1], nchar(args[1]) - 16, nchar(args[1]) - 14)
+substr_2 <- substr(args[2], nchar(args[2]) - 16, nchar(args[2]) - 14)
 
 p1 <- ggplot(data=dfNew, aes(x=V2, color=Group)) +
     geom_line(stat='density') + labs(y='Density',
@@ -31,7 +31,7 @@ p1 <- ggplot(data=dfNew, aes(x=V2, color=Group)) +
 
 
 
-ggsave(toString(args[3]), plot=p1, dpi=900, width=10, height=10, units='in')
+ggsave(paste(toString(args[3]),".eps",sep=''), plot=p1, dpi=900, width=10, height=10, units='in')
 
 # colnames(d1) = colnames(d2) = c("step", "Temp")
 # dfNew <- rbind(data.frame(d1, Group = "d1"),

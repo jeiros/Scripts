@@ -79,6 +79,17 @@ doplot <- function(data, title){
   return(p)
 }
 
+do_single_plot <- function(data,title) {
+  last_res <- max(data$Residue)
+  axis_breaks <- scale_x_continuous(breaks = round(seq(from = 1, to = last_res, length.out = 10)))
+  p <- ggplot(data, aes(x=Residue, y=Mean)) + geom_line() + geom_ribbon(aes(ymin=CI_left, ymax=CI_right),alpha=0.2) +
+    ggtitle(title) + ylab("RMSF (Å)") + xlab("Residue number") + axis_breaks + theme_bw(15) + theme(legend.position="none")
+  return(p)
+}
+
+
+
+
 rmsf_comparison_plot <- function(d1, d2) {
   library(ggplot2)
   # Columns of d1 and d2 must be
