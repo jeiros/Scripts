@@ -33,9 +33,9 @@ def makeHMM(Trajectories, topology):
     f = SuperposeFeaturizer(alpha_carbons, first_frame)
     dataset = []
     for fragment in filenames:
-            for chunk in md.iterload(fragment, chunk = 100, top = top):
+            for chunk in md.iterload(fragment, chunk=100, top=top):
                 dataset.append(f.partial_transform(chunk))
-    hmm = GaussianHMM(n_states = 8)
+    hmm = GaussianHMM(n_states=8)
     hmm.fit(dataset)
     print(hmm.timescales_)
     return hmm
@@ -46,5 +46,4 @@ def main():
         hmm = makeHMM(args.Trajectories, args.Topology)
 
 if __name__ == "__main__":
-    import sys
     main()
