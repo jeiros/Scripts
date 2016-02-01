@@ -11,7 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.decomposition import IncrementalPCA
 import argparse
-from traj_loading.py import load_Trajs
+from traj_loading import load_Trajs
 
 parser = argparse.ArgumentParser(usage="""{} Trajectories*.nc Topology.prmtop""".
                                  format(sys.argv[0]),
@@ -51,7 +51,7 @@ parser.add_argument("-t", "--title", help="""Name of the eps image where the PCA
 args = parser.parse_args()
 
 
-def pca_pwise_distance(list_chunks, topology):
+def get_pca_array(list_chunks, topology):
     """
     Takes a list of mdtraj.Trajectory objects and featurize them to backbone -
     Alpha Carbons pairwise distances. Perform 2 component Incremental
@@ -117,7 +117,7 @@ def main():
     if args:
         list_chunks = load_Trajs(sorted(args.Trajectories), args.Topology,
                                  stride=args.stride, chunk=args.chunk)
-        pca_array = pca_pwise_distance(list_chunks, args.Topology)
+        pca_array = get_pca_array(list_chunks, args.Topology)
         if args.Plot_type == 'scatter':
             scatter_plot(pca_array)
         else:

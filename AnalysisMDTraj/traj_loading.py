@@ -1,17 +1,17 @@
 import mdtraj as md
 
 
-def load_Trajs(traj_list, topology, stride, chunk):
+def load_Trajs(trajfiles_list, prmtop_file, stride, chunk):
     """
     Iteratively loads a list of NetCDF files and returns them
     as a list of mdtraj.Trajectory objects
 
     Parameters
     ----------
-    traj_list: list of str
+    trajfiles_list: list of str
             List with the names of trajectory files
-    topology:  str
-            Name of the topology file
+    prmtop_file:  str
+            Name of the prmtop file
     stride: int
             Frames to be used when loading the trajectories
     chunk:  int
@@ -24,23 +24,23 @@ def load_Trajs(traj_list, topology, stride, chunk):
             List of mdtraj.Trajectory objects, each of 'chunk' lenght
     """
     list_chunks = []
-    for traj in traj_list:
-        for frag in md.iterload(traj, chunk=chunk, top=topology,
+    for traj in trajfiles_list:
+        for frag in md.iterload(traj, chunk=chunk, top=prmtop_file,
                                 stride=stride):
             list_chunks.append(frag)
     return(list_chunks)
 
 
-def load_Trajs_generator(traj_list, topology, stride, chunk):
+def load_Trajs_generator(trajfiles_list, prmtop_file, stride, chunk):
     """
-    Iteratively loads a list of NetCDF files and returnns them
+    Iteratively loads a list of NetCDF files and returns them
     as an iterable of mdtraj.Trajectory objects
     Parameters
     ----------
-    traj_list: list of str
+    trajfiles_list: list of str
             List with the names of trajectory files
-    topology:  str
-            Name of the topology file
+    prmtop_file:  str
+            Name of the prmtop file
     stride: int
             Frames to be used when loading the trajectories
     chunk:  int
@@ -50,7 +50,7 @@ def load_Trajs_generator(traj_list, topology, stride, chunk):
     ------
     frag: mdtraj.Trajectory
     """
-    for traj in traj_list:
-        for frag in md.iterload(traj, chunk=chunk, top=topology,
+    for traj in trajfiles_list:
+        for frag in md.iterload(traj, chunk=chunk, top=prmtop_file,
                                 stride=stride):
             yield frag
