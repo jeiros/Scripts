@@ -1,10 +1,9 @@
 # The Basics
                                                  
-The BASH interpreter in OS X loads up `.bash_profile`, not `.bashrc`. Care with that.
-The home `~/` directory in OS X is `/Users/yourusername/`, unlike Linux which is `/home/yourusername/`
+The home `~/` directory in OS X is `/Users/yourusername/`, unlike Linux which is `/home/yourusername/`.
+The BASH interpreter in OS X loads up `~/.bash_profile`, not `~.bashrc`. Care with that.
 
-
-Read **all** of this before starting to do anything                                             
+Read **all** of this before starting to do anything.
 
 ## Registering your Mac
 Either ICT does it for you and they install their build, or you do it yourself (and follow this guide).
@@ -18,6 +17,11 @@ Follow these steps:
     * Give it a name (ch-whatever)
     * Your machine's host name will then be `ch-whatever.ch.ic.ac.uk`
 Then you'll be able to ssh from another machine by doing: 'ssh yourusername@ch-whatever.ch.ic.ac.uk'
+1. Item 1
+2. Item 2
+3. Item 3
+ * Item 3a
+ * Item 3b
 
 ## Antivirus
 Install the symantec antivirus protection software from the [software shop](https://www.imperial.ac.uk/ict/services/software/shop/index.asp)
