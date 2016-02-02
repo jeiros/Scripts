@@ -10,7 +10,7 @@ Either ICT does it for you and they install their build, or you do it yourself (
 
 Follow these steps:
 
-1. Email [Nick Davies](n.davies@imperial.ac.uk) and he will give you a tag asset number
+1. Email [Nick Davies](mailto:n.davies@imperial.ac.uk) and he will give you a tag asset number
 
 2. Register your machine through [ICT's website](https://imperial.service-now.com/ict/request.do)
 
@@ -173,7 +173,7 @@ Super useful when you add this to scripts.
 
 
 
-Written by: [Juan Eiros](j.eiros-zamora14@imperial.ac.uk)
+Written by: [Juan Eiros](mailto:je714@ic.ac.uk)
 
 I will keep adding stuff that I find useful.
 
