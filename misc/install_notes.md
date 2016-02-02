@@ -3,7 +3,7 @@
 The home `~/` directory in OS X is `/Users/yourusername/`, unlike Linux which is `/home/yourusername/`.
 The BASH interpreter in OS X loads up `~/.bash_profile`, not `~.bashrc`. Care with that.
 
-Read **all** of this before starting to do anything.
+Read **ALL** of this before starting to do anything.
 
 ## Registering your Mac
 Either ICT does it for you and they install their build, or you do it yourself (and follow this guide).
@@ -124,7 +124,10 @@ Take a look at line 34 in the script and change the path to your VMD executable 
 If you've followed the previous steps it should be the same as the one in the script, though. Now you'll be able to load a big amount trajectories in VMD like so:
 `load_big_trajs.sh topology.prmtop trajectories*.nc`.
 
-![thumbsup](./thumbsup.gif)
+<p align="center">
+    <img src="https://github.com/jeiros/Scripts/blob/master/misc/thumbsup.gif"/>
+</p>
+
 
 ##Installing UCSF Chimera
 [Here](https://www.cgl.ucsf.edu/chimera/download.html) are all the downloadables.
