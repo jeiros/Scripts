@@ -21,7 +21,7 @@ Follow these steps:
  * You'll need your MAC adress for that
  * Give it a name (*ch-whatever*)
  * Your machine's host name will then be `ch-whatever.ch.ic.ac.uk`
-Then you'll be able to ssh from another machine by doing: 'ssh yourusername@ch-whatever.ch.ic.ac.uk'
+Then you'll be able to ssh from another machine by doing: `ssh yourusername@ch-whatever.ch.ic.ac.uk`
 
 
 ## Antivirus
@@ -31,7 +31,7 @@ you'll receive an e-mail with the instructions to follow
 ## Microsoft Office 365
 Follow these [instructions](http://www.imperial.ac.uk/admin-services/ict/shop/software/microsoft-office-365/install-office-365/mac/)
 
-### **Care**
+**Care** :heavy_exclamation_mark:
 Point 2 is important. DON'T use your e-mail address, it's *username@ic.ac.uk* otherwise Microsoft Office won't recognize you as an Imperial College member.
 
 
