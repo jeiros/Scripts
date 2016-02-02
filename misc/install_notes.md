@@ -10,7 +10,7 @@ Either ICT does it for you and they install their build, or you do it yourself (
 
 Follow these steps:
 
-1. Email Nick Davies (n.davies@imperial.ac.uk) and he will give you a tag asset number
+1. Email [Nick Davies](n.davies@imperial.ac.uk) and he will give you a tag asset number
 
 2. Register your machine through [ICT's website](https://imperial.service-now.com/ict/request.do)
 
@@ -21,6 +21,7 @@ Follow these steps:
  * You'll need your MAC adress for that
  * Give it a name (*ch-whatever*)
  * Your machine's host name will then be `ch-whatever.ch.ic.ac.uk`
+
 Then you'll be able to ssh from another machine by doing: `ssh yourusername@ch-whatever.ch.ic.ac.uk`
 
 
@@ -40,7 +41,9 @@ Point 2 is important. DON'T use your e-mail address, it's *username@ic.ac.uk* ot
 Go to this [website](https://www.continuum.io/downloads)
 and install the PYTHON 3.5 OSX version. Follow the instructions.
 
-http://conda.pydata.org/docs/intro.html 
+[Here](http://conda.pydata.org/docs/intro.html) is a nice introduction to what is Anaconda and what can you do with it.
+[This](http://conda.pydata.org/docs/_downloads/conda-cheatsheet.pdf) cheat sheet is also very useful for quick
+reference.
 
 
 
@@ -48,10 +51,14 @@ http://conda.pydata.org/docs/intro.html
 ## Installing AmberTools
 Follow Jason Swail's [guide](http://jswails.wikidot.com/mac-os-x)
 
-Basically: 
+Basically:
+
 1. Instal Xcode
+
 2. Enable command-line tools
+
 3. Download macports
+
 4. Use macports to install the compilers for AmberTools to work
 
 
@@ -65,36 +72,48 @@ sudo port select --set mpi mpich-gcc49-fortran
 ```
 Now onto actually installing the AmberTools:
 
-    1) Download them from here --> http://ambermd.org/AmberTools15-get.html
-    2) Follow the instructions in page 23 of the manual
-        2.1) Everything worked for the most simple installation (./configure gnu)
+1. Download them from [here](http://ambermd.org/AmberTools15-get.html)
 
-                All the tests PASSED
-                    1382 file comparisons passed
-                       0 file comparisons failed
-                       0 tests experienced errors
-                Test log file saved as /usr/local/amber15/logs/test_at_serial/2015-10-28_15-26-42.log
-                No test diffs to save!
+2. Follow the instructions in page 23 of the manual
+
+ * Everything worked for me using the most simple installation (`./configure gnu`)
+
+If you do `make test` in your `$AMBERHOME` directory and everything is OK, you should see the following (after a lot of output):
+
+```
+All the tests PASSED
+    1382 file comparisons passed
+    0 file comparisons failed
+    0 tests experienced errors
+    Test log file saved as /usr/local/amber15/logs/test_at_serial/2015-10-28_15-26-42.log
+No test diffs to save!
+```
 
 ## Installing VMD
-Here are all of the downloadables --> http://www.ks.uiuc.edu/Development/Download/download.cgi?PackageName=VMD
+[Here](http://www.ks.uiuc.edu/Development/Download/download.cgi?PackageName=VMD) are all of the downloadables
 
-I chose the latest version (1.9.2) and the MacOS X OpenGL (32-bit Intel x86) link
+I chose the latest version (1.9.2) and the MacOS X OpenGL (32-bit Intel x86) link.
+
 A .dmg file is downloaded. Open it and then drag the VMD icon to the Applications folder. Done!
 
 It won't let you just open it yet: Apple blocks applications from non-verified distributors (a.k.a non-Apple)
-so you have to go to System Preferences > Security & Privacy and click on the "General" tab. There, click on the
-lower-left lock icon, and then select the "Anywhere" option under the "Allow apps downloaded from:" section. 
+so you have to go to *System Preferences > Security & Privacy* and click on the *General* tab. There, click on the
+lower-left lock icon, and then select the *Anywhere* option under the *Allow apps downloaded from:* section. 
 Now you can use vmd.  
 
-How to use vmd from the command line: 
-    1) Remove the space from the name of the Application (i.e. VMD1.9.2)
-    2) Add this to your .bash_profile
-        vmdappdir='/Applications/VMD1.9.2.app/Contents'
-        alias vmd='"$vmdappdir/Resources/VMD.app/Contents/MacOS/VMD" $*'
+### How to use vmd from the command line
 
-NOTE: VMD only has 32-bit version for Mac OS X. This sucks because you'll only be able to open
+1. Remove the space from the name of the Application (i.e. VMD1.9.2)
+
+2. Add this to your `~/.bash_profile`:
+```
+vmdappdir='/Applications/VMD1.9.2.app/Contents'
+alias vmd='"$vmdappdir/Resources/VMD.app/Contents/MacOS/VMD" $*'
+```
+**NOTE:** VMD only has 32-bit version for Mac OS X. This sucks because you'll only be able to open
 trajectories that are half the size of your RAM (i.e. < 4GB.)
+
+*I've found a solution to this* ![thumbsup](./thumbsup.gif)
 
 ##Installing UCSF Chimera
 Here are all the downloadables --> https://www.cgl.ucsf.edu/chimera/download.html
