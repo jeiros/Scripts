@@ -17,7 +17,7 @@ prmtop=$1
 
 tmpfile=$(mktemp /tmp/vmd_readin.tcl)
 
-cat ~/Scripts/StateFile > $tmpfile
+cat ~/Scripts/StateFile > $tmpfile # Comment this line out if you don't have a StateFile for VMD. Or change the path to were its sitting in your machine.
 
 echo "mol new $prmtop" >> $tmpfile
 

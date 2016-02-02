@@ -102,6 +102,10 @@ lower-left lock icon, and then select the *Anywhere* option under the *Allow app
 Now you can use vmd.  
 
 ### How to use vmd from the command line
+Using VMD from the command line is very convenient as you can directly load the topology files and trajectories, or several PDBs
+very quickly. If you open VMD manually from the Dock it points every time to your home directory and you loose a lot of time manually
+navigating to wherever the files you want to visualize are. 
+
 
 1. Remove the space from the name of the Application (i.e. VMD1.9.2)
 
@@ -111,16 +115,26 @@ vmdappdir='/Applications/VMD1.9.2.app/Contents'
 alias vmd='"$vmdappdir/Resources/VMD.app/Contents/MacOS/VMD" $*'
 ```
 **NOTE:** VMD only has 32-bit version for Mac OS X. This sucks because you'll only be able to open
-trajectories that are half the size of your RAM (i.e. < 4GB.)
+trajectories that are half the size of your RAM (i.e. < 4GB.). More info on this issue [here](http://www.ks.uiuc.edu/Research/vmd/mailing_list/vmd-l/26606.html).
 
-*I've found a solution to this* ![thumbsup](./thumbsup.gif)
+**I've come up with a solution to this** :heavy_exclamation_mark:
+Copy or download [this](https://github.com/jeiros/Scripts/blob/master/load_big_trajs.sh) script and save it somewhere in your 
+`$PATH` (for example, `usr/local/bin`). Then make it an executable with `chmod +x load_big_trajs.sh`.
+Take a look at line 34 in the script and change the path to your VMD executable if it's different!
+If you've followed the previous steps it should be the same as the one in the script, though. Now you'll be able to load a big amount trajectories in VMD like so:
+`load_big_trajs.sh topology.prmtop trajectories*.nc`.
+
+![thumbsup](./thumbsup.gif)
 
 ##Installing UCSF Chimera
-Here are all the downloadables --> https://www.cgl.ucsf.edu/chimera/download.html
-Same as VMD. Click on .dmg file, drag Chimera icon to the Applications folder.
+[Here](https://www.cgl.ucsf.edu/chimera/download.html) are all the downloadables.
 
-The binary is in /Applications/Chimera.app/Contents/MacOS/chimera
-    either create an alias in your .bash_profile to it or do a symbolic link, either option works.
+Same procedure as VMD. Click on .dmg file, drag Chimera icon to the Applications folder.
+
+The binary is in `/Applications/Chimera.app/Contents/MacOS/chimera`
+
+### How to use chimera from the command line
+Either create an alias in your `.bash_profile` to it (what we did with vmd) or do a symbolic link to somewhere in your `$PATH` (`sudo ln -s /Applications/Chimera.app/Contents/MacOS/chimera /usr/local/bin/chimera`), either option works.
     
 
 
@@ -131,29 +145,32 @@ The binary is in /Applications/Chimera.app/Contents/MacOS/chimera
 ## Generic Note 1
 
 The new OS X El Capitan includes a new "rootless" mode that makes certain system directories
-read-only even for admins. This is a bit annoying, because one of these is /usr/ (and thus everything inside /usr/ can't be touched
-the only subdir that is excluded is /usr/local).
-This can be disabled following these instructions but I haven't tried it myself.
-http://apple.stackexchange.com/questions/196224/unix-ln-s-command-not-permitted-in-osx-el-capitan-beta3 
+read-only even for admins. This is a bit annoying, because one of these is `/usr/` (and thus everything inside it can't be touched). 
+The exception to this is `/usr/local`).
+This can be disabled following [these](http://apple.stackexchange.com/questions/196224/unix-ln-s-command-not-permitted-in-osx-el-capitan-beta3) instructions but I haven't tried it myself.
+
 
 ## Generic Note 2
 
-Another "feature" that has been added is the creation of bash sessions. This creates a .bash_sessions/ directory
+Another "feature" that has been added is the creation of bash sessions. This creates a `~/.bash_sessions/` directory
 in your home that keeps storing files. It can be annoying since these are read
-every time you launch a terminal and in the end it can make it slower to start. This can be disabled if you create
-a .bash_sessions_disable file in your home directory, and delete de .bash_sessions/ directory with rm -rf ~/.bash_sessions
+every time you launch a terminal and in the end it can make it slower to start. This can be disabled if you do:
+```
+touch ~/.bash_sessions_disable
+rm -rf ~/.bash_sessions/
+```
 
 ## Generic Note 3
 
 Not OS X specific but I find it useful to be able to ssh withouth entering passwords all the time. 
 This is handy when you are working with several machines (yours, the HPC, your laptop, other local machines with GPUs...)
-This link explains how to do it. http://www.linuxproblem.org/art_9.html
+[This](http://www.linuxproblem.org/art_9.html) link explains how to do it. 
 If properly set up, you'll be able to ssh and scp across diferent machines without having to enter the password every time.
-Super useful when you add this to scripts
+Super useful when you add this to scripts.
 
 
 
-Written by: Juan Eiros
-j.eiros-zamora14@imperial.ac.uk
-I will keep adding stuff that I find useful
+Written by: [Juan Eiros](j.eiros-zamora14@imperial.ac.uk)
+
+I will keep adding stuff that I find useful.
 
