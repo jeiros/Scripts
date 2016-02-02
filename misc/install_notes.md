@@ -10,18 +10,14 @@ Either ICT does it for you and they install their build, or you do it yourself (
 
 Follow these steps:
 1. Email Nick Davies (n.davies@imperial.ac.uk) and he will give you a tag asset number
-    * Once you got it, plug your iMac to the ethernet and follow the self-registration process
 2. Register your machine through [ICT's website](https://imperial.service-now.com/ict/request.do)
+ * Once you got it, plug your iMac to the ethernet and follow the self-registration process
 3. I requested "Add or change the registration details of a computer"
-    * You'll need your MAC adress for that
-    * Give it a name (ch-whatever)
-    * Your machine's host name will then be `ch-whatever.ch.ic.ac.uk`
+ * You'll need your MAC adress for that
+ * Give it a name (*ch-whatever*)
+ * Your machine's host name will then be `ch-whatever.ch.ic.ac.uk`
 Then you'll be able to ssh from another machine by doing: 'ssh yourusername@ch-whatever.ch.ic.ac.uk'
-1. Item 1
-2. Item 2
-3. Item 3
- * Item 3a
- * Item 3b
+
 
 ## Antivirus
 Install the symantec antivirus protection software from the [software shop](https://www.imperial.ac.uk/ict/services/software/shop/index.asp)
