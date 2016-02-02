@@ -1,40 +1,38 @@
 # The Basics
                                                  
 The BASH interpreter in OS X loads up `.bash_profile`, not `.bashrc`. Care with that.
-The home (~) directory in OS X is `/Users/yourusername/`, unlike Linux which is `/home/yourusername/`
+The home `~/` directory in OS X is `/Users/yourusername/`, unlike Linux which is `/home/yourusername/`
 
 
 Read **all** of this before starting to do anything                                             
 
 ## Registering your Mac
-Either ICT does it for you and they install their build, or you do it yourself (and follow this guide)
+Either ICT does it for you and they install their build, or you do it yourself (and follow this guide).
 
-    Follow these steps:
-    1. Email Nick Davies (n.davies@imperial.ac.uk) and he will give you a tag asset number
-        * Once you got it, plug your iMac to the ethernet and follow the self-registration process
-    2. Register your machine through ICT's website https://imperial.service-now.com/ict/request.do
-    3. I requested "Add or change the registration details of a computer"
-        * You'll need your MAC adress for that
-        * Give it a name (ch-whatever)
-        * Your machine's host name will then be ch-whatever.ch.ic.ac.uk
-            So you can ssh from another machine by doing: ssh yourusername@ch-whatever.ch.ic.ac.uk
+Follow these steps:
+1. Email Nick Davies (n.davies@imperial.ac.uk) and he will give you a tag asset number
+    * Once you got it, plug your iMac to the ethernet and follow the self-registration process
+2. Register your machine through [ICT's website](https://imperial.service-now.com/ict/request.do)
+3. I requested "Add or change the registration details of a computer"
+    * You'll need your MAC adress for that
+    * Give it a name (ch-whatever)
+    * Your machine's host name will then be `ch-whatever.ch.ic.ac.uk`
+Then you'll be able to ssh from another machine by doing: 'ssh yourusername@ch-whatever.ch.ic.ac.uk'
 
 ## Antivirus
-Install the symantec antivirus protection software from the software shop
-https://www.imperial.ac.uk/ict/services/software/shop/index.asp
+Install the symantec antivirus protection software from the [software shop](https://www.imperial.ac.uk/ict/services/software/shop/index.asp)
 you'll receive an e-mail with the instructions to follow
 
 ## Microsoft Office 365
-Follow these instructions:
-http://www.imperial.ac.uk/admin-services/ict/shop/software/microsoft-office-365/install-office-365/mac/
+Follow these [instructions](http://www.imperial.ac.uk/admin-services/ict/shop/software/microsoft-office-365/install-office-365/mac/)
 
-    *Care* --> Point 2 is important. DON'T use your e-mail address, it's username@ic.ac.uk
-            otherwise Microsoft Office won't recognize you as an Imperial College member.
+### **Care**
+Point 2 is important. DON'T use your e-mail address, it's *username@ic.ac.uk* otherwise Microsoft Office won't recognize you as an Imperial College member.
 
 
 ## Installing Anaconda Python distribution
 
-Go to this website https://www.continuum.io/downloads
+Go to this [website](https://www.continuum.io/downloads)
 and install the PYTHON 3.5 OSX version. Follow the instructions.
 
 http://conda.pydata.org/docs/intro.html 
@@ -43,23 +41,23 @@ http://conda.pydata.org/docs/intro.html
 
 
 ## Installing AmberTools
-Follow Jason Swail's guide --> http://jswails.wikidot.com/mac-os-x
+Follow Jason Swail's [guide](http://jswails.wikidot.com/mac-os-x)
 
 Basically: 
-    1) Instal Xcode
-    2) Enable command-line tools
-    3) Download macports
-    4) Use macports to install the compilers for  AmberTools to work
+1. Instal Xcode
+2. Enable command-line tools
+3. Download macports
+4. Use macports to install the compilers for AmberTools to work
 
 
-The gcc version 4.8 (known bug in here: https://trac.macports.org/ticket/48471) failed for me so I installed the 4.9
-so the commands were:
-
-    sudo port install gcc49
-    sudo port install mpich-gcc49
-    sudo port select --set gcc mp-gcc49
-    sudo port select --set mpi mpich-gcc49-fortran
-
+The gcc version 4.8 (known bug in [here](https://trac.macports.org/ticket/48471) failed for me so I installed the 4.9 version. 
+The commands were:
+```
+sudo port install gcc49
+sudo port install mpich-gcc49
+sudo port select --set gcc mp-gcc49
+sudo port select --set mpi mpich-gcc49-fortran
+```
 Now onto actually installing the AmberTools:
 
     1) Download them from here --> http://ambermd.org/AmberTools15-get.html
