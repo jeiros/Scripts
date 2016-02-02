@@ -1,13 +1,15 @@
 # The Basics
                                                  
-The BASH interpreter in OS X loads up .bash_profile, not .bashrc!! Care with that.
-The home (~) directory in OS X is /Users/yourusername/, unlike Linux which is /home/yourusername/
+The BASH interpreter in OS X loads up `.bash_profile`, not `.bashrc`. Care with that.
+The home (~) directory in OS X is `/Users/yourusername/`, unlike Linux which is `/home/yourusername/`
+
+
 Read **all** of this before starting to do anything                                             
 
 ## Registering your Mac
 Either ICT does it for you and they install their build, or you do it yourself (and follow this guide)
 
-    Follow these steps in ORDER:
+    Follow these steps:
     1. Email Nick Davies (n.davies@imperial.ac.uk) and he will give you a tag asset number
         * Once you got it, plug your iMac to the ethernet and follow the self-registration process
     2. Register your machine through ICT's website https://imperial.service-now.com/ict/request.do
