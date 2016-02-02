@@ -1,17 +1,14 @@
-The BASH interpreter in OS X loads up .bash_profile, not .bashrc!! Care with that.
-The home (~) directory in OS X is /Users/yourusername/, unlike Linux which is /home/yourusername/
-Read all of this before starting to do anything
-
- _____ _           ______           _          
 |_   _| |          | ___ \         (_)         
   | | | |__   ___  | |_/ / __ _ ___ _  ___ ___ 
   | | | '_ \ / _ \ | ___ \/ _` / __| |/ __/ __|
   | | | | | |  __/ | |_/ / (_| \__ \ | (__\__ \
   \_/ |_| |_|\___| \____/ \__,_|___/_|\___|___/
-                                               
-                                               
+                                                 
+The BASH interpreter in OS X loads up .bash_profile, not .bashrc!! Care with that.
+The home (~) directory in OS X is /Users/yourusername/, unlike Linux which is /home/yourusername/
+Read **all** of this before starting to do anything                                             
 
-# ~~~~~Registering your Mac
+# Registering your Mac
 Either ICT does it for you and they install their build, or you do it yourself (and follow this guide)
 
     Follow these steps in ORDER:
@@ -24,12 +21,12 @@ Either ICT does it for you and they install their build, or you do it yourself (
         3.3) Your machine's host name will then be ch-whatever.ch.ic.ac.uk
             So you can ssh from another machine by doing: ssh yourusername@ch-whatever.ch.ic.ac.uk
 
-# ~~~~~Antivirus
+# Antivirus
 Install the symantec antivirus protection software from the software shop
 https://www.imperial.ac.uk/ict/services/software/shop/index.asp
 you'll receive an e-mail with the instructions to follow
 
-# ~~~~~Microsoft Office 365
+# Microsoft Office 365
 Follow these instructions:
 http://www.imperial.ac.uk/admin-services/ict/shop/software/microsoft-office-365/install-office-365/mac/
 
@@ -37,7 +34,7 @@ http://www.imperial.ac.uk/admin-services/ict/shop/software/microsoft-office-365/
             otherwise Microsoft Office won't recognize you as an Imperial College member.
 
 
-# ~~~~~ Installing Anaconda Python distribution
+# Installing Anaconda Python distribution
 
 Go to this website https://www.continuum.io/downloads
 and install the PYTHON 3.5 OSX version. Follow the instructions.
@@ -47,7 +44,7 @@ http://conda.pydata.org/docs/intro.html
 
 
 
-# ~~~~~Installing AmberTools
+# Installing AmberTools
 Follow Jason Swail's guide --> http://jswails.wikidot.com/mac-os-x
 
 Basically: 
