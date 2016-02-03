@@ -17,7 +17,7 @@ if [[ $# -lt 2 ]]; then
     exit 1
 fi
 
-
+stride=10
 
 
 prmtop=$1
@@ -33,7 +33,7 @@ echo "mol new $prmtop" >> $tmpfile
 
 for var in ${@:2} # We skip the first argument, the top file
 do
-    echo "mol addfile $var first 0 step 10 waitfor all" >> $tmpfile
+    echo "mol addfile $var first 0 step $stride waitfor all" >> $tmpfile
 done
 
 # REPLACE THE PATH TO YOUR VMD EXECUTABLE!

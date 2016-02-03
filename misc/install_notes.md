@@ -126,7 +126,7 @@ trajectories that are half the size of your RAM. More info on this issue [here](
 **I've come up with a solution to this** :heavy_exclamation_mark:
 Copy or download [this](https://github.com/jeiros/Scripts/blob/master/load_big_trajs.sh) script and save it somewhere in your 
 `$PATH` (for example, `usr/local/bin`). Then make it an executable with `chmod +x load_big_trajs.sh`.
-**Take a look at line 34 in the script and change the path to your VMD executable if it's different!**
+**Take a look at line 40 in the script and change the path to your VMD executable if it's different!**
 If you've followed the previous steps it should be the same as the one in the script, though. Now you'll be able to load multiple trajectory files 
 from the command line like so: `load_big_trajs.sh topology.prmtop trajectories*.nc` (provided you have a sensible naming scheme of your trajectories
 and they show up sequentially. Check this by doing `ls trajectories*.nc`).
