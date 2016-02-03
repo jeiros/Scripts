@@ -77,6 +77,7 @@ sudo port select --set gcc mp-gcc49
 sudo port select --set mpi mpich-gcc49-fortran
 ```
 Once you complete all of the above steps without errors, you can actually start the installation of AmberTools:
+
 1. Download them from [here](http://ambermd.org/AmberTools15-get.html)
 
 2. Follow the instructions in page 23 of the [manual](http://ambermd.org/doc12/Amber15.pdf).

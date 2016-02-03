@@ -11,6 +11,13 @@
 
 # Usage: load_big_trajs.sh topology.prmtop trajectories*.nc
 
+if [[ $# -lt 2 ]]; then
+    printf "Please provide at least two arguments (top and traj file)\n"
+    printf "Usage: load_big_trajs.sh topology.prmtop trajectories*.nc\n"
+    exit 1
+fi
+
+
 
 
 prmtop=$1
@@ -24,8 +31,7 @@ echo "mol new $prmtop" >> $tmpfile
 
 
 
-
-for var in "$@"
+for var in ${@:2} # We skip the first argument, the top file
 do
     echo "mol addfile $var first 0 step 10 waitfor all" >> $tmpfile
 done
