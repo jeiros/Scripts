@@ -70,12 +70,21 @@ doplot <- function(data, title){
   
   axis_breaks <- scale_x_continuous(breaks = round(seq(from = 1, to = last_res, length.out = 10)))
   
-  p <- ggplot(data, aes(x = Residue, y = Mean, color = Group)) + geom_line() +
-    scale_color_manual("System", labels = c("Wild Type", "Phosphorylated"), values = c("red", "blue")) +
-    geom_ribbon(aes(ymin = CI_left, ymax = CI_right, colour = NULL, fill = Group, alpha = 0.1)) +
-    guides(alpha = F) + scale_fill_discrete("System", labels = c("Wild Type", "Phosphorylated")) +
-    ylab("RMSF (Å)") + xlab("Residue number") + axis_breaks + theme_bw(15) +
-    ggtitle(title)
+  if ( last_res == 171 ) {
+    p <- ggplot(data, aes(x = Residue, y = Mean, color = Group)) + geom_line() +
+      scale_color_manual("System", labels = c("Wild Type", "Phosphorylated"), values = c("red", "blue")) +
+      geom_ribbon(aes(ymin = CI_left, ymax = CI_right, colour = NULL, fill = Group, alpha = 0.1)) +
+      guides(alpha = F) + scale_fill_discrete("System", labels = c("Wild Type", "Phosphorylated")) +
+      ylab("RMSF (Å)") + xlab("Residue number") + axis_breaks + theme_bw(15) +
+      ggtitle(title) + theme(legend.justification=c(1,0), legend.position="bottom")
+  } else {
+    p <- ggplot(data, aes(x = Residue, y = Mean, color = Group)) + geom_line() +
+      scale_color_manual("System", labels = c("Wild Type", "Phosphorylated"), values = c("red", "blue")) +
+      geom_ribbon(aes(ymin = CI_left, ymax = CI_right, colour = NULL, fill = Group, alpha = 0.1)) +
+      guides(alpha = F) + scale_fill_discrete("System", labels = c("Wild Type", "Phosphorylated")) +
+      ylab("RMSF (Å)") + xlab("Residue number") + axis_breaks + theme_bw(15) +
+      ggtitle(title) + theme(legend.position="none")
+  }
   return(p)
 }
 
@@ -114,7 +123,7 @@ rmsf_comparison_plot <- function(d1, d2) {
 }
 
 
-ff99SB <- read.table("rmsf_99SB.dat")
+ff99SB <- read.table("rmsf_ff99SB.dat")
 S1P <- read.table("all_rmsf_S1P.dat")
 SEP <- read.table("all_rmsf_SEP.dat")
 all_phos <- read.table("all_rmsf_anyphos.dat")
@@ -123,7 +132,6 @@ View(ff99SB)
 View(S1P)
 View(SEP)
 View(all_phos)
-source('~/Scripts/Rplots/rmsf_ff14SB_ff99SB.R')
 ff99SB_clean <- rmsfs_averaging(ff99SB)
 View(ff99SB_clean)
 S1P_clean <- rmsfs_averaging(S1P)

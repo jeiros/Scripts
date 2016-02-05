@@ -21,13 +21,18 @@ substr_1 <- substr(args[1], nchar(args[1]) - 16, nchar(args[1]) - 14)
 substr_2 <- substr(args[2], nchar(args[2]) - 16, nchar(args[2]) - 14)
 
 p1 <- ggplot(data=dfNew, aes(x=V2, color=Group)) +
-    geom_line(stat='density') + labs(y='Density',
-    x='Distance to Ca (Å)') + scale_x_continuous(breaks =
-    seq(0, 10)) +
-    expand_limits(x=0) + theme_bw() + theme(legend.position = c(0,1),
-    legend.justification = c(0,1), legend.background = element_rect(fill = 'white',
-    colour = 'black')) + scale_colour_discrete("Atom",
-    labels = c(paste(substr_1, "WT", collapse=""), paste(substr_2, "SP23/SP24", collapse="")))
+    geom_line(stat='density', size = 1.5) +
+    labs(y='Density', x='Distance to Ca (Å)') +
+    scale_x_continuous(breaks = seq(0, 10)) +
+    expand_limits(x=0) +
+    theme_bw(15) +
+    theme(legend.position = c(0,1),
+        legend.justification = c(0,1),
+        legend.background = element_rect(fill = 'white',
+        colour = 'black')) +
+    scale_colour_discrete("Atom",
+        labels = c(paste(substr_1, "WT", collapse=""),
+        paste(substr_2, "SP23/SP24", collapse="")))
 
 
 
