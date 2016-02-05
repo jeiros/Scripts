@@ -21,20 +21,20 @@ reduce_matrix <- function(data) {
 }
 
 plotdbipsf <- function(data){
-  
+  require(grid)
   colnames(data) <- c("Clusters", "DBI", "pSF")
   g_top <- ggplot(data, aes(x = Clusters, y = pSF)) +
-    geom_line() +
-    geom_point() +
-    theme_classic(12) +
+    geom_line(size=1) +
+    geom_point(size=2.5) +
+    theme_bw(12) +
     theme(plot.margin = unit(c(1,5,-30,-2),units="points"),
           axis.title.y = element_text(vjust =0.25)) +
     labs(y = "pSF") + scale_x_continuous(breaks = seq(2,data[nrow(data),1],by=2))
 
   g_bottom <- ggplot(data, aes(x = Clusters, y = DBI)) +
-    geom_line() +
-    geom_point() +
-    theme_classic(12) +
+    geom_line(size=1) +
+    geom_point(size=2.5) +
+    theme_bw(12) +
     theme(plot.margin = unit(c(0,5,1,6),units="points")) +
     labs(x = "Clusters", y = "DBI") + scale_x_continuous(breaks = seq(0,data[nrow(data),1],by=2))
 

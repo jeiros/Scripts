@@ -18,26 +18,23 @@ d1 <- melt(pc1, id.vars = "Time")
 d2 <- melt(pc2, id.vars = "Time")
 d3 <- melt(pc3, id.vars = "Time")
 
-p1 <- ggplot(d1, aes(x = Time, y = value, colour = variable)) + geom_line() + ylab("KLD") +
-  scale_color_discrete("") + theme(legend.position = c(1,1), legend.justification = c(1,1),
-  legend.background = element_rect(fill = "white", colour = "black")) + scale_y_continuous(limits=c(0,1)) +
+p1 <- ggplot(d1, aes(x = Time, y = value, colour = variable)) + geom_line(size=1) + ylab("KLD") +
+  scale_color_discrete("") + scale_y_continuous(limits=c(0,1)) +
   scale_x_continuous(breaks = seq(0, 750, by = 150)) + ggtitle("PC1") + xlab("Time (ns)") +
-  theme_classic(15)
+  theme_bw(15) + theme(legend.position="none") 
 
-p2 <- ggplot(d2, aes(x = Time, y = value, colour = variable)) + geom_line() + ylab("KLD") +
-  scale_color_discrete("WT runs") + theme(legend.position = c(1,1), legend.justification = c(1,1), legend.background = element_rect(fill = "white", colour = "black")) +
+p2 <- ggplot(d2, aes(x = Time, y = value, colour = variable)) + geom_line(size=1) + ylab("KLD") +
+  scale_color_discrete("WT runs") +
   scale_y_continuous(limits=c(0,1)) +
   scale_x_continuous(breaks = seq(0, 750, by = 150)) + ggtitle("PC2") + xlab("Time (ns)") +
-  theme_classic(15)
+  theme_bw(15) + theme(legend.position="none") 
 
-p3 <- ggplot(d3, aes(x = Time, y = value, colour = variable)) + geom_line() + ylab("KLD") +
-  scale_color_discrete("") + theme(legend.position = c(1,1), legend.justification = c(1,1),
-  legend.background = element_rect(fill = "white", colour = "black")) + scale_y_continuous(limits=c(0,1)) +
+p3 <- ggplot(d3, aes(x = Time, y = value, colour = variable)) + geom_line(size=1) + ylab("KLD") +
+  scale_color_discrete("WT runs") + scale_y_continuous(limits=c(0,1)) +
   scale_x_continuous(breaks = seq(0, 750, by = 150)) + ggtitle("PC3") + xlab("Time (ns)") +
-  theme_classic(15)
+  theme_bw(15) + theme(legend.justification=c(1,0), legend.position="bottom")
 
-ppi=900
-png("KL-PC_reduced_y_scale.png", width = 8*ppi, height = 8*ppi, res = ppi)
+cairo_ps("KLD.eps", width = 10, height = 10)
 source("/Users/je714/Scripts/Rplots/Multiple_plot_function.R")
 multiplot(p1,p2,p3)
 dev.off()
