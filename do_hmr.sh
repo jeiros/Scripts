@@ -10,16 +10,14 @@ if [[ $# -lt 1 ]]; then
 fi
 
 for i in $@; do
-    # tmpfile=$(mktemp /tmp/parmed_commands.txt)
-    echo $i
+    tmpfile=$(mktemp /tmp/parmed_commands.txt)
 
-    name=`echo $i | grep -o '.+?(?=.prmtop)'`
-    [[ $i =~ .+?(?=.prmtop) ]]
-    echo ${BASH_REMATCH[1]}
-#     cat > ${tmpfile} <<endmsg
-#         hmassrepartition
-#         parmout ${name}_hmr.prmtop
-# endmsg
-#     parmed.py -p ${i} -i ${tmpfile}
-#     rm ${tmpfile}
+    top_name=`echo $i | sed 's/.\{7\}$//'`
+
+    cat > ${tmpfile} <<endmsg
+        hmassrepartition
+        parmout ${top_name}_hmr.prmtop
+endmsg
+    parmed.py -p ${i} -i ${tmpfile}
+    rm ${tmpfile}
 done
