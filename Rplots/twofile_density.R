@@ -23,7 +23,7 @@ substr_2 <- substr(args[2], nchar(args[2]) - 16, nchar(args[2]) - 14)
 p1 <- ggplot(data=dfNew, aes(x=V2, color=Group)) +
     geom_line(stat='density', size = 1.5) +
     labs(y='Density', x='Distance to Ca (Å)') +
-    scale_x_continuous(breaks = seq(0, 10)) +
+    scale_x_continuous(limits = c(0, 10)) +
     expand_limits(x=0) +
     theme_bw(15) +
     theme(legend.position = c(0,1),

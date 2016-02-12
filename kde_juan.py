@@ -4,9 +4,7 @@ Plots the PC1 vs PC2 projection using a kernel density estimator to smooth the
 scatter plot
 """
 import numpy as np
-import pylab as pl
 from scipy import stats
-from scipy import interpolate
 import matplotlib.pyplot as plt
 import sys
 import argparse

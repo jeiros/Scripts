@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Run the script as ./script.py distances.dat 
+# Run the script as ./script.py distances.dat
 # Produces a file distances.png
 
 
