@@ -38,6 +38,28 @@ p1 <- ggplot(data=dfNew, aes(x=V2, color=Group)) +
 
 ggsave(paste(toString(args[3]),".eps",sep=''), plot=p1, dpi=900, width=10, height=10, units='in')
 
+
+
+# PLot for poster mutations data
+dfNew <- rbind(data.frame(G159D, Group = "G159D"),
+               data.frame(R145G, Group = "R145G"),
+               data.frame(WT, Group = "WT"),
+               data.frame(P, Group = "SP23/SP24"))
+
+
+p1 <- ggplot(data=dfNew, aes(x=V2, color=Group)) +
+  geom_line(stat='density', size = 2) +
+  labs(y='Density', x='Distance to Ca (Å)') +
+  scale_x_continuous(limits = c(0, 8)) +
+  theme_classic(35) +
+  theme(legend.position = c(0,1),
+        legend.justification = c(0,1),
+        legend.background = element_rect(fill = 'white',
+                                         colour = 'black')) +
+  scale_colour_discrete("System", labels = c("TnC G159D (DCM)", "TnI R145G (HCM)", "WT", "SP23/SP24"))
+
+
+
 # colnames(d1) = colnames(d2) = c("step", "Temp")
 # dfNew <- rbind(data.frame(d1, Group = "d1"),
 #                data.frame(d2, Group = "d2"))

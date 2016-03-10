@@ -25,13 +25,14 @@ cpptraj.OMP <<- EOF
     average crdset average_structure
     run
     rms ref average_structure
-    nativecontacts :1-89    :396-412 ref average_structure byresidue resout cmap_${name}.${simtime}ns_NcTnC-switch.dat
-    nativecontacts :1-161   :386-395 ref average_structure byresidue resout cmap_${name}.${simtime}ns_cTnC-inhib.dat
     nativecontacts :1-89    :249-289 ref average_structure byresidue resout cmap_${name}.${simtime}ns_NcTnC-NcTnI.dat
+    # nativecontacts :1-89    :396-412 ref average_structure byresidue resout cmap_${name}.${simtime}ns_NcTnC-switch.dat
+    # nativecontacts :1-161   :386-395 ref average_structure byresidue resout cmap_${name}.${simtime}ns_cTnC-inhib.dat
+    # nativecontacts :1-89    :249-289 ref average_structure byresidue resout cmap_${name}.${simtime}ns_NcTnC-NcTnI.dat
 
-    nativecontacts :249-289 :386-395 ref average_structure byresidue resout cmap_${name}.${simtime}ns_NcTnI-inhib.dat
+    # nativecontacts :249-289 :386-395 ref average_structure byresidue resout cmap_${name}.${simtime}ns_NcTnI-inhib.dat
 
-    nativecontacts :232-248 :249-289 ref average_structure byresidue resout cmap_${name}.${simtime}ns_CcTnT-NcTnI.dat
-    nativecontacts :232-248 :386-395 ref average_structure byresidue resout cmap_${name}.${simtime}ns_CcTnT-inhib.dat
+    # nativecontacts :232-248 :249-289 ref average_structure byresidue resout cmap_${name}.${simtime}ns_CcTnT-NcTnI.dat
+    # nativecontacts :232-248 :386-395 ref average_structure byresidue resout cmap_${name}.${simtime}ns_CcTnT-inhib.dat
  	run
 EOF

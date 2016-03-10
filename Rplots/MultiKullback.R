@@ -18,23 +18,23 @@ d1 <- melt(pc1, id.vars = "Time")
 d2 <- melt(pc2, id.vars = "Time")
 d3 <- melt(pc3, id.vars = "Time")
 
-p1 <- ggplot(d1, aes(x = Time, y = value, colour = variable)) + geom_line(size=1) + ylab("KLD") +
+p1 <- ggplot(d1, aes(x = Time, y = value, colour = variable)) + geom_line(size=1.5) + ylab("KLD") +
   scale_color_discrete("") + scale_y_continuous(limits=c(0,1)) +
   scale_x_continuous(breaks = seq(0, 750, by = 150)) + ggtitle("PC1") + xlab("Time (ns)") +
-  theme_bw(15) + theme(legend.position="none") 
+  theme_bw(35) + theme(legend.position="none") 
 
-p2 <- ggplot(d2, aes(x = Time, y = value, colour = variable)) + geom_line(size=1) + ylab("KLD") +
+p2 <- ggplot(d2, aes(x = Time, y = value, colour = variable)) + geom_line(size=1.5) + ylab("KLD") +
   scale_color_discrete("WT runs") +
   scale_y_continuous(limits=c(0,1)) +
   scale_x_continuous(breaks = seq(0, 750, by = 150)) + ggtitle("PC2") + xlab("Time (ns)") +
-  theme_bw(15) + theme(legend.position="none") 
+  theme_bw(35) + theme(legend.position="none") 
 
-p3 <- ggplot(d3, aes(x = Time, y = value, colour = variable)) + geom_line(size=1) + ylab("KLD") +
+p3 <- ggplot(d3, aes(x = Time, y = value, colour = variable)) + geom_line(size=1.5) + ylab("KLD") +
   scale_color_discrete("WT runs") + scale_y_continuous(limits=c(0,1)) +
   scale_x_continuous(breaks = seq(0, 750, by = 150)) + ggtitle("PC3") + xlab("Time (ns)") +
-  theme_bw(15) + theme(legend.justification=c(1,0), legend.position="bottom")
+  theme_bw(35) + theme(legend.justification=c(1,0), legend.position="bottom")
 
-cairo_ps("KLD.eps", width = 10, height = 10)
+cairo_ps("~/Dropbox (Imperial)/Poster/Pictures/KLD.eps", width = 20, height = 20)
 source("/Users/je714/Scripts/Rplots/Multiple_plot_function.R")
 multiplot(p1,p2,p3)
 dev.off()

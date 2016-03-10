@@ -50,7 +50,7 @@ if (toString(args[3]) == "NcTnC-switchpeptide") {
   max_diff =    0.20
 }
 if (toString(args[3]) == "NcTnI-inhibitorypeptide") {
-  xstride = 2
+  xstride = 3
   ystride = 1
   xlabel = "cTnI residue"
   ylabel = "cTnI residue (inhibitory peptide)"
@@ -95,12 +95,12 @@ heat_map_single <- function(data,Title = "", xlab = "", ylab = "", stride_x = 3,
   colnames(data) <- c("Res1", "Res2", "Contact") 
 
   if ((max(data$Res1) > 161) & (max(data$Res1) < 249)) {
-    data$Res1 <- data$Res1 - 161
+    data$Res1 <- data$Res1 + 50
   } else if (max(data$Res1) >= 249) {
     data$Res1 <- data$Res1 - 248
   }
   if ((max(data$Res2) > 161) & (max(data$Res2) < 249)) {
-    data$Res2 <- data$Res2 - 161
+    data$Res2 <- data$Res2 + 50
   } else if (max(data$Res2) >= 249) {
     data$Res2 <- data$Res2 - 248
   }
@@ -122,12 +122,12 @@ heat_map_diff <- function(data,Title = "", xlab = "", ylab = "", stride_x = 3, s
   colnames(data) <- c("Res1", "Res2", "Contact") 
 
   if ((max(data$Res1) > 161) & (max(data$Res1) < 249)) {
-    data$Res1 <- data$Res1 - 161
+    data$Res1 <- data$Res1 + 50
   } else if (max(data$Res1) >= 249) {
     data$Res1 <- data$Res1 - 248
   }
   if ((max(data$Res2) > 161) & (max(data$Res2) < 249)) {
-    data$Res2 <- data$Res2 - 161
+    data$Res2 <- data$Res2 + 50
   } else if (max(data$Res2) >= 249) {
     data$Res2 <- data$Res2 - 248
   }
