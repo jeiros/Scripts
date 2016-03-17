@@ -35,7 +35,7 @@ if (toString(args[3]) == "NcTnC-NcTnI") {
   xlabel = "cTnC residue"
   ylabel = "cTnI residue"
   min_single = 0
-  max_single = 1
+  max_single = 0.7
   min_diff = -0.32
   max_diff = 0.32
 }
