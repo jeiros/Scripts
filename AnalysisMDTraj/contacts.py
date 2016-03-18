@@ -8,6 +8,7 @@ import seaborn as sns
 from matplotlib import pyplot as plt
 import argparse
 import sys
+import time
 
 parser = argparse.ArgumentParser(usage="""{} Trajectories*.nc Topology.prmtop""".
                                  format(sys.argv[0]),
@@ -86,6 +87,7 @@ def get_residuepairs(start1, end1, start2, end2):
 
 
 def cmap_MDtraj(traj_generator, mask1, mask2, pairs):
+    print("Starting the cmap_MDtraj calculation...")
     frequency = np.zeros((len(mask1), len(mask2)))
     count = 0  # Keep the frame count
     for traj_chunk in traj_generator:
@@ -101,6 +103,7 @@ def cmap_MDtraj(traj_generator, mask1, mask2, pairs):
 
 
 def cmap_Cheng(traj_generator, mask1, mask2, pairs):
+    print("Starting the cmap_Cheng calculation...")
     top = md.load_prmtop(args.Topology)
     frequency = np.zeros(len(pairs))
     count = 0  # Keep the frame count
@@ -164,18 +167,26 @@ def cartesianProduct(x, y):
 
 def main():
     if args:
-            trjs = load_Trajs_generator(sorted(args.Trajectories),
-                                        prmtop_file=args.Topology,
-                                        stride=args.stride,
-                                        chunk=args.chunk)
-            mask1, mask2, pairs = get_residuepairs(args.start1, args.end1,
-                                                   args.start2, args.end2)
-            if args.Map_type == 'mdtraj':
-                cmap = cmap_MDtraj(trjs, mask1, mask2, pairs)
-            else:
-                cmap = cmap_Cheng(trjs, mask1, mask2, pairs)
-            plot_heatmap(cmap)
-
+        print('\n', args, '\n')
+        start = time.time()
+        mask1, mask2, pairs = get_residuepairs(args.start1, args.end1,
+                                               args.start2, args.end2)
+        trjs = load_Trajs_generator(sorted(args.Trajectories),
+                                    prmtop_file=args.Topology,
+                                    stride=args.stride,
+                                    chunk=args.chunk)
+        print("Trajectories have been loaded after %.2f s.\n" %
+              (time.time() - start))
+        if args.Map_type == 'mdtraj':
+            cmap = cmap_MDtraj(trjs, mask1, mask2, pairs)
+            print("MDtraj style cmap has been calculated after %.2f s.\n" %
+                  (time.time() - start))
+        else:
+            cmap = cmap_Cheng(trjs, mask1, mask2, pairs)
+            print("Cheng style cmap has been calculated after %.2f s.\n" %
+                  (time.time() - start))
+        plot_heatmap(cmap, mask1, mask2)
+        print("Total execution time: %.2f s." % (time.time() - start))
 
 if __name__ == "__main__":
     main()
