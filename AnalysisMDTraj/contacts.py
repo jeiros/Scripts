@@ -33,6 +33,9 @@ parser.add_argument("-s2", "--start2", help="""0-indexed value for the first
 
 parser.add_argument("-e2", "--end2", help="""0-indexed value for the final
                     residue of Mask2""", type=int)
+parser.add_argument("Map_type", help="""Type of calculation for the contact map.
+                    Can be either mdtraj or cheng style.""", choices=['mdtraj',
+                                                                      'cheng'])
 
 parser.add_argument("-s", "--save", help="Save the plots as .eps images",
                     action="store_true")
@@ -129,8 +132,9 @@ def cmap_Cheng(traj_generator, mask1, mask2, pairs):
                ((not_c_atoms_dist <= 4.6).sum(1).any() > 0)):
                 frequency[index] += 1
             index += 1
-    contact_frequency = (frequency/count).reshape(len(list1), len(list2))
+    contact_frequency = (frequency/count).reshape(len(mask1), len(mask2))
     return(contact_frequency)
+
 
 def plot_heatmap(contact_array, mask1, mask2):
     ax = sns.heatmap(contact_array,
@@ -157,7 +161,6 @@ def cartesianProduct(x, y):
     """
     return(np.transpose([np.tile(x, len(y)), np.repeat(y, len(x))]))
 
-  
 
 def main():
     if args:
@@ -166,10 +169,13 @@ def main():
                                         stride=args.stride,
                                         chunk=args.chunk)
             mask1, mask2, pairs = get_residuepairs(args.start1, args.end1,
-                                           args.start2, args.end2)
+                                                   args.start2, args.end2)
+            if args.Map_type == 'mdtraj':
+                cmap = cmap_MDtraj(trjs, mask1, mask2, pairs)
+            else:
+                cmap = cmap_Cheng(trjs, mask1, mask2, pairs)
+            plot_heatmap(cmap)
 
 
 if __name__ == "__main__":
     main()
-
-
