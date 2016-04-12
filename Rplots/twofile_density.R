@@ -17,8 +17,8 @@ d2 <- read.table(args[2])
 dfNew <- rbind(data.frame(d1, Group = "d1"),
                data.frame(d2, Group = "d2"))
 
-substr_1 <- substr(args[1], nchar(args[1]) - 16, nchar(args[1]) - 14)
-substr_2 <- substr(args[2], nchar(args[2]) - 16, nchar(args[2]) - 14)
+substr_1 <- substr(args[1], nchar(args[1]) - 19, nchar(args[1]) - 14)
+substr_2 <- substr(args[2], nchar(args[2]) - 19, nchar(args[2]) - 14)
 
 p1 <- ggplot(data=dfNew, aes(x=V2, color=Group)) +
     geom_line(stat='density', size = 1.5) +
@@ -41,22 +41,22 @@ ggsave(paste(toString(args[3]),".eps",sep=''), plot=p1, dpi=900, width=10, heigh
 
 
 # PLot for poster mutations data
-dfNew <- rbind(data.frame(G159D, Group = "G159D"),
-               data.frame(R145G, Group = "R145G"),
-               data.frame(WT, Group = "WT"),
-               data.frame(P, Group = "SP23/SP24"))
+# dfNew <- rbind(data.frame(G159D, Group = "G159D"),
+#                data.frame(R145G, Group = "R145G"),
+#                data.frame(WT, Group = "WT"),
+#                data.frame(P, Group = "SP23/SP24"))
 
 
-p1 <- ggplot(data=dfNew, aes(x=V2, color=Group)) +
-  geom_line(stat='density', size = 2) +
-  labs(y='Density', x='Distance to Ca (Å)') +
-  scale_x_continuous(limits = c(0, 8)) +
-  theme_classic(35) +
-  theme(legend.position = c(0,1),
-        legend.justification = c(0,1),
-        legend.background = element_rect(fill = 'white',
-                                         colour = 'black')) +
-  scale_colour_discrete("System", labels = c("TnC G159D (DCM)", "TnI R145G (HCM)", "WT", "SP23/SP24"))
+# p1 <- ggplot(data=dfNew, aes(x=V2, color=Group)) +
+#   geom_line(stat='density', size = 2) +
+#   labs(y='Density', x='Distance to Ca (Å)') +
+#   scale_x_continuous(limits = c(0, 8)) +
+#   theme_classic(35) +
+#   theme(legend.position = c(0,1),
+#         legend.justification = c(0,1),
+#         legend.background = element_rect(fill = 'white',
+#                                          colour = 'black')) +
+#   scale_colour_discrete("System", labels = c("TnC G159D (DCM)", "TnI R145G (HCM)", "WT", "SP23/SP24"))
 
 
 

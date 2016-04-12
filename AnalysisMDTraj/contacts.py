@@ -136,6 +136,8 @@ def cmap_Cheng(traj_generator, mask1, mask2, pairs):
                 frequency[index] += 1
             index += 1
     contact_frequency = (frequency/count).reshape(len(mask1), len(mask2))
+    print('Number of analyzed frames: %d\n' % count)
+    print('Aggregate simulation time: %2.f ns\n' % (count * 0.02 * args.stride))
     return(contact_frequency)
 
 

@@ -1,14 +1,15 @@
 #!/bin/bash
 
 
-simtime=$1        # Can be 000-050, 000-0500, 100-150 ...
-name=$2        # Can be CTnI_hmr CTnI_runs CTnT_hmr CTnT_runs with _run1 _run2 ...
+
+name=$1        # Can be CTnI_hmr CTnI_runs CTnT_hmr CTnT_runs with _run1 _run2 ...
                                 # Example: CTnI_hmr-run3-S1P
                                 # Example: WT-run3
-prmtop=$3
+prmtop=$2
 
-trajs=$4
+trajs=$3
 
+stride=$4
 
 printf "\nThe selected arguments are:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
@@ -20,19 +21,24 @@ printf "%s\t Trajectories\n\n" ${trajs}
 
 cpptraj.OMP <<- EOF
     parm ${prmtop}
-    trajin ${trajs}
+    trajin ${trajs} 1 last ${stride}
     rms first
     average crdset average_structure
     run
     rms ref average_structure
-    nativecontacts :1-89    :249-289 ref average_structure byresidue resout cmap_${name}.${simtime}ns_NcTnC-NcTnI.dat
-    # nativecontacts :1-89    :396-412 ref average_structure byresidue resout cmap_${name}.${simtime}ns_NcTnC-switch.dat
-    # nativecontacts :1-161   :386-395 ref average_structure byresidue resout cmap_${name}.${simtime}ns_cTnC-inhib.dat
-    # nativecontacts :1-89    :249-289 ref average_structure byresidue resout cmap_${name}.${simtime}ns_NcTnC-NcTnI.dat
+    nativecontacts :1-89    :249-289 ref average_structure byresidue resout cmap_${name}_NcTnC-NcTnI.dat
+    nativecontacts :1-89    :396-412 ref average_structure byresidue resout cmap_${name}_NcTnC-switch.dat
 
-    # nativecontacts :249-289 :386-395 ref average_structure byresidue resout cmap_${name}.${simtime}ns_NcTnI-inhib.dat
+    nativecontacts :1-161   :386-395 ref average_structure byresidue resout cmap_${name}_cTnC-inhib.dat
 
-    # nativecontacts :232-248 :249-289 ref average_structure byresidue resout cmap_${name}.${simtime}ns_CcTnT-NcTnI.dat
-    # nativecontacts :232-248 :386-395 ref average_structure byresidue resout cmap_${name}.${simtime}ns_CcTnT-inhib.dat
+    nativecontacts :249-289 :386-395 ref average_structure byresidue resout cmap_${name}_NcTnI-inhib.dat
+
+    nativecontacts :232-248 :249-289 ref average_structure byresidue resout cmap_${name}_CcTnT-NcTnI.dat
+    nativecontacts :232-248 :386-395 ref average_structure byresidue resout cmap_${name}_CcTnT-inhib.dat
  	run
 EOF
+
+for file in cmap*; do
+    sort -k1 -n ${file} > ${file}_sorted
+    mv ${file}_sorted ${file}
+done

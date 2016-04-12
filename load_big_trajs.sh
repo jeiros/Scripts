@@ -17,7 +17,7 @@ if [[ $# -lt 2 ]]; then
     exit 1
 fi
 
-stride=10
+stride=100
 
 
 prmtop=$1
