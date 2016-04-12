@@ -19,28 +19,28 @@ cpptraj.OMP <<- EOF
 	trajin ${trajs}
 
 	# Coordination sphere catalytic calcium
-	# distance CAL420D65OD1 :420 :65@OD1 out ./420-D65OD1_${name}.${simtime}ns.dat
-	# distance CAL420D65OD2 :420 :65@OD2 out ./420-D65OD2_${name}.${simtime}ns.dat
+	distance CAL420D65OD1 :420 :65@OD1 out ./420-D65OD1_${name}.${simtime}ns.dat
+	distance CAL420D65OD2 :420 :65@OD2 out ./420-D65OD2_${name}.${simtime}ns.dat
 
-	# distance CAL420E66OE1 :420 :66@OE1 out ./420-E66OE1_${name}.${simtime}ns.dat
-	# distance CAL420E66OE2 :420 :66@OE2 out ./420-E66OE2_${name}.${simtime}ns.dat
+	distance CAL420E66OE1 :420 :66@OE1 out ./420-E66OE1_${name}.${simtime}ns.dat
+	distance CAL420E66OE2 :420 :66@OE2 out ./420-E66OE2_${name}.${simtime}ns.dat
 
-	# distance CAL420D67OD1 :420 :67@OD1 out ./420-D67OD1_${name}.${simtime}ns.dat
-	# distance CAL420D67OD2 :420 :67@OD2 out ./420-D67OD2_${name}.${simtime}ns.dat
+	distance CAL420D67OD1 :420 :67@OD1 out ./420-D67OD1_${name}.${simtime}ns.dat
+	distance CAL420D67OD2 :420 :67@OD2 out ./420-D67OD2_${name}.${simtime}ns.dat
 
-	# distance CAL420S69 	  :420 :69@OG  out ./420-S69OG_${name}.${simtime}ns.dat
+	distance CAL420S69 	  :420 :69@OG  out ./420-S69OG_${name}.${simtime}ns.dat
 
-	# distance CAL420T71    :420 :71@OG1 out ./420-T71OG1_${name}.${simtime}ns.dat
+	distance CAL420T71    :420 :71@OG1 out ./420-T71OG1_${name}.${simtime}ns.dat
 	distance CAL4240T71O  :420 :71@O   out ./420-T71O_${name}.${simtime}ns.dat
 
-	# distance CAL420D73OD1 :420 :73@OD1 out ./420-D73OD1_${name}.${simtime}ns.dat
-	# distance CAL420D73OD2 :420 :73@OD2 out ./420-D73OD2_${name}.${simtime}ns.dat
+	distance CAL420D73OD1 :420 :73@OD1 out ./420-D73OD1_${name}.${simtime}ns.dat
+	distance CAL420D73OD2 :420 :73@OD2 out ./420-D73OD2_${name}.${simtime}ns.dat
 
-	# distance CAL420D75OD1 :420 :75@OD1 out ./420-D75OD1_${name}.${simtime}ns.dat
-	# distance CAL420D75OD2 :420 :75@OD2 out ./420-D75OD2_${name}.${simtime}ns.dat
+	distance CAL420D75OD1 :420 :75@OD1 out ./420-D75OD1_${name}.${simtime}ns.dat
+	distance CAL420D75OD2 :420 :75@OD2 out ./420-D75OD2_${name}.${simtime}ns.dat
 	
-	# distance CAL420E76OE1 :420 :76@OE1 out ./420-E76OE1_${name}.${simtime}ns.dat
-	# distance CAL420E76OE2 :420 :76@OE2 out ./420-E76OE2_${name}.${simtime}ns.dat
+	distance CAL420E76OE1 :420 :76@OE1 out ./420-E76OE1_${name}.${simtime}ns.dat
+	distance CAL420E76OE2 :420 :76@OE2 out ./420-E76OE2_${name}.${simtime}ns.dat
 
 
 	# distance K233-421 :233@NZ :421 out ./K233-421_${name}.${simtime}ns.dat
