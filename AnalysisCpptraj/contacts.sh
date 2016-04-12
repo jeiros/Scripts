@@ -9,7 +9,12 @@ prmtop=$2
 
 trajs=$3
 
-stride=$4
+if [ -z "$4" ]; then
+    stride=1
+else:
+    stride=$4
+fi
+
 
 printf "\nThe selected arguments are:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
