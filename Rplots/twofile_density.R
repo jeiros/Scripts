@@ -1,24 +1,26 @@
 #!/usr/bin/env Rscript
 
 
-# run as ./script.R distance_file1.dat distance_file2.dat plot.png
-
+# run as ./script.R distance_file1.dat distance_file2.dat red_label blue_label box_title plot_title file_name
 
 library(ggplot2)
 args <- commandArgs(trailingOnly = TRUE)
 
-
-args
+print(args)
 
 d1 <- read.table(args[1])
 d2 <- read.table(args[2])
+red_label <- args[3]
+blue_label <- args[4]
+box_title <- args[5]
+plot_title <- args[6]
+file_name <- args[7]
+
 
 
 dfNew <- rbind(data.frame(d1, Group = "d1"),
                data.frame(d2, Group = "d2"))
 
-substr_1 <- substr(args[1], nchar(args[1]) - 19, nchar(args[1]) - 14)
-substr_2 <- substr(args[2], nchar(args[2]) - 19, nchar(args[2]) - 14)
 
 p1 <- ggplot(data=dfNew, aes(x=V2, color=Group)) +
     geom_line(stat='density', size = 1.5) +
@@ -30,13 +32,13 @@ p1 <- ggplot(data=dfNew, aes(x=V2, color=Group)) +
         legend.justification = c(0,1),
         legend.background = element_rect(fill = 'white',
         colour = 'black')) +
-    scale_colour_discrete("Atom",
-        labels = c(paste(substr_1, "WT", collapse=""),
-        paste(substr_2, "SP23/SP24", collapse="")))
+    scale_colour_discrete(box_title,
+        labels = c(red_label, blue_label)) +
+    ggtitle(plot_title)
 
 
 
-ggsave(paste(toString(args[3]),".eps",sep=''), plot=p1, dpi=900, width=10, height=10, units='in')
+ggsave(paste(toString(file_name),".eps",sep=''), plot=p1, dpi=900, width=10, height=10, units='in')
 
 
 

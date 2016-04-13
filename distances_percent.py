@@ -7,6 +7,7 @@
 import numpy as np
 import sys
 import matplotlib.pyplot as plt
+import os
 
 loaded_data = np.loadtxt(str(sys.argv[1]))
 
@@ -31,6 +32,39 @@ def print_res(data):
     return(dist_percent_array)
 
 
+def query_yes_no(question, default="yes"):
+    """Ask a yes/no question via raw_input() and return their answer.
+
+    "question" is a string that is presented to the user.
+    "default" is the presumed answer if the user just hits <Enter>.
+        It must be "yes" (the default), "no" or None (meaning
+        an answer is required of the user).
+
+    The "answer" return value is True for "yes" or False for "no".
+    """
+    valid = {"yes": True, "y": True, "ye": True,
+             "no": False, "n": False}
+    if default is None:
+        prompt = " [y/n] "
+    elif default == "yes":
+        prompt = " [Y/n] "
+    elif default == "no":
+        prompt = " [y/N] "
+    else:
+        raise ValueError("invalid default answer: '%s'" % default)
+
+    while True:
+        sys.stdout.write(question + prompt)
+        choice = input().lower()
+        if default is not None and choice == '':
+            return valid[default]
+        elif choice in valid:
+            return valid[choice]
+        else:
+            sys.stdout.write("Please respond with 'yes' or 'no' "
+                             "(or 'y' or 'n').\n")
+
+
 def scatter_plot(array):
     x = array[0]
     y = array[1]
@@ -40,7 +74,19 @@ def scatter_plot(array):
     ax.set_ylabel('Cumulative %')
     ax.set_xlim(0, 10)
     ax.set_ylim(0, 100)
+    ax.grid(True)
+    ticklines = ax.get_xticklines() + ax.get_yticklines()
+    gridlines = ax.get_xgridlines() + ax.get_ygridlines()
+    for line in ticklines:
+        line.set_linewidth(1)
+    for line in gridlines:
+        line.set_linestyle('-.')
     ax.scatter(x, y)
-    fig.savefig(str(sys.argv[1]).replace(".dat", "") + ".png", dpi=900)
+    plot_filename = str(sys.argv[1]).replace(".dat", "") + ".eps"
+    if os.path.isfile(plot_filename):
+        var = query_yes_no("File %s exists. Do you want to overwrite?:" % plot_filename, default=None)
+        if not var:
+            sys.exit("Do not overwrite. Exiting script...\n")
+    fig.savefig(plot_filename, dpi=900)
 
 scatter_plot(print_res(loaded_data))
