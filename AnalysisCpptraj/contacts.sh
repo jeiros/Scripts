@@ -7,14 +7,13 @@ name=$1        # Can be CTnI_hmr CTnI_runs CTnT_hmr CTnT_runs with _run1 _run2 .
                                 # Example: WT-run3
 prmtop=$2
 
-trajs=$3
-
-if [ -z "$4" ]; then
+if [ -z "$3" ]; then
     stride=1
-else:
-    stride=$4
+else
+    stride=$3
 fi
 
+trajs=$4
 
 printf "\nThe selected arguments are:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"

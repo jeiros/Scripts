@@ -109,6 +109,7 @@ doplot <- function(data, title, red_label, blue_label){
   return(p)
 }
 
+
 rmsf_comparison_plot <- function(d1, d2, red_label, blue_label) {
   # Columns of d1 and d2 must be
   # Residue Mean Stdev CI_left CI_right 
