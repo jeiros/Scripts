@@ -14,10 +14,6 @@ if (toString(args[3]) == "CcTnT-NcTnI") {
   ystride = 2
   xlabel = "cTnT residue"
   ylabel = "cTnI residue"
-  min_single = 0
-  max_single = 0.17
-  min_diff = -0.12
-  max_diff = 0.12
 }
 if (toString(args[3]) == "CcTnT-inhibitorypeptide") {
   xstride = 1
@@ -159,13 +155,36 @@ p <- read.table(args[2])
 
 wt_avg <- avg_contacts(wt)
 p_avg <- avg_contacts(p)
+difference_map <- difference(df1=wt,df2=p)
+
+df1_max <- max(wt_avg$medias)
+df1_min <- min(wt_avg$medias)
+df2_max <- max(p_avg$medias)
+df2_min <- min(p_avg$medias)
+dff_max <- max(difference_map$Contact_diff)
+dff_min <- min(difference_map$Contact_diff)
+
+min_single = min(df1_min, df2_min)
+max_single = max(df1_max, df2_max)
+
+print(dff_max)
+print(dff_min)
+
+abs_diff = max(abs(dff_max), abs(dff_min))
+
+print(abs_diff)
+
+min_diff = 0 - abs_diff
+max_diff = 0 + abs_diff
+
+print(min_diff)
+print(max_diff)
 
 
 p_p <- heat_map_single(data=p_avg, Title=paste("SP23/SP24", toString(args[3]), sep=" "), xlab=xlabel, ylab=ylabel,
  stride_x=xstride, stride_y=ystride, min_contact=min_single, max_contact=max_single)
 wt_p <- heat_map_single(data=wt_avg, Title=paste("WT", toString(args[3]), sep=" "), xlab=xlabel, ylab=ylabel,
  stride_x=xstride, stride_y=ystride, min_contact=min_single, max_contact=max_single)
-
 diff_p <-  heat_map_diff(data=difference(df1=wt,df2=p), Title=paste("(SP23/SP24-WT)", " ", toString(args[3]),sep=""),
   xlab=xlabel, ylab=ylabel,
   stride_x=xstride, stride_y=ystride, min_contact=min_diff, max_contact=max_diff)
