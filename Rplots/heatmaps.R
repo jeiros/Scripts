@@ -1,72 +1,9 @@
 #!/usr/bin/env Rscript
 
 
-# run as ./script.R cmapfile1.dat cmapfile2.dat "Region To Plot"
-
-
+# run as ./script.R cmapfile1.dat cmapfile2.dat cmap1_label cmap2_label "Region To Plot"
 library(ggplot2)
 library(scales)
-args <- commandArgs(trailingOnly = TRUE)
-
-
-if (toString(args[3]) == "CcTnT-NcTnI") {
-  xstride = 1
-  ystride = 2
-  xlabel = "cTnT residue"
-  ylabel = "cTnI residue"
-}
-if (toString(args[3]) == "CcTnT-inhibitorypeptide") {
-  xstride = 1
-  ystride = 1
-  xlabel = "cTnT residue"
-  ylabel = "cTnI residue (inhibitory peptide)"
-  min_single = 0
-  max_single = 0.14
-  min_diff = -0.13
-  max_diff = 0.13
-}
-if (toString(args[3]) == "NcTnC-NcTnI") {
-  xstride = 3
-  ystride = 2
-  xlabel = "cTnC residue"
-  ylabel = "cTnI residue"
-  min_single = 0
-  max_single = 0.7
-  min_diff = -0.32
-  max_diff = 0.32
-}
-if (toString(args[3]) == "NcTnC-switchpeptide") {
-  xstride = 3
-  ystride = 1
-  xlabel = "cTnC residue"
-  ylabel = "cTnI residue (switch peptide)"
-  min_single = 0
-  max_single = 0.83
-  min_diff = -0.20
-  max_diff =    0.20
-}
-if (toString(args[3]) == "NcTnI-inhibitorypeptide") {
-  xstride = 3
-  ystride = 1
-  xlabel = "cTnI residue"
-  ylabel = "cTnI residue (inhibitory peptide)"
-  min_single = 0
-  max_single = 0.06
-  min_diff = -0.06
-  max_diff = 0.06
-}
-if (toString(args[3]) == "cTnC-inhibitorypeptide") {
-  xstride = 10
-  ystride = 1
-  xlabel = "cTnC residue"
-  ylabel = "cTnI residue (inhibitory peptide)"
-  min_single = 0
-  max_single = 0.59
-  min_diff = -0.3
-  max_diff = +0.3
-}
-
-
 
 
 
@@ -74,7 +11,7 @@ avg_contacts <- function(data){
   new_array <- c()
   for(column in 1:ncol(data)) {
     if(column%%4 == 3) {
-      new_array <- c(new_array, (data[, column]/data[, column+1]))
+      new_array <- c(new_array, (data[, column]/data[, column+ 1]))
     }
   }
   cosa <- matrix(new_array, nrow=nrow(data))
@@ -84,7 +21,7 @@ avg_contacts <- function(data){
 }
 
 
-heat_map_single <- function(data,Title = "", xlab = "", ylab = "", stride_x = 3, stride_y = 1, min_contact, max_contact) {
+heat_map_single <- function(data,Title="", xlab="", ylab="", stride_x=3, stride_y=1, min_contact, max_contact) {
   
   library(ggplot2)
   
@@ -101,17 +38,19 @@ heat_map_single <- function(data,Title = "", xlab = "", ylab = "", stride_x = 3,
     data$Res2 <- data$Res2 - 248
   }
 
-  p <- ggplot(data, aes(Res1, Res2)) + geom_tile(aes(fill = Contact)) +
-    scale_x_continuous(breaks = seq.int(min(data$Res1),max(data$Res1), by = stride_x)) +
-    scale_y_continuous(breaks = seq.int(min(data$Res2),max(data$Res2), by = stride_y)) +
-    scale_fill_gradientn(colours = c("white", "red"), limits=c(min_contact, max_contact)) + 
-    theme_classic(15) +
-    labs(title = Title, x = xlab, y = ylab)
+  p <- ggplot(data, aes(Res1, Res2)) + geom_tile(aes(fill=Contact)) +
+              scale_x_continuous(breaks=seq.int(min(data$Res1),
+                                 max(data$Res1), by=stride_x)) +
+              scale_y_continuous(breaks=seq.int(min(data$Res2),
+                                 max(data$Res2), by=stride_y)) +
+              scale_fill_gradientn(colours=c("white", "red"),
+                                   limits=c(min_contact, max_contact)) + 
+              theme_classic(15) + labs(title=Title, x=xlab, y=ylab)
   return(p)
 }
 
 
-heat_map_diff <- function(data,Title = "", xlab = "", ylab = "", stride_x = 3, stride_y = 1, min_contact, max_contact) {
+heat_map_diff <- function(data,Title="", xlab="", ylab="", stride_x=3, stride_y=1, min_contact, max_contact) {
   
   library(ggplot2)
   
@@ -128,70 +67,124 @@ heat_map_diff <- function(data,Title = "", xlab = "", ylab = "", stride_x = 3, s
     data$Res2 <- data$Res2 - 248
   }
 
-  p <- ggplot(data, aes(Res1, Res2)) + geom_tile(aes(fill = Contact)) +
-    scale_x_continuous(breaks = seq.int(min(data$Res1),max(data$Res1), by = stride_x)) +
-    scale_y_continuous(breaks = seq.int(min(data$Res2),max(data$Res2), by = stride_y)) +
-    scale_fill_gradientn(colours = c("blue","white", "red"), limits=c(min_contact,max_contact)) + 
-    theme_classic(15) +
-    labs(title = Title, x = xlab, y = ylab)
-  return(p)
+  plot <- ggplot(data, aes(Res1, Res2)) + geom_tile(aes(fill=Contact)) +
+                 scale_x_continuous(breaks=seq.int(min(data$Res1),
+                                    max(data$Res1), by=stride_x)) +
+                 scale_y_continuous(breaks=seq.int(min(data$Res2),
+                                    max(data$Res2), by=stride_y)) +
+                 scale_fill_gradientn(colours=c("blue", "white", "red"),
+                                      limits=c(min_contact, max_contact)) +
+                 # gradientn is NOT a typo, don't change it!!
+                 theme_classic(15) + labs(title=Title, x=xlab, y=ylab)
+  return(plot)
 }
 
 
 difference <- function(df1, df2) {
   
-  df_WT <- avg_contacts(df1)
-  df_P <- avg_contacts(df2)
+  df1_avg <- avg_contacts(df1)
+  df2_avg <- avg_contacts(df2)
   
-  new_df <- cbind(df_WT[,1:2], df_P[,3] - df_WT[,3])
+  new_df <- cbind(df1_avg[,1:2], df2_avg[,3] - df1_avg[,3])
   colnames(new_df) <- c("Res1", "Res2", "Contact_diff")
   return(new_df)
 }
 
 
+args <- commandArgs(trailingOnly=TRUE)
 
-wt <- read.table(args[1])
-p <- read.table(args[2])
+df1 <- read.table(args[1])
+df2 <- read.table(args[2])
 
-wt_avg <- avg_contacts(wt)
-p_avg <- avg_contacts(p)
-difference_map <- difference(df1=wt,df2=p)
+# Get maps
+df1_avg <- avg_contacts(df1)
+df2_avg <- avg_contacts(df2)
+difference_map <- difference(df1=df1,df2=df2)
 
-df1_max <- max(wt_avg$medias)
-df1_min <- min(wt_avg$medias)
-df2_max <- max(p_avg$medias)
-df2_min <- min(p_avg$medias)
+# Get mins/maxs
+df1_max <- max(df1_avg$medias)
+df1_min <- min(df1_avg$medias)
+df2_max <- max(df2_avg$medias)
+df2_min <- min(df2_avg$medias)
 dff_max <- max(difference_map$Contact_diff)
 dff_min <- min(difference_map$Contact_diff)
+abs_diff=max(abs(dff_max), abs(dff_min))
 
-min_single = min(df1_min, df2_min)
-max_single = max(df1_max, df2_max)
+# Set the min/max values for the two types of plots
+min_single <- min(df1_min, df2_min)
+max_single <- max(df1_max, df2_max)
+min_diff <- 0 - abs_diff
+max_diff <- 0 + abs_diff
 
-print(dff_max)
-print(dff_min)
-
-abs_diff = max(abs(dff_max), abs(dff_min))
-
-print(abs_diff)
-
-min_diff = 0 - abs_diff
-max_diff = 0 + abs_diff
-
-print(min_diff)
-print(max_diff)
+# Plot labels
+df1_label <- args[3]
+df2_label <- args[4]
+region <- args[5]
 
 
-p_p <- heat_map_single(data=p_avg, Title=paste("SP23/SP24", toString(args[3]), sep=" "), xlab=xlabel, ylab=ylabel,
- stride_x=xstride, stride_y=ystride, min_contact=min_single, max_contact=max_single)
-wt_p <- heat_map_single(data=wt_avg, Title=paste("WT", toString(args[3]), sep=" "), xlab=xlabel, ylab=ylabel,
- stride_x=xstride, stride_y=ystride, min_contact=min_single, max_contact=max_single)
-diff_p <-  heat_map_diff(data=difference(df1=wt,df2=p), Title=paste("(SP23/SP24-WT)", " ", toString(args[3]),sep=""),
-  xlab=xlabel, ylab=ylabel,
-  stride_x=xstride, stride_y=ystride, min_contact=min_diff, max_contact=max_diff)
+if (toString(region) == "CcTnT-NcTnI") {
+  xstride <- 1
+  ystride <- 2
+  xlabel <- "cTnT residue"
+  ylabel <- "cTnI residue"
+}
+if (toString(region) == "CcTnT-inhibitorypeptide") {
+  xstride <- 1
+  ystride <- 1
+  xlabel <- "cTnT residue"
+  ylabel <- "cTnI residue (inhibitory peptide)"
+}
+if (toString(region) == "NcTnC-NcTnI") {
+  xstride <- 3
+  ystride <- 2
+  xlabel <- "cTnC residue"
+  ylabel <- "cTnI residue"
+}
+if (toString(region) == "NcTnC-switchpeptide") {
+  xstride <- 3
+  ystride <- 1
+  xlabel <- "cTnC residue"
+  ylabel <- "cTnI residue (switch peptide)"
+}
+if (toString(region) == "NcTnI-inhibitorypeptide") {
+  xstride <- 3
+  ystride <- 1
+  xlabel <- "cTnI residue"
+  ylabel <- "cTnI residue (inhibitory peptide)"
+}
+if (toString(region) == "cTnC-inhibitorypeptide") {
+  xstride <- 10
+  ystride <- 1
+  xlabel <- "cTnC residue"
+  ylabel <- "cTnI residue (inhibitory peptide)"
+}
 
-ggsave(paste("p_",toString(args[3]),".eps",sep=''), plot=p_p, dpi=900, width=10, height=10)
-ggsave(paste("wt_",toString(args[3]),".eps",sep=''), plot=wt_p, dpi=900, width=10, height=10)
-ggsave(paste("diff_",toString(args[3]),".eps",sep=''), plot=diff_p, dpi=900, width=10, height=10)
+
+df1_p <- heat_map_single(data=df1_avg,
+                         Title=paste(df1_label, toString(region), sep=" "),
+                         xlab=xlabel, ylab=ylabel, stride_x=xstride,
+                         stride_y=ystride, min_contact=min_single,
+                         max_contact=max_single)
+
+df2_p <- heat_map_single(data=df2_avg,
+                         Title=paste(df2_label, toString(region), sep=" "),
+                         xlab=xlabel, ylab=ylabel, stride_x=xstride,
+                         stride_y=ystride, min_contact=min_single,
+                         max_contact=max_single)
+
+diff_p <-  heat_map_diff(data=difference(df1=df1,df2=df2),
+                         Title=paste(paste(df1_label, df2_label, sep='-'),
+                                     toString(region), sep=' '),
+                         xlab=xlabel, ylab=ylabel, stride_x=xstride,
+                         stride_y=ystride, min_contact=min_diff,
+                         max_contact=max_diff)
+
+ggsave(paste("df2_",toString(region),".eps",sep=''), plot=df2_p, dpi=900,
+       width=10, height=10)
+ggsave(paste("df1_",toString(region),".eps",sep=''), plot=df1_p, dpi=900,
+       width=10, height=10)
+ggsave(paste("diff_",toString(region),".eps",sep=''), plot=diff_p, dpi=900,
+       width=10, height=10)
 
 
 
