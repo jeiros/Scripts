@@ -29,12 +29,12 @@ cpptraj.OMP <<- EOF
 
 	#Diagonalize the cov matrix and get first 20 eigenvectors
 	runanalysis diagmatrix matrix_covar out \
-		./evecs-ca_${name}_${name_mask}ns.dat vecs 20 name \
+		./evecs-ca_${name}_${name_mask}.dat vecs 20 name \
 		myEvecs nmwiz nmwizfile nmwiz.nmd nmwizvecs 20 nmwizmask ${mask}
 
 	# Project fit and saved coordinates along eigenvectors
 	crdaction loaded_trajs projection PROJECT modes myEvecs beg 1 end 20 \
-		${mask} out ./myevecs_${name}_${name_mask}ns.dat
+		${mask} out ./myevecs_${name}_${name_mask}.dat
 
 	# Histogram the 3 calculated projections with a Gaussian KDE
 	
@@ -47,7 +47,7 @@ cpptraj.OMP <<- EOF
 	clear all
 
 	# Read the file with the eigenvectors
-	readdata ./evecs-ca_${name}_${name_mask}ns.dat \
+	readdata ./evecs-ca_${name}_${name_mask}.dat \
 		name Evecs
 
 	# Create a topology for the backbone only
