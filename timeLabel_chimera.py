@@ -3,4 +3,4 @@
 
 # Issue this per-frame script
 from Chimera import runCommand
-runCommand("2dlabels change timer text '%.1f ns'" % (mdInfo['frame'] *  0.02))
+runCommand("2dlabels change timer text '%.1f ns'" % (mdInfo['frame']*0.02))
