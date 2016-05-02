@@ -76,9 +76,16 @@ pvalue_plotter <- function(df) {
   
   axis_breaks <- scale_x_continuous(breaks = round(seq(from = first_res, to = last_res, length.out = 10)))
   
-  plot <- ggplot(df, aes(x=Residue, y = pvalue)) + geom_point() + geom_line(aes(x=Residue, y = 0.05, color = 'red')) +
-    axis_breaks + theme_bw(15) + theme(legend.position="none") + annotate("text", x=x_third_q , y=0.75, label = paste(proportion_string, "%")) + ylab("p-value") +
-    scale_y_continuous(limits=c(0, 1))
+  plot <- ggplot(df, aes(x=Residue, y = pvalue)) +
+          geom_point() +
+          geom_line(aes(x=Residue, y = 0.05, color = 'red')) +
+                        axis_breaks +
+          theme_bw(15) +
+          theme(legend.position="none") +
+          annotate("text", x=x_third_q , y=0.75,
+                   label = paste(proportion_string, "%")) +
+          ylab("p-value") +
+          scale_y_continuous(limits=c(0, 1))
   return(plot)
 }
 
@@ -90,21 +97,35 @@ doplot <- function(data, title, red_label, blue_label){
   axis_breaks <- scale_x_continuous(breaks = round(seq(from = first_res, to = last_res, length.out = 10)))
   
   if ( last_res == 171 ) {
-    p <- ggplot(data, aes(x = Residue, y = Mean, color = Group)) + geom_line(size=1.5) +
-      scale_color_manual("System", labels = c(red_label, blue_label), values = c("red", "blue")) +
-      geom_ribbon(aes(ymin = CI_left, ymax = CI_right, colour = NULL, fill = Group, alpha = 0.1)) +
-      guides(alpha = F) + scale_fill_discrete("System", labels = c(red_label, blue_label)) +
-      ylab("RMSF (Å)") + xlab("Residue number") + axis_breaks + theme_bw(15) +
-      ggtitle(title) + theme(legend.justification=c(1,0), legend.position="bottom") +
-      scale_y_continuous(limits=c(0,20))
+    p <- ggplot(data, aes(x = Residue, y = Mean, color = Group)) +
+         geom_line(size=1.5) +
+         scale_color_manual("System", labels = c(red_label, blue_label),
+                            values = c("red", "blue")) +
+         geom_ribbon(aes(ymin = CI_left, ymax = CI_right, colour = NULL,
+                         fill = Group, alpha = 0.1)) +
+         guides(alpha = F) +
+         scale_fill_discrete("System", labels = c(red_label, blue_label)) +
+         ylab("RMSF (Å)") + xlab("Residue number") +
+         axis_breaks +
+         theme_bw(15) +
+         ggtitle(title) +
+         theme(legend.justification=c(1,0), legend.position="bottom") +
+         scale_y_continuous(limits=c(0,20))
   } else {
-    p <- ggplot(data, aes(x = Residue, y = Mean, color = Group)) + geom_line(size=1.5) +
-      scale_color_manual("System", labels = c(red_label, blue_label), values = c("red", "blue")) +
-      geom_ribbon(aes(ymin = CI_left, ymax = CI_right, colour = NULL, fill = Group, alpha = 0.1)) +
-      guides(alpha = F) + scale_fill_discrete("System", labels = c(red_label, blue_label)) +
-      ylab("RMSF (Å)") + xlab("Residue number") + axis_breaks + theme_bw(15) +
-      ggtitle(title) + theme(legend.position="none") +
-      scale_y_continuous(limits=c(0,20))
+    p <- ggplot(data, aes(x = Residue, y = Mean, color = Group)) +
+         geom_line(size=1.5) +
+         scale_color_manual("System", labels = c(red_label, blue_label),
+                            values = c("red", "blue")) +
+         geom_ribbon(aes(ymin = CI_left, ymax = CI_right, colour = NULL,
+                         fill = Group, alpha = 0.1)) +
+         guides(alpha = F) +
+         scale_fill_discrete("System", labels = c(red_label, blue_label)) +
+         ylab("RMSF (Å)") + xlab("Residue number") +
+         axis_breaks +
+         theme_bw(15) +
+         ggtitle(title) +
+         theme(legend.position="none") +
+         scale_y_continuous(limits=c(0,20))
   }
   return(p)
 }
