@@ -1,5 +1,5 @@
 library(ggplot2)
-library(gridExtra)
+
 
 reduce_matrix <- function(data) {
   
@@ -21,27 +21,28 @@ reduce_matrix <- function(data) {
 }
 
 plotdbipsf <- function(data){
-  require(grid)
+
   colnames(data) <- c("Clusters", "DBI", "pSF")
+
+  x_axis <- scale_x_continuous(breaks=round(seq(from=min(data$Clusters),
+                                                to=max(data$Clusters),
+                                                length.out = 20)))
+
   g_top <- ggplot(data, aes(x = Clusters, y = pSF)) +
-    geom_line(size=1) +
-    geom_point(size=2.5) +
-    theme_bw(12) +
-    theme(plot.margin = unit(c(1,5,-30,-2),units="points"),
-          axis.title.y = element_text(vjust =0.25)) +
-    labs(y = "pSF") + scale_x_continuous(breaks = seq(2,data[nrow(data),1],by=2))
-
-  g_bottom <- ggplot(data, aes(x = Clusters, y = DBI)) +
-    geom_line(size=1) +
-    geom_point(size=2.5) +
-    theme_bw(12) +
-    theme(plot.margin = unit(c(0,5,1,6),units="points")) +
-    labs(x = "Clusters", y = "DBI") + scale_x_continuous(breaks = seq(0,data[nrow(data),1],by=2))
-
-## plot graphs and set relative heights
-  grid.arrange(g_top,g_bottom, heights = c(45/100,55/100))
-  grob <- arrangeGrob(g_top, g_bottom, nrow = 2)
-  #ggsave("dbipsf_prueba.png", g, width = 12, height = 10, dpi = 800)
-  plotlist <- list("top" = g_top, "bot" = g_bottom)
-  return(plotlist)
+           geom_line(size=1) +
+           geom_point(size=2.5) +
+           theme_bw() +
+           labs(y = "pSF", x='Clusters') +
+           x_axis
+  g_bot <- ggplot(data, aes(x = Clusters, y = DBI)) +
+           geom_line(size=1) +
+           geom_point(size=2.5) +
+           theme_bw() +
+           labs(y = "DBI", x='Clusters') +
+           x_axis
+  source("~/Scripts/Rplots/Multiple_plot_function.R")
+  ## plot graphs and set relative heights
+  cairo_ps("DBI_PSF.eps", width = 15, height = 12)
+  multiplot(g_top, g_bot)
+  dev.off()
 }
