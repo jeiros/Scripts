@@ -142,7 +142,7 @@ function get_clusters_kmeans {
 		cd ./cluster_${region}.runs_all
 	fi
 
-	for cluster_number in `seq 1 2 40`
+	for cluster_number in `seq 50 40 200`
 	do
 		mkdir -p ./kmeans_clusters_${cluster_number}
 		cd ./kmeans_clusters_${cluster_number}
@@ -164,72 +164,6 @@ function get_clusters_kmeans {
 }
 
 
-function get_metrics_dbscan {
-	# Calculate DBI and pSF statistics
-	# from the clustering. Calls R to 
-	# do the plots		
-	cd $WORKDIR
-	mask=$1
-
-	# Check that mask is one of the 3 that have to be used
-	if [[ "$mask" == ":232-248" ]]; then
-		region=CTnT
-		cd ./cluster_CTnT.runs_all
-	elif [[ "$mask" == ":249-294" ]]; then
-		region=NTnI
-		cd ./cluster_NTnI.runs_all
-	elif [[ "$mask" == ":383-419" ]]; then
-		region=CTnI
-		cd ./cluster_CTnI.runs_all
-	else
-		region=`echo $mask | tr -cd '[[:alnum:]]._-'`
-		cd ./cluster_${region}.runs_all
-	fi
-
-	cat > MetricsFile.dat <<-EOF
-	DBI and PSF metrics for ${region}
-	Mask is set to ${mask}
-
-	EOF
-
-	for k in {4..6}
-	do
-		for eps in `seq 2.5 .2 4.0`
-		do
-			printf "Minpoints:\t%s\n" $k >> MetricsFile.dat
-			printf "Epsilon:\t%s\n" $eps >> MetricsFile.dat
-			nlines=`wc -l < ./K.${k}.eps.${eps}/avg.summary.dat`
-			nclusters=$((nlines-1))
-			printf "Clusters:%s\n" $nclusters >> MetricsFile.dat
-			DBI=`grep -E 'DBI' ./K.${k}.eps.${eps}/info.dat | grep -o '[0-9]*\.[0-9]*'`
-			pSF=`grep -E 'pSF' ./K.${k}.eps.${eps}/info.dat | grep -o '[0-9]*\.[0-9]*'`
-			if [[ "$pSF" == "" ]]; then
-				pSF="NaN"
-			fi
-			printf "DBI index:\t%s\n" $DBI >> MetricsFile.dat
-			printf "pSF index:\t%s\n\n" $pSF >> MetricsFile.dat
-		done
-	done
-
-	grep -E 'DBI' MetricsFile.dat | grep -o '[0-9]*\.[0-9]*' > dbi.dat
-	grep -E 'pSF' MetricsFile.dat | cut -b 12-22 > psf.dat
-	grep -E 'Clusters' MetricsFile.dat | cut -d ":" -f 2 > clusters.dat
-
-	paste clusters.dat dbi.dat psf.dat > clusters_dbipsf.dat
-	sort -s -n -k 1,1 clusters_dbipsf.dat > clusters_dbipsf_sorted.dat
-
-
-	R --vanilla<<-EOF
-	source("~/Scripts/Rplots/plot_DBI_pSF.R")
-	clusters <- read.delim("./clusters_dbipsf_sorted.dat", header = FALSE, na.strings = "NaN")
-	data <- reduce_matrix(clusters)
-	plotdbipsf(data)
-	q()
-	EOF
-}
-
-
-
 
 
 # Call the functions
@@ -237,11 +171,11 @@ function get_metrics_dbscan {
 # has to be one of the options in the create_dir function
 
 create_dir $1
-get_Kdists
-plotKdists
-get_matrix
-get_clusters_dbscan $1
-get_metrics_dbscan $1
+# get_Kdists
+# plotKdists
+# get_matrix
+# get_clusters_dbscan $1
+# get_metrics_dbscan $1
 get_clusters_kmeans $1
 
 
