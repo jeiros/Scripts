@@ -142,16 +142,16 @@ function get_clusters_kmeans {
 		cd ./cluster_${region}.runs_all
 	fi
 
-	for cluster_number in `seq 50 40 200`
+	for cluster_number in `seq 1 10 100`
 	do
 		mkdir -p ./kmeans_clusters_${cluster_number}
 		cd ./kmeans_clusters_${cluster_number}
 		cpptraj.OMP <<- EOF
 			parm $topology
-			trajin $traj 1 last 10
+			trajin $traj
 			rms first
 			cluster kmeans clusters ${cluster_number} randompoint rms mass $mask \
-				sieve 10 random \
+				# msieve 10 random \
 				loadpairdist pairdist ../CpptrajPairDist out cnumvtime.dat \
 				summary avg.summary.dat info info.dat sil silhouette \
 				summarysplit avg.summarysplit.dat \
