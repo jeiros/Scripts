@@ -18,6 +18,6 @@ for i in $@; do
         hmassrepartition
         parmout ${top_name}_hmr.prmtop
 endmsg
-    parmed.py -p ${i} -i ${tmpfile}
+    parmed -p ${i} -i ${tmpfile}
     rm ${tmpfile}
 done
