@@ -42,7 +42,7 @@ plotdbipsf <- function(data){
            x_axis
   source("~/Scripts/Rplots/Multiple_plot_function.R")
   ## plot graphs and set relative heights
-  cairo_ps("DBI_PSF.eps", width = 15, height = 12)
+  pdf("DBI_PSF.pdf", width = 15, height = 12)
   multiplot(g_top, g_bot)
   dev.off()
 }
