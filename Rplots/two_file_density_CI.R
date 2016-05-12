@@ -43,13 +43,13 @@ head(df2)
 
 last_x <- floor(max(na.omit(df1[,2]), na.omit(df2[,2])))
 
-outputs_df1 <- get_CI_shade(df1, iterations=50, x_0=0, x_f=last_x)
+outputs_df1 <- get_CI_shade(df1, iterations=10, x_0=0, x_f=last_x)
 
-outputs_df2 <- get_CI_shade(df2, iterations=50, x_0=0, x_f=last_x)
+outputs_df2 <- get_CI_shade(df2, iterations=10, x_0=0, x_f=last_x)
 
 
 
-cairo_ps(paste(toString(file_name),".eps",sep=''), width=10, height=10)
+png(paste(toString(file_name),".png",sep=''), width=20, height=20)
   plot(x=c(0,last_x), y=c(0,max(outputs_df1$density$y, outputs_df2$density$y)),
        type='n', xlab="Distance to Ca (Å)", ylab="Density", main = title)
   lines(x=outputs_df1$density$x, y=outputs_df1$density$y, col='blue', lw=2)
