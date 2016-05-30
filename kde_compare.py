@@ -22,14 +22,16 @@ import numpy as np
 from scipy import stats
 import sys
 import matplotlib.pylab as plt
+
+
 def filter_lines(f, stride):
     for i, line in enumerate(f):
-        if i%stride and (i-1)%stride:
+        if i % stride and (i-1) % stride:
             yield line
 
 with open("S69_distances.dat") as f:
     dist = np.loadtxt(filter_lines(f, 3),
-                         usecols=(1,))
+                      usecols=(1,))
 
 kde = stats.gaussian_kde(dist)
 X = np.linspace(1, dist.shape[0], dist.shape[0])

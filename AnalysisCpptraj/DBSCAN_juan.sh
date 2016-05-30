@@ -28,7 +28,7 @@ function create_dir {
 		cd ./cluster_CTnI.runs_all
 	else
 		printf "Mask was set to %s\n" $mask
-		region=`echo $mask | tr -cd '[[:alnum:]]._-'`
+		region=`echo $mask | tr -cd '[[:alnum:]]._-'` # Get rid of special characters
 		mkdir -p ./cluster_${region}.runs_all
 		cd ./cluster_${region}.runs_all
 	fi
@@ -67,9 +67,9 @@ function get_matrix {
 	# The clustering metric is the all-atom RMSD				
 	cpptraj.OMP <<- EOF
 		parm $topology
-		trajin $traj 1 last 10
+		trajin $traj
 		rms first
-		cluster dbscan minpoints 4 epsilon 5.0 rms $mask savepairdist sieve 10 random
+		cluster dbscan minpoints 4 epsilon 5.0 rms $mask savepairdist
 		run
 	EOF
 }
@@ -98,7 +98,8 @@ function get_clusters_dbscan {
 		region=`echo $mask | tr -cd '[[:alnum:]]._-'`
 		cd ./cluster_${region}.runs_all
 	fi
-		
+
+
 	for k in {4..6}
 	do
 		for eps in `seq 2.5 .2 4.0`
@@ -163,7 +164,49 @@ function get_clusters_kmeans {
 	done
 }
 
+function newKmeans_clustering {
+	cd $WORKDIR
+	mask=$1
+	# Check that mask is one of the 3 that have to be used
+	if [[ "$mask" == ":232-248" ]]; then
+		region=CTnT
+		cd ./cluster_CTnT.runs_all
+	elif [[ "$mask" == ":249-294" ]]; then
+		region=NTnI
+		cd ./cluster_NTnI.runs_all
+	elif [[ "$mask" == ":383-419" ]]; then
+		region=CTnI
+		cd ./cluster_CTnI.runs_all
+	else
+		region=`echo $mask | tr -cd '[[:alnum:]]._-'`
+		cd ./cluster_${region}.runs_all
+	fi
 
+	cat > cpptraj_cmds.in <<- EOF
+		parm $topology
+		trajin $traj
+		rms first
+	EOF
+
+	for cluster_number in `seq 2 5 100`
+	do
+		mkdir -p ./kmeans_clusters_${cluster_number}
+		cat >> cpptraj_cmds.in <<- EOF
+			cluster kmeans clusters ${cluster_number} randompoint rms mass $mask \
+				loadpairdist pairdist ./CpptrajPairDist out kmeans_clusters_${cluster_number}/cnumvtime.dat \
+				summary kmeans_clusters_${cluster_number}/avg.summary.dat \
+				info kmeans_clusters_${cluster_number}/info.dat \
+				sil kmeans_clusters_${cluster_number}/silhouette \
+				summarysplit kmeans_clusters_${cluster_number}/avg.summarysplit.dat \
+				clusterout kmeans_clusters_${cluster_number}/$region.nc clusterfmt netcdf \
+				repout kmeans_clusters_${cluster_number}/${region}_repout.pdb repfmt pdb
+		EOF
+	done
+	cat >> cpptraj_cmds.in <<-EOF
+		run
+	EOF
+	cpptraj.OMP -i cpptraj_cmds.in
+}
 
 
 # Call the functions
@@ -173,11 +216,11 @@ function get_clusters_kmeans {
 create_dir $1
 # get_Kdists
 # plotKdists
-# get_matrix
+get_matrix
 # get_clusters_dbscan $1
 # get_metrics_dbscan $1
-get_clusters_kmeans $1
-
+# get_clusters_kmeans $1
+newKmeans_clustering $1
 
 
 #cluster dbscan minpoints $k epsilon $eps rms mass $mask loadpairdist pairdist ../CpptrajPairDist out cnumvtime.dat summary avg.summary.dat info info.dat clusterout clusters clusterfmt netcdf sil silhouette summarysplit avg.summarysplit.dat sieve 10

@@ -65,6 +65,7 @@ pvalue_plotter <- function(df) {
   if (is.na(proportion)) {
     proportion <- 0
   }
+
   specify_decimal <- function(x, k) format(round(x, k), nsmall=k)
   proportion <- specify_decimal(proportion,1)
   proportion_string <- toString(proportion)
@@ -93,7 +94,7 @@ doplot <- function(data, title, red_label, blue_label){
   
   last_res <- max(data$Residue)
   first_res <- min(data$Residue)
-  
+
   axis_breaks <- scale_x_continuous(breaks = round(seq(from = first_res, to = last_res, length.out = 10)))
   
   if ( last_res == 171 ) {
@@ -158,7 +159,7 @@ pvalue_comparison_plot <- function(df) {
   # rmsf data frames (rmsfs_ttests output)
   TnC <- df[1:161,]
   TnT <- df[162:248,]
-  TnI <- df[248:419,]
+  TnI <- df[249:419,]
 
   TnT$Residue <- TnT$Residue + 50
   TnI$Residue <- TnI$Residue - 248
@@ -190,12 +191,14 @@ d1_rmsfs <- rmsfs_return(d1)
 d2_rmsfs <- rmsfs_return(d2)
 
 # Save RMSF comparison picture
-cairo_ps(paste(toString(args[3]),".eps",sep=''), width=8, height=10)
+png(paste(toString(args[3]),".png",sep=''), width=20, height=20*1.6180,
+    units='cm', res=300)
 rmsf_comparison_plot(d1_clean, d2_clean, red_label=args[4], blue_label=args[5])
 dev.off()
 
 # Save p value analysis picture
-cairo_ps(paste(toString(args[3]),"_pValues.eps",sep=''), width=8, height=10)
+png(paste(toString(args[3]),"_pValues.png",sep=''), width=20, height=20*1.6180,
+    units='cm', res=300)
 pvalue_comparison_plot(rmsfs_ttests(d1_rmsfs, d2_rmsfs))
 dev.off()
 

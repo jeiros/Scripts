@@ -10,17 +10,21 @@ Dirs are ${directories}
 EOF
 
 for dir in ${directories}; do
+    echo $dir
     nlines=`wc -l < ./${dir}/avg.summary.dat`
-    rc=$?
-    if [[ $rc != 0 ]]; then continue; fi
+    # rc=$?
+    # if [[ $rc != 0 ]]; then continue; fi
     nclusters=$((nlines-1))
+    echo $nclusters
     if [[ $nclusters -eq -1 ]]; then
         $nclusters="NaN"
         echo "derp"
     fi
     printf "Clusters:%s\n" $nclusters >> MetricsFile.dat
     DBI=`grep -E 'DBI' ./${dir}/info.dat | grep -o '[0-9]*\.[0-9]*'`
+    echo $DBI
     pSF=`grep -E 'pSF' ./${dir}/info.dat | grep -o '[0-9]*\.[0-9]*'`
+    echo $pSF
     if [[ "$pSF" == "" ]]; then
         pSF="NaN"
     fi
