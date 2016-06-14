@@ -9,6 +9,7 @@ from matplotlib import pyplot as plt
 import argparse
 import sys
 import time
+from tqdm import tqdm
 
 parser = argparse.ArgumentParser(usage="""{} Trajectories*.nc Topology.prmtop""".
                                  format(sys.argv[0]),
@@ -38,7 +39,7 @@ parser.add_argument("Map_type", help="""Type of calculation for the contact map.
                     Can be either mdtraj or cheng style.""", choices=['mdtraj',
                                                                       'cheng'])
 
-parser.add_argument("-s", "--save", help="Save the plots as .eps images",
+parser.add_argument("-s", "--save", help="Save the plots as .png images",
                     action="store_true")
 
 parser.add_argument("-st", "--stride", help="""Stride for the loading of the
@@ -50,8 +51,8 @@ parser.add_argument("-ch", "--chunk", help="""Number of frames that will be
                     a multiplier of the stride.
                     Default is 100 frames.""", default=100, type=int)
 
-parser.add_argument("-t", "--title", help="""Name of the eps image where
-                    plot is stored. Default is PCA.""", default="PCA.eps")
+parser.add_argument("-t", "--title", help="""Name of the image where
+                    plot is stored. Default is PCA.""", default="PCA.png")
 
 args = parser.parse_args()
 
@@ -90,7 +91,7 @@ def cmap_MDtraj(traj_generator, mask1, mask2, pairs):
     print("Starting the cmap_MDtraj calculation...")
     frequency = np.zeros((len(mask1), len(mask2)))
     count = 0  # Keep the frame count
-    for traj_chunk in traj_generator:
+    for traj_chunk in tqdm(traj_generator):
         count += traj_chunk.n_frames
         distances_inChunk = md.compute_contacts(traj_chunk, pairs, scheme='ca')
         column_sum = (distances_inChunk[0] <= 4).sum(0)  # Sum by column
@@ -107,17 +108,18 @@ def cmap_Cheng(traj_generator, mask1, mask2, pairs):
     top = md.load_prmtop(args.Topology)
     frequency = np.zeros(len(pairs))
     count = 0  # Keep the frame count
-    for traj_chunk in traj_generator:
+    for traj_chunk in tqdm(traj_generator):
         count += traj_chunk.n_frames
         index = 0  # To iterate through the residue-residue pair list
         for residue_pair in pairs:
             # Atom selection for each residue in the pair
             c_atoms_residue1 = top.select("resid %d and (type C)" %
                                           residue_pair[0])
-            not_c_atoms_residue1 = top.select("resid %d and not type C" %
-                                              residue_pair[0])
             c_atoms_residue2 = top.select("resid %d and type C" %
                                           residue_pair[1])
+
+            not_c_atoms_residue1 = top.select("resid %d and not type C" %
+                                              residue_pair[0])
             not_c_atoms_residue2 = top.select("resid %d and not type C" %
                                               residue_pair[1])
             # Calculate all the possible distances between the C-C atoms and the
@@ -146,9 +148,10 @@ def plot_heatmap(contact_array, mask1, mask2):
                      vmin=0, vmax=1,
                      xticklabels=mask2,
                      yticklabels=mask1)
+    plt.title(args.title)
     ax.invert_yaxis()
     if args.save:
-        plt.savefig(args.title, dpi=900, format='eps')
+        plt.savefig("".join(args.title, ".png"), dpi=300, format='png')
     else:
         sns.plt.show()
 
