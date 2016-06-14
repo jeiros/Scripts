@@ -99,7 +99,7 @@ df2 <- read.table(args[2])
 # Get maps
 df1_avg <- avg_contacts(df1)
 df2_avg <- avg_contacts(df2)
-difference_map <- difference(df1=df1,df2=df2)
+difference_map <- difference(df1=df1, df2=df2)
 
 # Get mins/maxs
 df1_max <- max(df1_avg$medias)
@@ -128,7 +128,7 @@ if (toString(region) == "CcTnT-NcTnI") {
   xlabel <- "cTnT residue"
   ylabel <- "cTnI residue"
 }
-if (toString(region) == "CcTnT-inhibitorypeptide") {
+if (toString(region) == "CcTnT-inhib") {
   xstride <- 1
   ystride <- 1
   xlabel <- "cTnT residue"
@@ -140,19 +140,19 @@ if (toString(region) == "NcTnC-NcTnI") {
   xlabel <- "cTnC residue"
   ylabel <- "cTnI residue"
 }
-if (toString(region) == "NcTnC-switchpeptide") {
+if (toString(region) == "NcTnC-switch") {
   xstride <- 3
   ystride <- 1
   xlabel <- "cTnC residue"
   ylabel <- "cTnI residue (switch peptide)"
 }
-if (toString(region) == "NcTnI-inhibitorypeptide") {
+if (toString(region) == "NcTnI-inhib") {
   xstride <- 3
   ystride <- 1
   xlabel <- "cTnI residue"
   ylabel <- "cTnI residue (inhibitory peptide)"
 }
-if (toString(region) == "cTnC-inhibitorypeptide") {
+if (toString(region) == "cTnC-inhib") {
   xstride <- 10
   ystride <- 1
   xlabel <- "cTnC residue"
@@ -173,7 +173,7 @@ df2_p <- heat_map_single(data=df2_avg,
                          max_contact=max_single)
 
 diff_p <-  heat_map_diff(data=difference(df1=df1,df2=df2),
-                         Title=paste(paste(df1_label, df2_label, sep='-'),
+                         Title=paste(paste(df2_label, df1_label, sep='-'),
                                      toString(region), sep=' '),
                          xlab=xlabel, ylab=ylabel, stride_x=xstride,
                          stride_y=ystride, min_contact=min_diff,
