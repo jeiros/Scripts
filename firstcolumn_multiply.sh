@@ -9,5 +9,5 @@ if [[ $# -ne 2 ]]; then
   printf "Provide two arguments please\n"
   printf "Usage: firstcolumn_multiply.sh input output\n"
 else
-  awk '{printf($1*0.2"\t\t");for(i=2;i<=NF;++i) printf("%s\t\t", $i); printf("\n")}' ${input} > ${output}
+  awk '{printf($1*0.02"\t\t");for(i=2;i<=NF;++i) printf("%s\t\t", $i); printf("\n")}' ${input} > ${output}
 fi
