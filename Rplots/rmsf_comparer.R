@@ -97,6 +97,7 @@ doplot <- function(data, title, red_label, blue_label){
 
   axis_breaks <- scale_x_continuous(breaks = round(seq(from = first_res, to = last_res, length.out = 10)))
   
+
   if ( last_res == 171 ) {
     p <- ggplot(data, aes(x = Residue, y = Mean, color = Group)) +
          geom_line(size=1.5) +
@@ -110,8 +111,7 @@ doplot <- function(data, title, red_label, blue_label){
          axis_breaks +
          theme_bw(15) +
          ggtitle(title) +
-         theme(legend.justification=c(1,0), legend.position="bottom") +
-         scale_y_continuous(limits=c(0,20))
+         theme(legend.justification=c(1,0), legend.position="bottom")
   } else {
     p <- ggplot(data, aes(x = Residue, y = Mean, color = Group)) +
          geom_line(size=1.5) +
@@ -125,8 +125,7 @@ doplot <- function(data, title, red_label, blue_label){
          axis_breaks +
          theme_bw(15) +
          ggtitle(title) +
-         theme(legend.position="none") +
-         scale_y_continuous(limits=c(0,20))
+         theme(legend.position="none")
   }
   return(p)
 }
@@ -146,9 +145,19 @@ rmsf_comparison_plot <- function(d1, d2, red_label, blue_label) {
                data.frame(d2[249:419,], Group = "d2"))
   TnI$Residue <- TnI$Residue - 248
 
-  tnc_plot <- doplot(TnC, "cTnC", red_label, blue_label)
-  tnt_plot <- doplot(TnT, "cTnT", red_label, blue_label)
-  tni_plot <- doplot(TnI, "cTnI", red_label, blue_label)
+
+  min_y <- min(min(TnC$CI_left, TnT$CI_left), TnI$CI_left)
+  max_y <- max(max(TnC$CI_right, TnT$CI_right), TnI$CI_right)
+
+  print(min_y)
+  print(max_y)
+
+  tnc_plot <- doplot(TnC, "cTnC", red_label, blue_label) +
+              scale_y_continuous(limits=c(min_y, max_y))
+  tnt_plot <- doplot(TnT, "cTnT", red_label, blue_label) +
+              scale_y_continuous(limits=c(min_y, max_y))
+  tni_plot <- doplot(TnI, "cTnI", red_label, blue_label) +
+              scale_y_continuous(limits=c(min_y, max_y))
 
   source("/Users/je714/Scripts/Rplots/Multiple_plot_function.R")
   return(multiplot(tnc_plot, tnt_plot, tni_plot))
@@ -163,6 +172,8 @@ pvalue_comparison_plot <- function(df) {
 
   TnT$Residue <- TnT$Residue + 50
   TnI$Residue <- TnI$Residue - 248
+
+
 
   tnc_plot <- pvalue_plotter(TnC) + ggtitle("cTnC")
   tnt_plot <- pvalue_plotter(TnT) + ggtitle("cTnT")
