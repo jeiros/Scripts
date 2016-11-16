@@ -8,19 +8,18 @@ if [[ $# -lt 3 ]]; then
     exit 1
 fi
 
-
-
-
 timestep=$1
 topology=$2
 trajs=$3
 
 
-FRAMES=$(cpptraj -p ${topology} -y ${trajs} -tl | -cut -d " " -f 2 | bc)
+# Cpptraj one liner to give amount of frames in trajectory
+# Prints to stdout
+# Frames: XXXX
+# Use cut -d " " -f 2 to get only the number after the space
+FRAMES=$(cpptraj -p ${topology} -y ${trajs} -tl | cut -d " " -f 2 | bc)
+# Use bc to multiply by the timestep
+TIME=$(echo "${FRAMES}*${timestep}" | bc)
 
 
-TIME=$("${FRAMES}*{timestep}" | bc -l)
-
-echo ${TIME}" ns"
-
-
+echo $TIME" ns"
