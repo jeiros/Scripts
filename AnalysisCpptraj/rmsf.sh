@@ -12,7 +12,7 @@ trajs=$3
 
 cpptraj.OMP <<- EOF
     parm ${prmtop}
-    trajin ${trajs}
+    trajin ${trajs} 1 last 10
     rms first @CA,C,O,N,H
     average crdset average_structure @CA,C,O,N,H
     run

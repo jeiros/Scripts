@@ -5,8 +5,8 @@ import argparse
 import sys
 
 parser = argparse.ArgumentParser(
-        usage="{} Files*[0-9].dat".format(sys.argv[0]),
-        epilog="""Changes the naming of the selected files from
+    usage="{} Files*[0-9].dat".format(sys.argv[0]),
+    epilog="""Changes the naming of the selected files from
          1,2-digit numbering to 3-digit numbering""")
 
 parser.add_argument("Files", help="An indefinite amount of files", nargs="+")
@@ -50,7 +50,8 @@ def main():
         # 'A' stores the initial characters
         # 'B' stores the number
         # 'C' stores the .dat string
-        pattern = re.compile(r'(?P<A>.*?(?=[0-9]+.dat))(?P<B>[0-9]*?(?=.dat))(?P<C>.dat)')
+        pattern = re.compile(
+            r'(?P<A>.*?(?=[0-9]+.dat))(?P<B>[0-9]*?(?=.dat))(?P<C>.dat)')
         namechange(args.Files, pattern)
 if __name__ == "__main__":
     main()
