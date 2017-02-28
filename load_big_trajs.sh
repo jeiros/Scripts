@@ -37,6 +37,6 @@ do
 done
 
 # REPLACE THE PATH TO YOUR VMD EXECUTABLE!
-/Applications/VMD1.9.2.app/Contents/Resources/VMD.app/Contents/MacOS/VMD -e $tmpfile -size 1920 1080
+/Applications/VMD1.9.3.app/Contents/Resources/VMD.app/Contents/MacOS/VMD -e $tmpfile -size 1920 1080
 
 rm $tmpfile
