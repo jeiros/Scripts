@@ -10,6 +10,8 @@ import argparse
 import sys
 import time
 from tqdm import tqdm
+import uncertainties.unumpy as unumpy
+import pandas as pd
 
 parser = argparse.ArgumentParser(usage="""{} Trajectories*.nc Topology.prmtop""".
                                  format(sys.argv[0]),
@@ -160,23 +162,161 @@ def cmap_Cheng(traj_generator, mask1, mask2, pairs):
                ((not_c_atoms_dist <= 4.6).sum(1).any() > 0)):
                 frequency[index] += 1
             index += 1
-    contact_frequency = (frequency/count).reshape(len(mask1), len(mask2))
+    contact_frequency = (frequency / count).reshape(len(mask1), len(mask2))
     print('Number of analyzed frames: %d\n' % count)
     print('Aggregate simulation time: %2.f ns\n' % (count * 0.02 * args.stride))
     return(contact_frequency)
 
 
-def plot_heatmap(contact_array, mask1, mask2):
-    ax = sns.heatmap(contact_array,
-                     vmin=0, vmax=1,
-                     xticklabels=mask2,
-                     yticklabels=mask1)
-    plt.title(args.title)
-    ax.invert_yaxis()
-    if args.save:
-        plt.savefig("".join(args.title, ".png"), dpi=300, format='png')
+# PLOTTING FUNCTIONS
+
+
+def renumber_mask(mask):
+    """
+    Renumbers the mask to match the correct sequence of each
+    subunit. Also takes into account the 0-indexed lists of
+    Python.
+    """
+    if max(mask) > 160 and max(mask) < 249:
+        # It's in cTnT
+        new_mask = [x + 51 for x in mask]
+    elif max(mask) >= 249:
+        # It's in cTnI
+        new_mask = [x - 247 for x in mask]
     else:
-        sns.plt.show()
+        # It's in cTnC
+        new_mask = [x + 1 for x in mask]
+    return(new_mask)
+
+
+def plot_heatmap(contact_array, mask1, mask2, title=None, save=True,
+                 x_label=None, y_label=None,
+                 x_steps=True, y_steps=True,
+                 min_value=0, max_value=1,
+                 std_array=None):
+    """
+    Plot a single heatmap on a red color scale.
+    """
+    if std_array is not None:
+        # Make figure bigger as the annotation takes a lot of space
+        fig, ax = plt.subplots(figsize=(20, 20))
+    else:
+        fig, ax = plt.subplots(figsize=(10, 10))
+    # Check what part of cTn mask1 is in and renumber accordingly
+    new_mask1 = renumber_mask(mask1)
+    new_mask2 = renumber_mask(mask2)
+
+    # Convert to a pd.DataFrame so sns.heatmap() can read it's
+    # row/column labels properly
+    contact_df = pd.DataFrame(contact_array, index=new_mask2,
+                              columns=new_mask1)
+
+    if std_array is not None:
+        ax = sns.heatmap(contact_df,
+                         vmin=min_value,
+                         vmax=max_value,
+                         xticklabels=x_steps,
+                         yticklabels=y_steps,
+                         cmap='Reds',
+                         linewidths=.5,
+                         annot=std_array,
+                         fmt='.2f',
+                         annot_kws={'rotation': 'vertical'})
+    else:
+        ax = sns.heatmap(contact_df,
+                         vmin=min_value,
+                         vmax=max_value,
+                         xticklabels=x_steps,
+                         yticklabels=y_steps,
+                         cmap='Reds',
+                         linewidths=.5)
+
+    plt.gca().invert_yaxis()
+
+    plt.xticks(rotation='vertical')
+    plt.yticks(rotation='horizontal')
+
+    if title is not None:
+        plt.title(title)
+    if x_label is not None:
+        plt.xlabel(x_label)
+    if y_label is not None:
+        plt.ylabel(y_label)
+    if save:
+        if title is None:
+            raise ValueError("Need a title to save the figure.")
+        else:
+            filename = title.replace(" ", "")
+            filename += ".png"
+            plt.savefig(filename, format='png', dpi=300)
+    else:
+        plt.show()
+
+
+def plot_diffmap(contact_array, mask1, mask2, title=None, save=True,
+                 x_label=None, y_label=None,
+                 x_steps=True, y_steps=True,
+                 std_array=None):
+    """
+    Plots a difference heatmap with a blue-grey-red diverging
+    color scale.
+    """
+    if std_array is not None:
+        # Make figure bigger as the annotation takes a lot of space
+        fig, ax = plt.subplots(figsize=(20, 20))
+    else:
+        fig, ax = plt.subplots(figsize=(10, 10))
+
+    # Check what part of cTn mask1 is in and renumber accordingly
+    new_mask1 = renumber_mask(mask1)
+    new_mask2 = renumber_mask(mask2)
+
+    contact_df = pd.DataFrame(contact_array, index=new_mask2,
+                              columns=new_mask1)
+
+    # Diverging palette with light colour on the middle
+    cmap = sns.diverging_palette(240, 10, as_cmap=True)
+
+    if std_array is not None:
+        ax = sns.heatmap(contact_df,
+                         vmin=contact_array.min(),
+                         vmax=contact_array.max(),
+                         xticklabels=x_steps,
+                         yticklabels=y_steps,
+                         annot=std_array,
+                         mask=std_array <= 0.01,  # Only values GE 0.01 will be displayed
+                         fmt='.2f',
+                         annot_kws={'rotation': 'vertical'},
+                         cmap=cmap,
+                         linewidths=.5)
+    else:
+        ax = sns.heatmap(contact_df,
+                         vmin=contact_array.min(),
+                         vmax=contact_array.max(),
+                         xticklabels=x_steps,
+                         yticklabels=y_steps,
+                         cmap=cmap,
+                         linewidths=.5)
+
+    plt.gca().invert_yaxis()
+    plt.xticks(rotation='vertical')
+    plt.yticks(rotation='horizontal')
+
+    if title is not None:
+        plt.title(title)
+    if x_label is not None:
+        plt.xlabel(x_label)
+    if y_label is not None:
+        plt.ylabel(y_label)
+    if save:
+        if title is None:
+            raise ValueError("Need a title to save the figure.")
+        else:
+            filename = title.replace(" ", "")
+            filename += ".png"
+            plt.savefig(filename, format='png', dpi=300)
+    else:
+        plt.show()
 
 
 def cartesianProduct(x, y):
