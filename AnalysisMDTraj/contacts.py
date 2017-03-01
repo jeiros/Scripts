@@ -87,19 +87,42 @@ def get_residuepairs(start1, end1, start2, end2):
     return(mask1, mask2, pairs)
 
 
-def cmap_MDtraj(traj_generator, mask1, mask2, pairs):
-    print("Starting the cmap_MDtraj calculation...")
+def cmap_MDtraj(traj_generator, mask1, mask2, pairs, distance_cutoff=7, scheme='ca'):
+    """
+    Returns a contact map between two masks. Contacts between two residues
+    range between 0 (if never present) and 1 (if present in all frames).
+    Parameters
+    ----------
+    traj_generator: generator
+        MD trajectory as obtained through the load_Trajs_generator() function
+    mask1, mask2, pairs:
+        Two masks and the corresponding residue-residue list of tuples
+        as obtained from the get_residuepairs() function
+    distance_cutoff: int
+        Distance value (in Å) to meet the criteria of contact.
+    scheme: str
+        Any of the three schemes allowed by md.compute_contacts
+        ['ca', 'closest', 'closest-heavy']
+    Returns
+    -------
+    contact_frequency: np.array w/ shape (len(mask1), len(mask2))
+        Contact map between mask1 and mask2. Can be used directly as
+        input by the sns.heatmap() function.
+    """
+    # store the partial sum of contacts
     frequency = np.zeros((len(mask1), len(mask2)))
     count = 0  # Keep the frame count
-    for traj_chunk in tqdm(traj_generator):
+    for traj_chunk in traj_generator:
         count += traj_chunk.n_frames
-        distances_inChunk = md.compute_contacts(traj_chunk, pairs, scheme='ca')
-        column_sum = (distances_inChunk[0] <= 4).sum(0)  # Sum by column
-        frequency += column_sum.reshape(len(mask1), len(mask2))  # Sum the partial result to frequency
-
-    contact_frequency = frequency / count  # Total contact value for each residue-residue pair. From 0 to 1.
-    print('Number of analyzed frames: %d\n' % count)
-    print('Aggregate simulation time: %2.f ns\n' % (count * 0.02 * args.stride))
+        distances_inChunk = md.compute_contacts(traj_chunk, pairs,
+                                                scheme=scheme)
+        # Sum by column
+        # Divide the cutoff by 10 as mdtraj uses nm instead of Å
+        column_sum = (distances_inChunk[0] <= distance_cutoff / 10).sum(0)
+        # Sum the partial result to frequency
+        frequency += column_sum.reshape(len(mask1), len(mask2))
+    contact_frequency = frequency / count
+    # Total contact value for each residue-residue pair. From 0 to 1.
     return(contact_frequency)
 
 
