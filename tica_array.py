@@ -45,7 +45,15 @@ def plot_tic_array(tica_trajs, nrows, ncols, ts=0.2,
     fig, ax_list = plt.subplots(nrows=nrows, ncols=ncols, **subplot_kwargs)
     for i in range(nrows):
         for j in range(ncols):
-            ax = ax_list[i][j]
+            if (nrows == 1) and (ncols == 1):
+                # User just passed a 1x1 array...
+                ax = ax_list
+            elif nrows == 1:
+                ax = ax_list[j]
+            elif ncols == 1:
+                ax = ax_list[i]
+            else:
+                ax = ax_list[i][j]
             ax.grid(False)
             if i == j:
                 msme.plot_trace(tica_trajs[:, i], ax=ax, **trace_kwargs)
@@ -54,7 +62,6 @@ def plot_tic_array(tica_trajs, nrows, ncols, ts=0.2,
 
                 ax.grid(False, axis='y')
                 ax.set_xlabel('Time ($\mu$s)')
-                ax.sharey = False
             else:
                 msme.plot_free_energy(tica_trajs, obs=(j, i), ax=ax,
                                       **free_energy_kwargs)
