@@ -66,10 +66,11 @@ def write_Gaussian_script(out_fname, molecule):
         with open(out_fname + '%02d.com' % (i + 1), 'w') as f:
             f.write(pre_cmds)
             for atom in conformer:
-                f.write(' %s\t%.6f\t%.6f\t%.6f\n' % (atom[0],
-                                                     atom[1][0],
-                                                     atom[1][1],
-                                                     atom[1][2]))
+                f.write(' %s\t%.6f\t%.6f\t%.6f\n' % (atom[0],      # Symbol
+                                                     atom[1][0],   # x
+                                                     atom[1][1],   # y
+                                                     atom[1][2]))  # z
+            f.write('\n')  # Ensure a blank line at the end
     print('Succesfully wrote %d files' % n_conformers)
 
 if __name__ == '__main__':

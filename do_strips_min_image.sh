@@ -1,1 +1,0 @@
-/mnt/titanx2/ligand_binding/G159D_P/SilybinA/MD3/S1P/adaptive/filtered/do_strips_autoimage.sh

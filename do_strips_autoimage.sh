@@ -8,12 +8,12 @@ do
     (
     echo "$dir"
     cd trajs || exit
-    if [ ! -f "./run_$(printf %02d ${COUNTER})_${dir}.nc" ]
+    if [ ! -f ./${dir}.nc ]
     then
         echo "parm ../striped.prmtop
         trajin ../${dir}/Production.filtered.nc
         autoimage
-        trajout ./run_$(printf %02d ${COUNTER})_${dir}.nc" >> cmds.cpptraj
+        trajout ./${dir}.nc" >> cmds.cpptraj
         cpptraj -i cmds.cpptraj
         rm cmds.cpptraj
     fi
@@ -24,7 +24,7 @@ do
     # do min image script
     (
     cd $dir || exit
-    if [ ! -f '*pdb' ]
+    if [ ! -f *.pdb ]
     then
         min_image.py ../striped.prmtop Production.filtered.nc
     fi

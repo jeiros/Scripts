@@ -79,4 +79,7 @@ def main():
     T[min_frames[min_image]].save_pdb(pdb_filename)
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except:
+        sys.exit(0)
