@@ -1,4 +1,9 @@
 #!/usr/bin/env python
+
+'''
+This is adapted from
+https://gist.github.com/leeping/367d9a45e156a258bd939669173ff8af
+'''
 from __future__ import print_function
 import mdtraj as md
 import time
@@ -6,15 +11,27 @@ import numpy as np
 from copy import deepcopy
 import itertools
 import sys
+import argparse
+parser = argparse.ArgumentParser(prog='min_image.py',
+                                 formatter_class=argparse.RawDescriptionHelpFormatter,
+                                 description='''
+____________________________________________________________________________
+| A program that finds the frame in a netcdf trajectory where the distance  |
+| between neighbouring simulation boxes is minimal                          |
+''')
+
+parser.add_argument('-p', '--prmtop', type=str, required=True)
+parser.add_argument('-t', '--trajs', nargs='+', required=True)
+parser.add_argument('-st', '--stride', type=int, required=False, default=10)
 
 
 def main():
-    TOP = sys.argv[1]
-    STRIDE = 10
-    TRAJS = sys.argv[2:]
+    args = parser.parse_args()
+    TOP = args.prmtop
+    STRIDE = args.stride
+    TRAJS = args.trajs
 
-    print('Topology is %s' % TOP)
-    print('Trajs are {}'.format(list(TRAJS)))
+    print(args)
 
     t0 = time.time()
     T = md.load(TRAJS, top=TOP, stride=STRIDE)
