@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from atomic_symbols import symbols
+from gaussian_parsing import symbols
 import argparse
 parser = argparse.ArgumentParser(prog='create_Gaussian_scripts.py',
                                  formatter_class=argparse.RawDescriptionHelpFormatter,

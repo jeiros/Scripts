@@ -2,131 +2,17 @@ from cclib.io import ccread
 import numpy as np
 import glob
 from cclib.parser import utils
+import mdtraj
+from matplotlib import pyplot as plt
+import pandas as pd
 
-symbols = [
-    'Ac',
-    'Ag',
-    'Al',
-    'Am',
-    'Ar',
-    'As',
-    'At',
-    'Au',
-    'B',
-    'Ba',
-    'Be',
-    'Bh',
-    'Bi',
-    'Bk',
-    'Br',
-    'C',
-    'Ca',
-    'Cd',
-    'Ce',
-    'Cf',
-    'Cl',
-    'Cm',
-    'Cn',
-    'Co',
-    'Cr',
-    'Cs',
-    'Cu',
-    'Db',
-    'Ds',
-    'Dy',
-    'Er',
-    'Es',
-    'Eu',
-    'F',
-    'Fe',
-    'Fl',
-    'Fm',
-    'Fr',
-    'Ga',
-    'Gd',
-    'Ge',
-    'H',
-    'He',
-    'Hf',
-    'Hg',
-    'Ho',
-    'Hs',
-    'I',
-    'In',
-    'Ir',
-    'K',
-    'Kr',
-    'La',
-    'Li',
-    'Lr',
-    'Lu',
-    'Lv',
-    'Md',
-    'Mg',
-    'Mn',
-    'Mo',
-    'Mt',
-    'N',
-    'Na',
-    'Nb',
-    'Nd',
-    'Ne',
-    'Ni',
-    'No',
-    'Np',
-    'O',
-    'Os',
-    'P',
-    'Pa',
-    'Pb',
-    'Pd',
-    'Pm',
-    'Po',
-    'Pr',
-    'Pt',
-    'Pu',
-    'Ra',
-    'Rb',
-    'Re',
-    'Rf',
-    'Rg',
-    'Rh',
-    'Rn',
-    'Ru',
-    'S',
-    'Sb',
-    'Sc',
-    'Se',
-    'Sg',
-    'Si',
-    'Sm',
-    'Sn',
-    'Sr',
-    'Ta',
-    'Tb',
-    'Tc',
-    'Te',
-    'Th',
-    'Ti',
-    'Tl',
-    'Tm',
-    'U',
-    'Uuo',
-    'Uup',
-    'Uus',
-    'Uut',
-    'V',
-    'W',
-    'Xe',
-    'Y',
-    'Yb',
-    'Zn',
-    'Zr'
-]
+symbols = utils.PeriodicTable().element[1:]  # drop first item which is None
 
 
 def load_log_files(fnames):
     fname_list = glob.glob(fnames)
+    print('Filenames are : ')
+    [print(fname) for fname in fname_list]
     return [ccread(log) for log in fname_list]
 
 
@@ -139,6 +25,21 @@ def boltzmann_distribution(energy_dict, R=1.9872036e-3, T=300):
 
 
 def plot_conformer_population(energies_list, R=1.9872036e-3, T=300, title=None):
+    '''
+    Parameters
+    ----------
+    energies_list: list, List of energies (could be obtained with get_scf_energies)
+    R: float, the gas or boltzmann constant
+    T: float, the temperature
+    title: str (default=None), the title of the plot
+
+    Returns
+    -------
+    ax: matplotlib.axis object
+    ene_dict: dictionary, keys are ints with the conformer ID and the values
+    are bidimensional tuple of the energy of said conformer and it's energy
+    difference w.r.t the lowest energy conformer in the list
+    '''
     # For each conformer, build a dictionary with it's energy value
     # and it's difference with respect to the lowest energy conformer
     ene_dict = dict.fromkeys(range(1, len(energies_list) + 1))
@@ -154,3 +55,22 @@ def plot_conformer_population(energies_list, R=1.9872036e-3, T=300, title=None):
     if title is not None:
         ax.set_title(title)
     return ax, ene_dict
+
+
+def generate_traj(xyz_array, pdb_file):
+    top = mdtraj.load_pdb(pdb_file).topology
+    return mdtraj.Trajectory(xyz=xyz_array / 10, topology=top)
+
+
+def compare_spe_energies(spe_gas_dict, spe_pcm_dict):
+    df_gas = pd.DataFrame({
+        'Conformer': range(1, len(spe_gas_dict) + 1),
+        'Population': np.array(boltzmann_distribution(spe_gas_dict)) * 100 / np.array(boltzmann_distribution(spe_gas_dict)).sum(),
+        'Method': 'Gas Phase'
+    })
+    df_pcm = pd.DataFrame({
+        'Conformer': range(1, len(spe_pcm_dict) + 1),
+        'Population': np.array(boltzmann_distribution(spe_pcm_dict)) * 100 / np.array(boltzmann_distribution(spe_pcm_dict)).sum(),
+        'Method': 'PCM'
+    })
+    return pd.concat([df_gas, df_pcm])
