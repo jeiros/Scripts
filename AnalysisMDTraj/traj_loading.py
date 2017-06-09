@@ -1,4 +1,4 @@
-import mdtraj as md
+import mdtraj
 
 
 def load_Trajs(trajfiles_list, prmtop_file, stride, chunk):
@@ -25,8 +25,8 @@ def load_Trajs(trajfiles_list, prmtop_file, stride, chunk):
     """
     list_chunks = []
     for traj in trajfiles_list:
-        for frag in md.iterload(traj, chunk=chunk, top=prmtop_file,
-                                stride=stride):
+        for frag in mdtraj.iterload(traj, chunk=chunk, top=prmtop_file,
+                                    stride=stride):
             list_chunks.append(frag)
     return(list_chunks)
 
@@ -51,6 +51,6 @@ def load_Trajs_generator(trajfiles_list, prmtop_file, stride, chunk):
     frag: mdtraj.Trajectory
     """
     for traj in trajfiles_list:
-        for frag in md.iterload(traj, chunk=chunk, top=prmtop_file,
-                                stride=stride):
+        for frag in mdtraj.iterload(traj, chunk=chunk, top=prmtop_file,
+                                    stride=stride):
             yield frag
