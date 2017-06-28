@@ -132,7 +132,7 @@ def report_clusters(X):
 
         ax2.set_xlabel("x (nm)")
         ax2.set_ylabel("y (nm)")
-        ax2.set_zlabel("y (nm)")
+        ax2.set_zlabel("z (nm)")
 
         fig_list.append((fig, n_clusters))
     return fig_list
