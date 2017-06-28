@@ -182,7 +182,7 @@ def plot_3d_time(com_matrix, time):
                    c=time, cmap='viridis')
     cbar = fig.colorbar(p)
     cbar.set_label('Time (ns)')
-    fig.savefig('3d%s.pdf' % args.out_file)
+    fig.savefig('%s_3d.pdf' % args.out_file)
     return ax
 
 
