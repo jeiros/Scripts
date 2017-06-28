@@ -18,6 +18,7 @@ parser = argparse.ArgumentParser(prog='min_image.py',
 ____________________________________________________________________________
 | A program that finds the frame in a netcdf trajectory where the distance  |
 | between neighbouring simulation boxes is minimal                          |
+____________________________________________________________________________
 ''')
 
 parser.add_argument('-p', '--prmtop', type=str, required=True)
@@ -92,11 +93,13 @@ def main():
     original_frame = min_frames[min_image] * 10 + 1
     print("Closest contact found at frame %i, lattice vector %s, atom pair %i-%i, distance %.3f Angstrom" % (original_frame, str(vecs[min_image]), min_pairs[min_image][0] % n, min_pairs[min_image][1] % n, 10 * min_dists[min_image]))
     pdb_filename = "min_image_f%i_%.1fA_%s.pdb" % (original_frame, 10 * min_dists[min_image], TRAJS[0][:-3])
-    print('Saving %s' % pdb_filename)
-    T[min_frames[min_image]].save_pdb(pdb_filename)
+    if 10 * min_dists[min_image] <= 20.0:
+        print('Saving %s' % pdb_filename)
+        T[min_frames[min_image]].save_pdb(pdb_filename)
 
 if __name__ == '__main__':
-    try:
-        main()
-    except:
-        sys.exit(0)
+    main()
+
+    # except:
+    # print('Something went wrong')
+    # sys.exit(0)
