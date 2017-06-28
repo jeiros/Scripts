@@ -3,7 +3,7 @@
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.cm as cm
 from sklearn.metrics import silhouette_score, silhouette_samples
-import sklearn.cluster
+from sklearn.cluster import KMeans
 import msmexplorer as msme
 import mdtraj
 import argparse
@@ -19,13 +19,39 @@ parser.add_argument("Trajectories", help="""An indefinite amount of AMBER
                     trajectories""", nargs="+")
 parser.add_argument('-p', '--prmtop', type=str, required=True)
 parser.add_argument('-st', '--stride', type=int, required=False, default=1)
-parser.add_argument('-l', '--ligand_selection', type=str, required=False, default='all')
+parser.add_argument('-l', '--ligand_selection', type=str, required=True)
 parser.add_argument('-o', '--out_file', type=str, required=False,
                     default='cluster_ligands')
 
 
+def figure_dims(width_pt, factor=0.45):
+    """
+    I copied this from here:
+    https://www.archer.ac.uk/training/course-material/2014/07/SciPython_Cranfield/Slides/L04_matplotlib.pdf
+    """
+    WIDTH = width_pt  # Figure width in pt (usually from LaTeX)
+    FACTOR = factor  # Fraction of the width you'd like the figure to occupy
+    widthpt = WIDTH * FACTOR
+    inperpt = 1.0 / 72.27
+    golden_ratio = (np.sqrt(5) - 1.0) / 2.0  # because it looks good
+    widthin = widthpt * inperpt
+    heightin = widthin * golden_ratio
+    figdims = [widthin, heightin]  # Dimensions as list
+    return figdims
+
+
 def plot_com_matrix(com_matrix):
-    f, axes = plt.subplots(3, 3, figsize=(15, 15))
+    """
+    Plots the projections of X, Y and Z of a center of mass position matrix
+    Parameters
+    ----------
+    com_matrix: np.array of shape (frames, 3)
+
+    Returns
+    -------
+    fig: plt.figure
+    """
+    fig, axes = plt.subplots(3, 3, figsize=(15, 15))
     correspondance = {
         0: 'x',
         1: 'y',
@@ -39,11 +65,11 @@ def plot_com_matrix(com_matrix):
                 # we'll plot only the lower half
                 if i == j:
                     sns.kdeplot(com_matrix[:, i], ax=ax)
-                    ax.set(xlabel='%s (Å)' % correspondance[i],
+                    ax.set(xlabel='%s (nm)' % correspondance[i],
                            ylabel='Density')
                 else:
-                    ax.set(xlabel='%s (Å)' % correspondance[j],
-                           ylabel='%s (Å)' % correspondance[i])
+                    ax.set(xlabel='%s (nm)' % correspondance[j],
+                           ylabel='%s (nm)' % correspondance[i])
                     msme.plot_free_energy(
                         com_matrix,
                         obs=(j, i),
@@ -55,33 +81,43 @@ def plot_com_matrix(com_matrix):
                     )
             else:
                 ax.set_axis_off()
-    return f
+    return fig
 
 
-def unique_rows(a):
-    a = np.ascontiguousarray(a)
-    unique_a = np.unique(a.view([('', a.dtype)] * a.shape[1]))
-    return unique_a.view(a.dtype).reshape((unique_a.shape[0], a.shape[1]))
+def report_clusters(com_matrix, n_cluster_list=[2, 3, 4, 5, 6]):
+    """
+    Performs K means clustering on a center of mass position matrix.
+    Reports the results in two plots for each number of clusters:
+        1st Plot: Silhouette score summary
+        2nd Plot: 3D representation of the center of mass positions and the 
+            cluster labels that have been assigned.
+    Parameters
+    ----------
+    com_matrix: np.array of shape (frames, 3)
 
-
-def report_clusters(X):
+    Returns
+    -------
+    fig_list: list of plt.figures, of length n_cluster_list
+    """
     fig_list = []
-    avg_sils = []
-    for n_clusters in [2, 3, 4, 5, 6]:
-        fig = plt.figure()
-        ax1 = plt.subplot(121)
-        ax2 = plt.subplot(122, projection='3d')
-        ax2.w_xaxis.set_pane_color((1.0, 1.0, 1.0, 1.0))
-        ax2.w_yaxis.set_pane_color((1.0, 1.0, 1.0, 1.0))
-        ax2.w_zaxis.set_pane_color((1.0, 1.0, 1.0, 1.0))
-        fig.set_size_inches(18, 7)
-        ax1.set_xlim([-0.2, 1])
-        ax1.set_ylim([0, len(X) + (n_clusters + 1) * 10])
-        clusterer = sklearn.cluster.KMeans(n_clusters=n_clusters)
-        cluster_labels = clusterer.fit_predict(X)
-        silhouette_avg = silhouette_score(X, cluster_labels)
-        avg_sils.append(silhouette_avg)
-        sample_silhouette_values = silhouette_samples(X, cluster_labels)
+    min_silhouette_value = 0
+    for n_clusters in n_cluster_list:
+        # Create a figure which will have two axis (1 row, 2 columns)
+        fig = plt.figure(figsize=figure_dims(2500))
+        ax1 = plt.subplot(121)  # Plot on the left will be simple 2D silhouette
+        ax2 = plt.subplot(122, projection='3d')  # 3D plot on the right
+
+        clusterer = KMeans(n_clusters=n_clusters)
+        cluster_labels = clusterer.fit_predict(com_matrix)
+        silhouette_avg = silhouette_score(com_matrix, cluster_labels)
+        sample_silhouette_values = silhouette_samples(com_matrix, cluster_labels)
+
+        # Silhouette values can go between -1 and 1, but here let's set the minimum
+        # to whatever minimal value we have
+        min_silhouette_value = min(min_silhouette_value, sample_silhouette_values.min())
+        # Set axis values of first plot
+        ax1.set_ylim([0, len(com_matrix) + (n_clusters + 1) * 10])
+        ax1.set_xlim([min_silhouette_value, 1])
         y_lower = 10
         for i in range(n_clusters):
             # Aggregate the silhouette scores for samples belonging to
@@ -111,24 +147,21 @@ def report_clusters(X):
 
         # The vertical line for average silhouette score of all the values
         ax1.axvline(x=silhouette_avg, color="red", linestyle="--")
-        ax1.annotate('Average silhouette: %.2f' % silhouette_avg, xy=(0.80, 0.95), xycoords='axes fraction')
+        ax1.annotate('Avg. silhouette: %.2f' % silhouette_avg, xy=(0.75, 0.95), xycoords='axes fraction')
         ax1.set_yticks([])  # Clear the yaxis labels / ticks
-        ax1.set_xticks([-0.2, -0.1, 0, 0.2, 0.4, 0.6, 0.8, 1])
 
         # 2nd Plot showing the actual clusters formed
         colors = cm.spectral(cluster_labels.astype(float) / n_clusters)
-        ax2.scatter(X[:, 0], X[:, 1], X[:, 2], marker='.', s=30, lw=0, alpha=0.1,
-                    c=colors)
+        ax2.scatter(com_matrix[:, 0], com_matrix[:, 1], com_matrix[:, 2],
+                    marker='.', s=10, lw=0, alpha=0.5, c=colors)
 
         # Labeling the clusters
         centers = clusterer.cluster_centers_
 
-        unique_colors = unique_rows(colors)
-        for i, c in enumerate(zip(centers, unique_colors)):
-            c, col = c[0], c[1]
-            # Draw white circles at cluster centers
-            ax2.scatter(c[0], c[1], c[2], marker='o', alpha=1, s=150, color='white')
-            ax2.scatter(c[0], c[1], c[2], marker='$%d$' % i, alpha=1, s=100, color=col)
+        for i, c in enumerate(centers):
+            color = cm.spectral(float(i) / n_clusters)
+            ax2.scatter(c[0], c[1], c[2], marker='o', alpha=1, s=200, color='white', lw=1)
+            ax2.scatter(c[0], c[1], c[2], marker='$%d$' % i, alpha=1, s=100, color=color)
 
         ax2.set_xlabel("x (nm)")
         ax2.set_ylabel("y (nm)")
@@ -138,6 +171,21 @@ def report_clusters(X):
     return fig_list
 
 
+def plot_3d_time(com_matrix, time):
+    fig = plt.figure(figsize=figure_dims(2500))
+    ax = plt.subplot(111, projection='3d')  # 3D plot on the right
+    # Set background color of 3D axis to white
+    ax.w_xaxis.set_pane_color((1.0, 1.0, 1.0, 1.0))
+    ax.w_yaxis.set_pane_color((1.0, 1.0, 1.0, 1.0))
+    ax.w_zaxis.set_pane_color((1.0, 1.0, 1.0, 1.0))
+    p = ax.scatter(com_matrix[:, 0], com_matrix[:, 1], com_matrix[:, 2],
+                   c=time, cmap='viridis')
+    cbar = fig.colorbar(p)
+    cbar.set_label('Time (ns)')
+    fig.savefig('3d%s.pdf' % args.out_file)
+    return ax
+
+
 if __name__ == '__main__':
     args = parser.parse_args()
     print(args)
@@ -145,7 +193,7 @@ if __name__ == '__main__':
     traj = mdtraj.load([t for t in args.Trajectories], top=args.prmtop,
                        stride=args.stride)
     # Center all coordinates, makes center of geometry of the system (0, 0, 0)
-    # traj.center_coordinates()
+    traj.center_coordinates()
     # Superpose trajectory onto first frame
     # This is exactly like the 'hold selection steady' command in Chimera
     traj.superpose(traj, 0)
@@ -153,10 +201,16 @@ if __name__ == '__main__':
     ligand_indices = top.select(args.ligand_selection)
     lig_traj = traj.atom_slice(ligand_indices)
     center_mass_ligand = mdtraj.compute_center_of_mass(lig_traj)
-    time = np.linspace(0, traj.timestep * traj.n_frames, num=traj.n_frames)
+
+    # Plot projections
     f = plot_com_matrix(center_mass_ligand)
     f.savefig(args.out_file + '.pdf')
+    # Plot clustering with Kmeans
     fig_list = report_clusters(center_mass_ligand)
     for fig in fig_list:
         f, n_clusters = fig[0], fig[1]
-        f.savefig(args.out_file + str(n_clusters) + '.pdf')
+        f.savefig(args.out_file + str(n_clusters) + 'clusters_kmeans.pdf')
+
+    # plot 3d alone
+    time = np.linspace(0, traj.timestep * traj.n_frames / 1000, num=traj.n_frames)
+    plot_3d_time(center_mass_ligand, time)
