@@ -56,7 +56,7 @@ if __name__ == '__main__':
     print(args)
     top = mdtraj.load_prmtop(args.prmtop)
     atom_indices = top.select(args.select)
-    trajs = [mdtraj.load_netcdf(trj, args.prmtop, args.stride, atom_indices)
-             for trj in args.Trajectories]
+    trajs = [mdtraj.load(trj, top=args.prmtop, stride=args.stride,
+                         atom_indices=atom_indices) for trj in args.Trajectories]
     print(trajs)
     plot_rsmd(trajs, args.out_file)
