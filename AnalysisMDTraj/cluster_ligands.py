@@ -153,15 +153,15 @@ def report_clusters(com_matrix, n_cluster_list=[2, 3, 4, 5, 6]):
         # 2nd Plot showing the actual clusters formed
         colors = cm.spectral(cluster_labels.astype(float) / n_clusters)
         ax2.scatter(com_matrix[:, 0], com_matrix[:, 1], com_matrix[:, 2],
-                    marker='.', s=10, lw=0, alpha=0.5, c=colors)
+                    marker='.', s=10, lw=0, alpha=0.2, c=colors, zorder=-1)
 
         # Labeling the clusters
         centers = clusterer.cluster_centers_
-
+        # Plot the label of the cluster at its center on top of a white round dot
         for i, c in enumerate(centers):
             color = cm.spectral(float(i) / n_clusters)
-            ax2.scatter(c[0], c[1], c[2], marker='o', alpha=1, s=200, color='white', lw=1)
-            ax2.scatter(c[0], c[1], c[2], marker='$%d$' % i, alpha=1, s=100, color=color)
+            ax2.scatter(c[0], c[1], c[2], marker='o', alpha=1, s=200, color='white', lw=1, zorder=20)
+            ax2.scatter(c[0], c[1], c[2], marker='$%d$' % i, alpha=1, s=100, color=color, zorder=20)
 
         ax2.set_xlabel("x (nm)")
         ax2.set_ylabel("y (nm)")
@@ -178,11 +178,15 @@ def plot_3d_time(com_matrix, time):
     ax.w_xaxis.set_pane_color((1.0, 1.0, 1.0, 1.0))
     ax.w_yaxis.set_pane_color((1.0, 1.0, 1.0, 1.0))
     ax.w_zaxis.set_pane_color((1.0, 1.0, 1.0, 1.0))
+    ax.set_xlabel("x (nm)")
+    ax.set_ylabel("y (nm)")
+    ax.set_zlabel("z (nm)")
     p = ax.scatter(com_matrix[:, 0], com_matrix[:, 1], com_matrix[:, 2],
                    c=time, cmap='viridis')
     cbar = fig.colorbar(p)
     cbar.set_label('Time (ns)')
     fig.savefig('%s_3d.pdf' % args.out_file)
+
     return ax
 
 
