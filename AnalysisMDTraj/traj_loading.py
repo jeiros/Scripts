@@ -31,7 +31,7 @@ def load_Trajs(trajfiles_list, prmtop_file, stride, chunk):
     return(list_chunks)
 
 
-def load_Trajs_generator(trajfiles_list, prmtop_file, stride, chunk):
+def load_Trajs_generator(trajfiles_list, prmtop_file, stride, chunk, verbose=False):
     """
     Iteratively loads a list of NetCDF files and returns them
     as an iterable of mdtraj.Trajectory objects
@@ -51,6 +51,8 @@ def load_Trajs_generator(trajfiles_list, prmtop_file, stride, chunk):
     frag: mdtraj.Trajectory
     """
     for traj in trajfiles_list:
+        if verbose:
+            print("Loading {}".format(traj))
         for frag in mdtraj.iterload(traj, chunk=chunk, top=prmtop_file,
                                     stride=stride):
             yield frag

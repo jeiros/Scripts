@@ -1,9 +1,8 @@
 #!/usr/bin/env python
-
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.cm as cm
 from sklearn.metrics import silhouette_score, silhouette_samples
-from sklearn.cluster import KMeans
+from sklearn.cluster import KMeans, DBSCAN
 import msmexplorer as msme
 import mdtraj
 import argparse
@@ -84,12 +83,51 @@ def plot_com_matrix(com_matrix):
     return fig
 
 
+def plot_points_labels_3D(matrix, clusterer, ax=None):
+    if ax is None:
+        # Plot alone
+        fig = plt.figure(figsize=figure_dims(2500))
+        ax = plt.subplot(111, projection='3d')
+    # Make background of 3d plot white
+    ax.w_xaxis.set_pane_color((1.0, 1.0, 1.0, 1.0))
+    ax.w_yaxis.set_pane_color((1.0, 1.0, 1.0, 1.0))
+    ax.w_zaxis.set_pane_color((1.0, 1.0, 1.0, 1.0))
+
+    if hasattr(clusterer, 'n_clusters'):
+        n_clusters = clusterer.n_clusters
+    else:
+        # DBSCAN has no n_clusters attribute
+        n_clusters = len(set(clusterer.labels_)) - (1 if -1 in clusterer.labels_ else 0)
+        print('Estimated n of clusters {}'.format(n_clusters))
+
+    colors = cm.spectral(clusterer.labels_.astype(float) / n_clusters)
+
+    ax.scatter(matrix[:, 0], matrix[:, 1], matrix[:, 2],
+               marker='.', s=10, lw=0, alpha=0.6, c=colors)
+
+    # Labeling the clusters
+    if hasattr(clusterer, 'cluster_centers_'):
+        centers = clusterer.cluster_centers_
+        # Plot the label of the cluster at its center on top of a white round dot
+        for i, c in enumerate(centers):
+            color = cm.spectral(float(i) / n_clusters)
+            ax.scatter(c[0], c[1], c[2], marker='o', alpha=1, s=200, color='white', lw=1, zorder=20)
+            ax.scatter(c[0], c[1], c[2], marker='$%d$' % i, alpha=1, s=100, color=color, zorder=20)
+
+    ax.set_xlabel("x (nm)")
+    ax.set_ylabel("y (nm)")
+    ax.set_zlabel("z (nm)")
+    ax.set_title("{} clusters".format(n_clusters))
+
+    return ax
+
+
 def report_clusters(com_matrix, n_cluster_list=[2, 3, 4, 5, 6]):
     """
     Performs K means clustering on a center of mass position matrix.
     Reports the results in two plots for each number of clusters:
         1st Plot: Silhouette score summary
-        2nd Plot: 3D representation of the center of mass positions and the 
+        2nd Plot: 3D representation of the center of mass positions and the
             cluster labels that have been assigned.
     Parameters
     ----------
@@ -150,22 +188,7 @@ def report_clusters(com_matrix, n_cluster_list=[2, 3, 4, 5, 6]):
         ax1.annotate('Avg. silhouette: %.2f' % silhouette_avg, xy=(0.75, 0.95), xycoords='axes fraction')
         ax1.set_yticks([])  # Clear the yaxis labels / ticks
 
-        # 2nd Plot showing the actual clusters formed
-        colors = cm.spectral(cluster_labels.astype(float) / n_clusters)
-        ax2.scatter(com_matrix[:, 0], com_matrix[:, 1], com_matrix[:, 2],
-                    marker='.', s=10, lw=0, alpha=0.2, c=colors, zorder=-1)
-
-        # Labeling the clusters
-        centers = clusterer.cluster_centers_
-        # Plot the label of the cluster at its center on top of a white round dot
-        for i, c in enumerate(centers):
-            color = cm.spectral(float(i) / n_clusters)
-            ax2.scatter(c[0], c[1], c[2], marker='o', alpha=1, s=200, color='white', lw=1, zorder=20)
-            ax2.scatter(c[0], c[1], c[2], marker='$%d$' % i, alpha=1, s=100, color=color, zorder=20)
-
-        ax2.set_xlabel("x (nm)")
-        ax2.set_ylabel("y (nm)")
-        ax2.set_zlabel("z (nm)")
+        ax2 = plot_points_labels_3D(com_matrix, clusterer, ax=ax2)
 
         fig_list.append((fig, n_clusters))
     return fig_list
@@ -173,7 +196,7 @@ def report_clusters(com_matrix, n_cluster_list=[2, 3, 4, 5, 6]):
 
 def plot_3d_time(com_matrix, time):
     fig = plt.figure(figsize=figure_dims(2500))
-    ax = plt.subplot(111, projection='3d')  # 3D plot on the right
+    ax = plt.subplot(111, projection='3d')
     # Set background color of 3D axis to white
     ax.w_xaxis.set_pane_color((1.0, 1.0, 1.0, 1.0))
     ax.w_yaxis.set_pane_color((1.0, 1.0, 1.0, 1.0))
@@ -185,17 +208,17 @@ def plot_3d_time(com_matrix, time):
                    c=time, cmap='viridis')
     cbar = fig.colorbar(p)
     cbar.set_label('Time (ns)')
-    fig.savefig('%s_3d.pdf' % args.out_file)
-
-    return ax
+    return fig, ax
 
 
 if __name__ == '__main__':
+    plt.style.use(['seaborn-talk', 'seaborn-whitegrid'])
     args = parser.parse_args()
     print(args)
     top = mdtraj.load_prmtop(args.prmtop)
     traj = mdtraj.load([t for t in args.Trajectories], top=args.prmtop,
                        stride=args.stride)
+    print('{} frames have been loaded'.format(traj.n_frames))
     # Center all coordinates, makes center of geometry of the system (0, 0, 0)
     traj.center_coordinates()
     # Superpose trajectory onto first frame
@@ -208,13 +231,33 @@ if __name__ == '__main__':
 
     # Plot projections
     f = plot_com_matrix(center_mass_ligand)
-    f.savefig(args.out_file + '.pdf')
+    f.savefig('{}.pdf'.format(args.out_file))
     # Plot clustering with Kmeans
     fig_list = report_clusters(center_mass_ligand)
     for fig in fig_list:
         f, n_clusters = fig[0], fig[1]
-        f.savefig(args.out_file + str(n_clusters) + 'clusters_kmeans.pdf')
+        f.savefig('{}_{}clusters_kmeans.pdf'.format(args.out_file, n_clusters))
 
     # plot 3d alone
     time = np.linspace(0, traj.timestep * traj.n_frames / 1000, num=traj.n_frames)
-    plot_3d_time(center_mass_ligand, time)
+    f, _ = plot_3d_time(center_mass_ligand, time)
+    f.savefig('{}_3d.pdf'.format(args.out_file))
+    plt.close()
+    # DBSCAN
+    max_score = 0
+    for eps in np.arange(start=0.5, stop=5, step=0.5):
+        for min_samples in [2, 5, 10, 20, 50, 100]:
+            try:
+                db = DBSCAN(eps, min_samples)
+                db.fit_predict(center_mass_ligand)
+                new_score = silhouette_score(center_mass_ligand, db.labels_)
+                print('{} eps\t{} minsamp\t{} sil'.format(eps, min_samples,
+                                                          silhouette_score(center_mass_ligand, db.labels_)))
+                if new_score > max_score:
+                    max_score = new_score
+                    ax = plot_points_labels_3D(center_mass_ligand, db)
+                    # ax.set_title('DBSCAN{}{}'.format(eps, min_samples))
+                    f = plt.gcf()
+                    f.savefig('DBSCAN{}{}.pdf'.format(eps, min_samples))
+            except:
+                continue

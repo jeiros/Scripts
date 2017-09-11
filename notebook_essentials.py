@@ -1,11 +1,10 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib as mpl
-%matplotlib inline
+from glob import glob
 
 # Plotting settings
-plt.style.use('notebook')
+# plt.style.use('notebook')
 
 
 def figure_dims(width_pt, factor=0.45):
