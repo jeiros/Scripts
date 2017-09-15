@@ -1,0 +1,56 @@
+# RUN WITH TLEAP 15 !!!!!!!!!
+# export AMBERHOME=/usr/local/amber15 && source $AMBERHOME/amber.sh
+# /usr/local/amber15/bin/tleap -f script.in
+
+source leaprc.ff14SB
+source leaprc.gaff
+loadamberparams ./SilybinA.frcmod
+loadoff ./SilybinA.off
+loadamberparams frcmod.ionsjc_tip3p
+loadamberparams frcmod.phosaa10
+loadamberprep ./CA2.prep
+loadoff S1P.lib
+silb = loadpdb SilybinA.pdb
+check silb
+saveamberparm silb SilybinA.prmtop SilybinA.inpcrd
+
+md3_pos =  loadpdb G159D_S1P_SilAnew_notdocked.pdb
+docked01 = loadpdb G159D_S1P_SilAnew_docked01.pdb
+docked02 = loadpdb G159D_S1P_SilAnew_docked02.pdb
+
+
+# md3_pos
+check md3_pos
+charge md3_pos
+addions md3_pos Na+ 0
+solvatebox md3_pos TIP3PBOX{20 20 35}
+addionsrand md3_pos Na+ 254 Cl- 254
+saveamberparm md3_pos G159D_S1P_SilAnew_notdocked_wat.prmtop G159D_S1P_SilAnew_notdocked_wat.inpcrd
+savepdb md3_pos G159D_S1P_SilAnew_notdocked_wat.pdb
+# docked01
+check docked01
+charge docked01
+addions docked01 Na+ 0
+solvatebox docked01 TIP3PBOX{20 20 35}
+addionsrand docked01 Na+ 213 Cl- 213
+saveamberparm docked01 G159D_S1P_SilAnew_docked01_wat.prmtop G159D_S1P_SilAnew_docked01_wat.inpcrd
+savepdb docked01 G159D_S1P_SilAnew_docked01_wat.pdb
+# docked02
+check docked02
+charge docked02
+addions docked02 Na+ 0
+solvatebox docked02 TIP3PBOX{20 20 35}
+addionsrand docked02 Na+ 213 Cl- 213
+saveamberparm docked02 G159D_S1P_SilAnew_docked02_wat.prmtop G159D_S1P_SilAnew_docked02_wat.inpcrd
+savepdb docked02 G159D_S1P_SilAnew_docked02_wat.pdb
+# docked03
+check docked03
+charge docked03
+addions docked03 Na+ 0
+solvatebox docked03 TIP3PBOX{20 20 35}
+addionsrand docked03 Na+ 213 Cl- 213
+saveamberparm docked03 G159D_S1P_SilAnew_docked03_wat.prmtop G159D_S1P_SilAnew_docked03_wat.inpcrd
+savepdb docked03 G159D_S1P_SilAnew_docked03_wat.pdb
+
+
+quit
