@@ -26,16 +26,14 @@ def figure_dims(width_pt, factor=0.45):
 @msme_colors
 def plot_tica_timescales(tica, meta, ax=None, color='cyan'):
     """
-    Plot timescales of a tica object
+    Plot the timescales of a tica object
 
     :param tica: an msmbuilder tica object
-    :param meta: an msmbuilder meta object
+    :param meta: an msmbuilder metadata object
     :param ax: a matplotlib axis
     :param color string: the color to plot
 
-    :return ax: a matplotlib axis
-
-
+    :return ax: drawn matplotlib axis
     """
     if ax is None:
         ax = pp.gca()
@@ -61,27 +59,40 @@ def plot_tica_timescales(tica, meta, ax=None, color='cyan'):
 def plot_ergodic_subspace(msm):
     pass
 
-
 def plot_singletic_trajs(ttrajs, meta, system,
-                         obs=(0, 1, 2), ylabels=['tIC1', 'tIC2', 'tIC3'],
-                         xlabel='Time (ns)', title=None, figsize=None):
+                         obs=(0, 1, 2), ylabels=None,
+                         xlabel=None, title=None, figsize=None):
     """
     Plot each tIC vs. time on it's own axis and stack them vertically.
     By default, the first three tICs are plotted, but less (or more) can be
     chosen.
-    
+
+    :param ttrajs: dict, with keys as integers and values of np.arrays (tICA converted trajectories)
+    :param meta: an msmbuilder metadata object
+    :param system: str, the system inside 'meta' to plot
+    :param obs: tuple (optional), the dimensions to plot
+    :param ylabels: list or tuple (optional) of str, the labels of y axis
+    :param xlabel: str (optional), the x label (to be shared)
+    :param title: str (optional), the title of the plot
+    :param figsize: tuple (optional), the figure dimensions
+    :return axarr: an array of matplotlib axis
     """
+    if ylabels is None:
+        ylabels = ['tIC1', 'tIC2', 'tIC3']
 
     if len(obs) != len(ylabels):
-        raise ValueError('Lenght of obs and ylabels is not equal.')
+        raise ValueError('Length of obs and ylabels is not equal.')
 
     def to_ns(x, pos):
         timestep = meta['step_ps'].unique()
         return "%d" % (x * timestep / 1000)
 
-    formatter = FuncFormatter(to_ns)
+
+    # Get dictionary of specific sub system
     ttrajs_subtypes = split_trajs_by_type(ttrajs, meta)
     ttrajs_specific = ttrajs_subtypes[system]
+
+    # Create the figure
     if figsize is None:
         figsize = figure_dims(1500)
     fig, axarr = pp.subplots(len(obs), 1, figsize=figsize, sharex=True, sharey=True)
@@ -89,7 +100,8 @@ def plot_singletic_trajs(ttrajs, meta, system,
         axarr[0].set(title=title)
     if xlabel is not None:
         axarr[-1].set(xlabel=xlabel)
-    # traj_names = meta[meta['type'] == system]['traj_fn']
+
+    formatter = FuncFormatter(to_ns)
     indexes = meta[meta['type'] == system].index
     for j, ylabel in zip(range(len(obs)), ylabels):
         for index in indexes:
@@ -103,8 +115,19 @@ def plot_singletic_trajs(ttrajs, meta, system,
 def plot_overlayed_types(ttrajs, meta, obs=(0, 1), ax=None, stride=100,
                          xlabel=None, ylabel=None, plot_free_energy_kwargs=None, plot_kwargs=None):
     """
-    Overlay each type of system inside the meta object onto the overall tica
+    Overlay each type of system inside the meta object onto the overall tICA
     free energy landscape.
+
+    :param ttrajs: dict, with keys as integers and values of np.arrays (tICA converted trajectories)
+    :param meta: an msmbuilder metadata object
+    :param obs: tuple (optional), the dimensions to plot
+    :param ax: matplotlib axis to plot in (optional)
+    :param stride: int (optional, default=100), scatter every `stride` frames to avoid a cluttered plot
+    :param xlabel: str (optional), the x label
+    :param ylabel: str (optional), the y label
+    :param plot_free_energy_kwargs: dict (optional), extra parameters to pass to msme.plot_free_energy
+    :param plot_kwargs: dict (optional), extra parameters to pass to pyplot.plot
+    :return ax: drawn matplotlib axis
     """
     if ax is None:
         ax = pp.gca()
@@ -117,10 +140,9 @@ def plot_overlayed_types(ttrajs, meta, obs=(0, 1), ax=None, stride=100,
     ttrajs_subtypes = split_trajs_by_type(ttrajs, meta)
     msme.plot_free_energy(txx, obs=obs, ax=ax, **plot_free_energy_kwargs)
 
-    for k, v in ttrajs_subtypes.items():
-        system_txx = np.concatenate(list(v.values()))
-        print(system_txx.shape)
-        ax.scatter(system_txx[::stride, obs[0]], system_txx[::stride, obs[1]], label=k, **plot_kwargs)
+    for traj_id, traj_dict in ttrajs_subtypes.items():
+        system_txx = np.concatenate(list(traj_dict.values()))
+        ax.scatter(system_txx[::stride, obs[0]], system_txx[::stride, obs[1]], label=traj_id, **plot_kwargs)
     pp.legend()
     if xlabel is not None:
         ax.set_xlabel(xlabel)
