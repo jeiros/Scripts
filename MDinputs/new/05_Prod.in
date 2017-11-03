@@ -1,6 +1,6 @@
  Production
  &cntrl
-   imin=0, ntx=2, irest=0,
+   imin=0, ntx=5, irest=1,
    ntc=2, ntf=2,
    nstlim=12500000, ! 50 ns
    ntt=3,
