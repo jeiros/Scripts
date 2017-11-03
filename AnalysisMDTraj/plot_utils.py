@@ -54,7 +54,7 @@ def violin_plot_mmgbsa_results(ligand_data, figsize=(12, 12), title=None):
     f, ((ax0, ax1), (ax2, ax3)) = pp.subplots(2, 2, figsize=figsize, sharey=False)
     for ax, df in zip((ax0, ax1, ax2, ax3), ligand_data):
         sns.violinplot(x='run', y='MMGBSA (kcal/mol)', data=df, ax=ax)
-        ax.set_ylabel(ylabel='MMGBSA (kcal/mol)', size=14)
+        ax.set_ylabel(ylabel=r'$\Delta$G binding (kcal/mol)', size=14)
         ax.set_xlabel(xlabel='Run', size=14)
     if title is not None:
         f.suptitle(title, size=22)
@@ -70,7 +70,7 @@ def bar_plot_mmgbsa_results(excel_file, sort=True, titles=None):
     :param titles: list, Name for each of the plots (as many as there are ligands in the table)
     :return f_list: list, A list of matplotlib figures
     """
-    sns.set_style('whitegrid')
+    # sns.set_style('whitegrid')
     df = pd.read_excel(excel_file, sheetname="MMGBSA")
     df = df.reindex(index=order_by_index(df.index, index_natsorted(df.Run)))
     ligands = df.Ligand.unique()
@@ -85,9 +85,37 @@ def bar_plot_mmgbsa_results(excel_file, sort=True, titles=None):
             lig_df.sort_values(by='MMGBSA (mean)', inplace=True)
         ax = lig_df.plot(x="Run", y="MMGBSA (mean)", yerr='MMGBSA (Std)', kind='bar',
                          legend=False, figsize=figure_dims(1400), title=title)
-        ax.set_ylabel(ylabel='MMGBSA (kcal/mol)', size=14)
+        overall_mean = lig_df['MMGBSA (mean)'].mean()
+        overall_std = lig_df['MMGBSA (mean)'].std()
+        print("{} {:02f} {:02f}".format(lig, overall_mean, overall_std))
+        xmin, xmax = ax.get_xlim()
+        # Mean line
+        ax.plot(
+            [xmin, xmax], [overall_mean, overall_mean],
+            linewidth=1.5,
+            color='blue'
+        )
+        # Upper std bar
+        ax.plot(
+            [xmin, xmax],
+            [overall_mean + overall_std, overall_mean + overall_std],
+            linestyle='dashed',
+            linewidth=1,
+            color='blue'
+        )
+        # Lower std bar
+        ax.plot(
+            [xmin, xmax],
+            [overall_mean - overall_std, overall_mean - overall_std],
+            linestyle='dashed',
+            linewidth=1,
+            color='blue'
+        )
+        ax.set_ylim(top=0)
+        ax.set_ylabel(ylabel=r'$\Delta$G binding (kcal/mol)', size=14)
         ax.set_xlabel(xlabel='Run', size=14)
         f = pp.gcf()
+        f.tight_layout()
         f_list.append(f)
     return f_list
 
@@ -141,8 +169,33 @@ def plot_tica_timescales(tica, meta, ax=None, color='cyan'):
     return ax
 
 
-def plot_ergodic_subspace(msm):
-    pass
+def plot_ergodic_subspace(msm, clusterer, obs=(0, 1), ax=None,
+                          color=None, label=None, xlabel=None, ylabel=None,
+                          scatter_kwargs=None):
+    if ax is None:
+        ax = pp.gca()
+    if color is None:
+        color = 'blue'
+    if xlabel is not None:
+        ax.set_xlabel(xlabel)
+    if ylabel is not None:
+        ax.set_ylabel(ylabel)
+    if scatter_kwargs is None:
+        scatter_kwargs = {}
+
+    prune = clusterer.cluster_centers_[:, obs]
+    ax.scatter(
+        prune[msm.state_labels_][:, 0],
+        prune[msm.state_labels_][:, 1],
+        color=color,
+        label=label,
+        **scatter_kwargs
+    )
+
+    if label is not None:
+        pp.legend(loc='best')
+
+    return ax
 
 
 def plot_singletic_trajs(ttrajs, meta, system,
@@ -228,7 +281,7 @@ def plot_overlayed_types(ttrajs, meta, obs=(0, 1), ax=None, stride=100,
     for traj_id, traj_dict in ttrajs_subtypes.items():
         system_txx = np.concatenate(list(traj_dict.values()))
         ax.scatter(system_txx[::stride, obs[0]], system_txx[::stride, obs[1]], label=traj_id, **plot_kwargs)
-    pp.legend()
+    pp.legend(loc='lower right')
     if xlabel is not None:
         ax.set_xlabel(xlabel)
     if ylabel is not None:
