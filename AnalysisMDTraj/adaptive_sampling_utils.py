@@ -56,12 +56,12 @@ class Simulation:
         return int(re.findall(r'[0-9]*', self.node)[1])
 
 
-def network_from_simulations(fnames, save=False, gexf_name='network.xml'):
+def network_from_simulations(fnames, save=False, file_name='network.xml'):
     """
     Build a directed graph from the structure of any given number of simulation files named according to HTMD conventions
     :param fnames: str, a glob expression of trajectory files
     :param save: bool, opt (default: False) whether to save the graph as a file loadable with Cytoscape
-    :param gexf_name: str, opt (default: 'network.xml') filename of the graph file
+    :param file_name: str, opt (default: 'network.xml') filename of the graph file
     :return G: networkx.classes.digraph.DiGraph
     """
     fnames = natsorted(glob(fnames))
@@ -75,7 +75,7 @@ def network_from_simulations(fnames, save=False, gexf_name='network.xml'):
             G.add_edge(sim.parent, sim.node)
 
     if save:
-        if not gexf_name.endswith('.xml'):
-            gexf_name += '.xml'
-        nx.write_graphml(G, path=gexf_name)
+        if not file_name.endswith('.xml'):
+            file_name += '.xml'
+        nx.write_graphml(G, path=file_name)
     return G
