@@ -21,8 +21,8 @@ ____________________________________________________________________________
 ____________________________________________________________________________
 ''')
 
-parser.add_argument('-p', '--prmtop', type=str, required=True)
-parser.add_argument('-t', '--trajs', nargs='+', required=True)
+parser.add_argument('prmtop', type=str)
+parser.add_argument('traj', nargs='+')
 parser.add_argument('-st', '--stride', type=int, required=False, default=10)
 
 
@@ -30,7 +30,7 @@ def main():
     args = parser.parse_args()
     TOP = args.prmtop
     STRIDE = args.stride
-    TRAJS = args.trajs
+    TRAJS = args.traj
 
     print(args)
 

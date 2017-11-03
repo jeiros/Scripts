@@ -11,10 +11,9 @@ from matplotlib.ticker import FuncFormatter
 parser = argparse.ArgumentParser(prog='rmsd.py',
                                  formatter_class=argparse.RawDescriptionHelpFormatter,
                                  description='''version1''')
-
+parser.add_argument('prmtop', help="""Topology file matching Trajectories""")
 parser.add_argument("Trajectories", help="""An indefinite amount of AMBER
                     trajectories""", nargs="+")
-parser.add_argument('-p', '--prmtop', type=str, required=True)
 parser.add_argument('-st', '--stride', type=int, required=False, default=1)
 parser.add_argument('-sl', '--select', type=str, required=False, default='all')
 parser.add_argument('-o', '--out_file', type=str, required=False,
