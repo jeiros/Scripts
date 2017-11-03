@@ -1,8 +1,9 @@
 import mdtraj
 import numpy as np
+from subprocess import call, PIPE
 
 
-def write_cpptraj_script(traj, top, frame1=1, frame2=1, outfile=None, write=True):
+def write_cpptraj_script(traj, top, frame1=1, frame2=1, outfile=None, write=True, run=False):
     """
     Create a cpptraj script to load specific range of frames from a trajectory and write them out to a file
 
@@ -12,9 +13,11 @@ def write_cpptraj_script(traj, top, frame1=1, frame2=1, outfile=None, write=True
     :param frame2: int, The last frame to load
     :param outfile: str, Name (with file format extension) of the output trajectory
     :param write: bool, Whether to write the script to a file in disk
-
+    :param run: bool, Whether to run the script after writing it to disk
     :return cmds: str, the string representing the cpptraj script
     """
+    if run and not write:
+        raise ValueError('Cannot call the script without writing it to disk')
     if outfile is None:
         outfile = 'pdbs/' + traj.split('.')[0] + '.pdb'
     commands = [
@@ -27,6 +30,9 @@ def write_cpptraj_script(traj, top, frame1=1, frame2=1, outfile=None, write=True
     if write:
         with open('script.cpptraj', 'w') as f:
             f.write(cmds)
+        if run:
+            call(['cpptraj', '-i', 'script.cpptraj'], stdout=PIPE)
+
     return cmds
 
 
@@ -155,3 +161,50 @@ def trim_centers_by_region(clusterer, x1=None, x2=None, y1=None, y2=None, obs=(0
 
 def cartesian_product(x, y):
     return np.transpose([np.tile(x, len(y)), np.repeat(y, len(x))])
+
+
+def generate_traj_from_stateinds(inds, meta):
+    for state_i, state_inds in enumerate(inds):
+        traj = mdtraj.join(
+            mdtraj.load_frame(meta.loc[traj_i]['traj_fn'], index=frame_i, top=meta.loc[traj_i]['top_fn'])
+            for traj_i, frame_i in state_inds
+        )
+    return traj
+
+
+def load_in_vmd(dirname, inds):
+    k = len(inds[0])
+    templ = [
+        '# Defaults',
+        'mol default material AOChalky',
+        'mol default representation NewCartoon',
+        'color Display {Background} white',
+        'axes location off',
+    ]
+    for i in range(k):
+        templ += [
+            '# State {}'.format(i),
+            'mol new {}/{:03d}.pdb'.format(dirname, i),
+            #            'mol addfile {}/{}.nc waitfor all'.format(dirname, i),
+            #            'animate delete beg 0 end 0 top',
+            'mol rename top State-{}'.format(i),
+            'mol modcolor 0 top ColorID {}'.format(i),
+            'mol drawframes top 0 0:{k}'.format(k=k),
+            'mol modselect 0 top resid 1 to 161',
+            'mol modcolor 0 top ColorID 0',
+            'mol addrep top',
+            'mol modselect 1 top resid 162 to 248',
+            'mol modcolor 1 top ColorID 7',
+            'mol addrep top',
+            'mol modselect 2 top resid 249 to 419',
+            'mol modcolor 2 top  ColorID 1',
+            'mol addrep top',
+            'mol modselect 3 top not protein and not resname CAL',
+            'mol modstyle 3 top Licorice',
+            'mol addrep top',
+            'mol modselect 4 top resname CAL',
+            'mol modstyle 4 top VDW',
+            'mol modcolor 4 top ColorID 6'
+            '',
+        ]
+    return '\n'.join(templ)
