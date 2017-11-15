@@ -1,6 +1,7 @@
 import mdtraj
 import numpy as np
 from subprocess import call, PIPE
+import matplotlib.pyplot as plt
 
 
 def write_cpptraj_script(traj, top, frame1=1, frame2=1, outfile=None, write=True, run=False):
@@ -169,6 +170,8 @@ def generate_traj_from_stateinds(inds, meta):
             mdtraj.load_frame(meta.loc[traj_i]['traj_fn'], index=frame_i, top=meta.loc[traj_i]['top_fn'])
             for traj_i, frame_i in state_inds
         )
+    traj.center_coordinates()
+    traj.superpose(traj, 0)
     return traj
 
 
@@ -185,8 +188,6 @@ def load_in_vmd(dirname, inds):
         templ += [
             '# State {}'.format(i),
             'mol new {}/{:03d}.pdb'.format(dirname, i),
-            #            'mol addfile {}/{}.nc waitfor all'.format(dirname, i),
-            #            'animate delete beg 0 end 0 top',
             'mol rename top State-{}'.format(i),
             'mol modcolor 0 top ColorID {}'.format(i),
             'mol drawframes top 0 0:{k}'.format(k=k),
@@ -208,3 +209,27 @@ def load_in_vmd(dirname, inds):
             '',
         ]
     return '\n'.join(templ)
+
+
+
+
+def get_source_sink(msm, clusterer, eigenvector):
+    """
+    Get the source and sink of a given eigenvector, in cluster naming of clusterer object
+    :param msm:
+    :param clusterer:
+    :param eigenvector:
+    :return:
+    """
+    source_msm_naming = np.argmin(msm.left_eigenvectors_[:, eigenvector])
+    sink_msm_naming = np.argmax(msm.left_eigenvectors_[:, eigenvector])
+
+    source_clusterer_naming = msm.state_labels_[source_msm_naming]
+    sink_clusterer_naming = msm.state_labels_[sink_msm_naming]
+
+    assert msm.mapping_[source_clusterer_naming] == source_msm_naming
+    assert msm.mapping_[sink_clusterer_naming] == sink_msm_naming
+
+    return source_clusterer_naming, sink_clusterer_naming
+
+

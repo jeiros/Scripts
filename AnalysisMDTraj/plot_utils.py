@@ -9,6 +9,7 @@ import pandas as pd
 import seaborn as sns
 from glob import glob
 from natsort import natsorted, order_by_index, index_natsorted
+import os
 
 
 def split(a, n):
@@ -169,13 +170,26 @@ def plot_tica_timescales(tica, meta, ax=None, color='cyan'):
     return ax
 
 
-def plot_ergodic_subspace(msm, clusterer, obs=(0, 1), ax=None,
-                          color=None, label=None, xlabel=None, ylabel=None,
+def plot_ergodic_subspace(msm, clusterer, obs=(0, 1), ax=None, alpha=1.,
+                          color='blue', label=None, xlabel=None, ylabel=None,
                           scatter_kwargs=None):
+    """
+    Plot which cluster centers out of the clusterer object have been visited
+    in the msm object.
+    :param msm: A trained msmbuilder MSM object
+    :param clusterer: A trained msmbuilder clusterer object
+    :param obs: tuple, which dimensions to plot
+    :param ax: a matplotlib.axes object
+    :param alpha: float, transparency parameter for ax.scatter
+    :param color: string, parameter for ax.scatter
+    :param label: string, parameter for ax.scatter
+    :param xlabel: string, parameter for ax.scatter
+    :param ylabel: string, parameter for ax.scatter
+    :param scatter_kwargs: dict, any other parameters for ax.scatter
+    :return ax:  a matplotlib.axes object
+    """
     if ax is None:
         ax = pp.gca()
-    if color is None:
-        color = 'blue'
     if xlabel is not None:
         ax.set_xlabel(xlabel)
     if ylabel is not None:
@@ -189,16 +203,14 @@ def plot_ergodic_subspace(msm, clusterer, obs=(0, 1), ax=None,
         prune[msm.state_labels_][:, 1],
         color=color,
         label=label,
+        alpha=alpha,
         **scatter_kwargs
     )
-
-    if label is not None:
-        pp.legend(loc='best')
 
     return ax
 
 
-def plot_singletic_trajs(ttrajs, meta, system,
+def plot_singletic_trajs(ttrajs, meta, system, alpha=1,
                          obs=(0, 1, 2), ylabels=None,
                          xlabel=None, title=None, figsize=None):
     """
@@ -244,7 +256,7 @@ def plot_singletic_trajs(ttrajs, meta, system,
     for j, ylabel in zip(range(len(obs)), ylabels):
         for index in indexes:
             ax = axarr[j]
-            ax.plot(ttrajs_specific[index][:, obs[j]])
+            ax.plot(ttrajs_specific[index][:, obs[j]], alpha=alpha)
             ax.set_ylabel(ylabel)
             ax.xaxis.set_major_formatter(formatter)
     return axarr
@@ -281,9 +293,220 @@ def plot_overlayed_types(ttrajs, meta, obs=(0, 1), ax=None, stride=100,
     for traj_id, traj_dict in ttrajs_subtypes.items():
         system_txx = np.concatenate(list(traj_dict.values()))
         ax.scatter(system_txx[::stride, obs[0]], system_txx[::stride, obs[1]], label=traj_id, **plot_kwargs)
-    pp.legend(loc='lower right')
+    pp.legend(loc='best')
     if xlabel is not None:
         ax.set_xlabel(xlabel)
     if ylabel is not None:
         ax.set_ylabel(ylabel)
+    return ax
+
+
+def plot_microstates(msm, txx, clusterer, obs=(0, 1), eigenvector=1, ax=None,
+                     clabel=None):
+    """
+    Taken from the msmbuilder template.
+    Plot the microstate centers of an msm object on top of a grey hexbin
+    tICA landscape. Color the microstates by the sign of the chosen eigenvector
+    :param ax: matplotlib axis to plot in (optional)
+    :param msm:
+    :param txx:
+    :param clusterer:
+    :param obs:
+    :param eigenvector:
+    :param clabel:
+    :return:
+    """
+    if ax is None:
+        ax = pp.gca()
+
+    txx = txx[:, obs]
+    ax.hexbin(txx[:, 0], txx[:, 1],
+              cmap='Greys',
+              mincnt=1,
+              bins='log',
+              )
+
+    scale = 100 / np.max(msm.populations_)
+    add_a_bit = 2
+    prune = clusterer.cluster_centers_[:, obs]
+    c = ax.scatter(prune[msm.state_labels_, 0],
+                   prune[msm.state_labels_, 1],
+                   s=scale * msm.populations_ + add_a_bit,
+                   c=msm.left_eigenvectors_[:, eigenvector],
+                   cmap='RdBu'
+                   )
+    ax.set_xlabel("tIC 1", fontsize=16)
+    ax.set_ylabel("tIC 2", fontsize=16)
+    pp.colorbar(c, label=clabel)
+    return ax
+
+
+def plot_src_sink(msm, clusterer, ev, txx, src, sink, clabel=None, title='', ax=None):
+    """
+
+    :param msm:
+    :param clusterer:
+    :param ev:
+    :param txx:
+    :param src:
+    :param sink:
+    :param clabel:
+    :param title:
+    :param ax:
+    :return:
+    """
+
+    if ax is None:
+        ax = pp.gca()
+    ax.set_title(title)
+    plot_microstates(msm=msm, eigenvector=ev, clabel=clabel, txx=txx, clusterer=clusterer, ax=ax)
+    # source
+    ax.scatter(
+        clusterer.cluster_centers_[src][0],
+        clusterer.cluster_centers_[src][1],
+        marker='D',
+        color='red',
+        s=200,
+    )
+    # sink
+    ax.scatter(
+        clusterer.cluster_centers_[sink][0],
+        clusterer.cluster_centers_[sink][1],
+        marker='D',
+        color='blue',
+        s=200,
+    )
+    return ax
+
+
+def plot_efhand_dists_src_sinks(src_glob, sink_glob, title=None, ax=None):
+    if ax is None:
+        ax = pp.gca()
+
+    src = glob(src_glob)
+    snk = glob(sink_glob)
+
+    data = {}
+    for f in src:
+        atom = os.path.basename(f).split('-')[1].split('_')[0]
+        data[atom] = [None, None]
+
+    for f1, f2 in zip(src, snk):
+        atom = os.path.basename(f1).split('-')[1].split('_')[0]
+        src_mean = np.loadtxt(f1).mean(axis=0)[1]
+        src_std = np.loadtxt(f1).std(axis=0)[1]
+        snk_mean = np.loadtxt(f2).mean(axis=0)[1]
+        snk_std = np.loadtxt(f2).std(axis=0)[1]
+
+        data[atom][0] = (src_mean, src_std)
+        data[atom][1] = (snk_mean, snk_std)
+
+    # cpptraj names E32 of cTni as E280, rename that
+    data['E32O'] = data.pop('E280O')
+    data['E32OE1'] = data.pop('E280OE1')
+    data['E32OE2'] = data.pop('E280OE2')
+
+    # now do plot
+    ax.set_title(title)
+    n_feats_plot = len(data)
+    xx = np.arange(1, n_feats_plot + 1)
+    ax.errorbar(xx, [x[0][0] for x in data.values()],
+                yerr=[x[0][1] for x in data.values()],
+                label='source', linestyle='None', marker='s', color='red')
+    ax.errorbar(xx, [x[1][0] for x in data.values()],
+                yerr=[x[1][1] for x in data.values()],
+                label='sink', linestyle='None', marker='*', color='blue')
+    pp.legend()
+    ax.set_xticks(xx)
+    ax.set_xlim((0, n_feats_plot + 1))
+    ax.set_xticklabels(
+        list(data.keys())
+    )
+    for tick in ax.get_xticklabels():
+        tick.set_rotation(60)
+    ax.tick_params(labelsize=14)
+    ax.set_ylabel("Distance (Å)", fontsize=16)
+    return ax
+
+
+def plot_cluster_centers(clusterer, centers, txx, ax=None, obs=(0, 1), from_clusterer=True, msm=None, add_bit=20):
+    """
+    Plots cluster centers as scatter points on top of a tICA landscape. Center IDs can be either in MSM labeling
+    or directly from the clustering labelling.
+    :param clusterer: a fit clusterer object, with .cluster_centers_ attribute
+    :param centers: list of ints, the IDs of the cluster centers to plot
+    :param txx: np.array of concatenated tIC trajs, shape = (n_frames, n_features)
+    :param ax: a matplotlib axes object (optional)
+    :param obs: tuple of ints, dimensions to plot (optional)
+    :param from_clusterer: bool, are the centers id in clusterer indexing or msm?
+        default True means IDs are from clusterer
+    :param msm: a MarkovStateModel object which has been fit
+    :param add_bit: control size of scatter plots
+    :return ax: a matplotlib axes object
+    :raises ValueError: if we select from_clusterer=False it means that the center IDs are in MSM-internal labeling,
+        so we need an MSM object to map those back to the clusterer naming
+    """
+    if ax is None:
+        pp.gca()
+    ax = msme.plot_free_energy(txx, obs=obs, n_samples=5000,
+                               gridsize=100, vmax=5.,
+                               n_levels=8, cut=5, xlabel='tIC1',
+                               ylabel='tIC2'
+    )
+    prune = clusterer.cluster_centers_[:, obs]
+    if from_clusterer:
+        chosen_centers = prune[centers]
+        ax.scatter(chosen_centers[:, 0], chosen_centers[:, 1])
+    else:
+        if msm is None:
+            raise ValueError('if from_clusterer is False please provide a fit MSM in the msm parameter')
+        else:
+            # Retrieve cluster centers from clusterer objects that have been used in this MSM
+            centers_in_clusterer = []
+            for k, v in msm.mapping_.items():
+                if v in centers:
+                    centers_in_clusterer.append(k)
+
+            scale = 100 / np.max(msm.populations_)
+            chosen_centers = prune[centers_in_clusterer]
+            ax.scatter(chosen_centers[:, 0], chosen_centers[:, 1],
+                       s=add_bit + (scale * msm.populations_),
+            )
+
+    return ax
+
+
+def plot_tpt(msm, clusterer, txx, ev=1, ax=None, title=None, obs=(0, 1), num_paths=1):
+    """
+    Automatically plot a TPT plot of msmexplorer by selecting the microstates that have
+    lowest (source) and highest (sink) value of the provided eigenvector
+    :param msm: an MSM object
+    :param clusterer: a clusterer object
+    :param txx: np.array of concatenated tIC trajs, shape = (n_frames, n_features)
+    :param ev: int, the eigenvector to plot the transition for
+    :param ax: a matplotlib axes object (optional)
+    :param title: str, the title
+    :param obs: tuple of ints, dimensions to plot (optional)
+    :param num_paths: int, the number of paths to plot
+    :return ax:
+    """
+    if ax is None:
+        pp.gca()
+    prune = clusterer.cluster_centers_[:, obs]
+    msm_states = prune[msm.state_labels_]
+    pos = dict(zip(range(len(msm_states)), msm_states))
+    w = (msm.left_eigenvectors_[:, ev] - msm.left_eigenvectors_[:, ev].min())
+    w /= w.max()
+    src, snk = get_source_sink(msm, clusterer=clusterer, eigenvector=ev)
+    print('src', src, 'snk', snk)
+    ax = msme.plot_free_energy(txx, obs=obs, n_samples=10000,
+                               gridsize=100, vmax=5.,
+                               n_levels=8, cut=5, xlabel='tIC1',
+                               ylabel='tIC2', ax=ax)
+
+    cmap = msme.utils.make_colormap(['rawdenim', 'lightgrey', 'pomegranate'])
+    ax = msme.plot_tpaths(msm, [src], [snk], pos=pos, node_color=cmap(w),
+                          alpha=.9, edge_color='black', ax=ax, num_paths=num_paths)
+    if title is not None:
+        ax.set_title(title)
     return ax
