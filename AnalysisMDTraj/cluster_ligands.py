@@ -256,7 +256,6 @@ if __name__ == '__main__':
                 if new_score > max_score:
                     max_score = new_score
                     ax = plot_points_labels_3D(center_mass_ligand, db)
-                    # ax.set_title('DBSCAN{}{}'.format(eps, min_samples))
                     f = plt.gcf()
                     f.savefig('DBSCAN{}{}.pdf'.format(eps, min_samples))
             except:

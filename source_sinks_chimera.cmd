@@ -2,6 +2,7 @@ colordef transgreen 0 1 0 .3
 colordef transred 1 0 0 .3
 colordef transblue 0 0 1 .3
 preset apply pub 1
+~sel
 sel :65,66,67,69,71,73,75,76,280,420
 ~disp
 disp sel

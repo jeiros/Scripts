@@ -210,7 +210,7 @@ def plot_ergodic_subspace(msm, clusterer, obs=(0, 1), ax=None, alpha=1.,
     return ax
 
 
-def plot_singletic_trajs(ttrajs, meta, system, alpha=1,
+def plot_singletic_trajs(ttrajs, meta, system, alpha=1, stride=1,
                          obs=(0, 1, 2), ylabels=None,
                          xlabel=None, title=None, figsize=None):
     """
@@ -236,7 +236,7 @@ def plot_singletic_trajs(ttrajs, meta, system, alpha=1,
 
     def to_ns(x, pos):
         timestep = meta['step_ps'].unique()
-        return "%d" % (x * timestep / 1000)
+        return "%d" % (x * timestep * stride / 1000)
 
     # Get dictionary of specific sub system
     ttrajs_subtypes = split_trajs_by_type(ttrajs, meta)
@@ -256,7 +256,7 @@ def plot_singletic_trajs(ttrajs, meta, system, alpha=1,
     for j, ylabel in zip(range(len(obs)), ylabels):
         for index in indexes:
             ax = axarr[j]
-            ax.plot(ttrajs_specific[index][:, obs[j]], alpha=alpha)
+            ax.plot(ttrajs_specific[index][::stride, obs[j]], alpha=alpha)
             ax.set_ylabel(ylabel)
             ax.xaxis.set_major_formatter(formatter)
     return axarr
@@ -452,7 +452,7 @@ def plot_cluster_centers(clusterer, centers, txx, ax=None, obs=(0, 1), from_clus
                                gridsize=100, vmax=5.,
                                n_levels=8, cut=5, xlabel='tIC1',
                                ylabel='tIC2'
-    )
+                               )
     prune = clusterer.cluster_centers_[:, obs]
     if from_clusterer:
         chosen_centers = prune[centers]
@@ -471,7 +471,7 @@ def plot_cluster_centers(clusterer, centers, txx, ax=None, obs=(0, 1), from_clus
             chosen_centers = prune[centers_in_clusterer]
             ax.scatter(chosen_centers[:, 0], chosen_centers[:, 1],
                        s=add_bit + (scale * msm.populations_),
-            )
+                       )
 
     return ax
 

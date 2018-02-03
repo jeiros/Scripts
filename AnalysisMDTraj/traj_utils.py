@@ -67,7 +67,7 @@ def load_Trajs(trajfiles_list, prmtop_file, stride=1, chunk=1000):
     return(list_chunks)
 
 
-def load_Trajs_generator(trajfiles_list, prmtop_file, stride=1, chunk=1000, verbose=False):
+def load_Trajs_generator(trajfiles_list, prmtop_file, stride, chunk):
     """
     Iteratively loads a list of NetCDF files and returns them
     as an iterable of mdtraj.Trajectory objects
@@ -86,10 +86,15 @@ def load_Trajs_generator(trajfiles_list, prmtop_file, stride=1, chunk=1000, verb
     ------
     frag: mdtraj.Trajectory
     """
-    for traj in trajfiles_list:
-        if verbose:
-            print("Loading {}".format(traj))
-        for frag in mdtraj.iterload(traj, chunk=chunk, top=prmtop_file,
+    try:
+        for traj in trajfiles_list:
+            for frag in mdtraj.iterload(traj, chunk=chunk, top=prmtop_file,
+                                        stride=stride):
+                yield frag
+    except OSError:
+        # User passed a single long trajectory as a string
+        # so there's no need to iterate through it.
+        for frag in mdtraj.iterload(trajfiles_list, chunk=chunk, top=prmtop_file,
                                     stride=stride):
             yield frag
 
@@ -211,8 +216,6 @@ def load_in_vmd(dirname, inds):
     return '\n'.join(templ)
 
 
-
-
 def get_source_sink(msm, clusterer, eigenvector):
     """
     Get the source and sink of a given eigenvector, in cluster naming of clusterer object
@@ -231,5 +234,3 @@ def get_source_sink(msm, clusterer, eigenvector):
     assert msm.mapping_[sink_clusterer_naming] == sink_msm_naming
 
     return source_clusterer_naming, sink_clusterer_naming
-
-

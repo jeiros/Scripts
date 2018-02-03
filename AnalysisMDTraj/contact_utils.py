@@ -9,6 +9,31 @@ import seaborn as sns
 from matplotlib import pyplot as plt
 from tqdm import tqdm
 import pandas as pd
+import datetime
+
+
+class Region:
+
+    def __init__(self, mask1, mask2, pair_list, name):
+        self.dict = {
+            'name': name,
+            'mask1': mask1,
+            'mask2': mask2,
+            'pairs': pair_list
+        }
+
+    def __repr__(self):
+        return """{name}
+------
+mask1: {mask1}
+mask2: {mask2}
+n_pairs : {n_pairs}
+        """.format(
+            name=self.dict['name'],
+            mask1=self.dict['mask1'],
+            mask2=self.dict['mask2'],
+            n_pairs=len(self.dict['pairs'])
+        )
 
 
 def get_residuepairs(start1, end1, start2, end2):
@@ -34,10 +59,9 @@ def get_residuepairs(start1, end1, start2, end2):
     mask1 = list(range(start1, end1 + 1))
     mask2 = list(range(start2, end2 + 1))
     pairs = list(itertools.product(mask1, mask2))
-    print('Mask1 has %d residues\n' % (end1 - start1 + 1))
-    print('Mask2 has %d residues\n' % (end2 - start2 + 1))
-    print('%d residue-residue interactions  will be considered\n'
-          % len(pairs))
+    print('Mask1 has %d residues\n' % len(mask1))
+    print('Mask2 has %d residues\n' % len(mask2))
+    print('%d residue-residue interactions  will be considered\n' % len(pairs))
     return(mask1, mask2, pairs)
 
 
@@ -60,7 +84,7 @@ def cmap_MDtraj(traj_generator, mask1, mask2, pairs, distance_cutoff=7,
         ['ca', 'closest', 'closest-heavy']
     Returns
     -------
-    contact_frequency: np.array w/ shape (len(mask1), len(mask2))
+    contact_frequency: np.array of shape (len(mask1), len(mask2))
         Contact map between mask1 and mask2. Can be used directly as
         input by the sns.heatmap() function.
     """
@@ -78,12 +102,32 @@ def cmap_MDtraj(traj_generator, mask1, mask2, pairs, distance_cutoff=7,
         frequency += column_sum.reshape(len(mask1), len(mask2))
     contact_frequency = frequency / frame_count
     # Total contact value for each residue-residue pair. From 0 to 1.
-    return(contact_frequency)
+    return contact_frequency
 
 
-def cmap_Cheng(traj_generator, mask1, mask2, pairs):
+def cmap_Cheng(traj_generator, mask1, mask2, pairs, topology):
+    """
+    Calculate contact maps between mask1 and mask2 as described in [1].
+
+    Parameters
+    ----------
+    traj_generator: generator
+        MD trajectory as obtained through the load_Trajs_generator() function
+    mask1, mask2, pairs:
+        Two masks and the corresponding residue-residue list of tuples
+        as obtained from the get_residuepairs() function
+
+    Returns
+    -------
+    contact_frequency: np.array of shape (len(mask1), len(mask2))
+        Contact map between mask1 and mask2. Can be used directly as
+        input by the sns.heatmap() function.
+    References
+    ----------
+    [1] Cheng, Y. et al., 2014. Biophysical Journal, 107(7), pp.1675–1685.
+    """
     print("Starting the cmap_Cheng calculation...")
-    top = md.load_prmtop(args.Topology)
+    top = md.load_prmtop(topology)
     frequency = np.zeros(len(pairs))
     frame_count = 0
     for traj_chunk in tqdm(traj_generator):
@@ -100,8 +144,8 @@ def cmap_Cheng(traj_generator, mask1, mask2, pairs):
                                               residue_pair[0])
             not_c_atoms_residue2 = top.select("resid %d and not type C" %
                                               residue_pair[1])
-            # Calculate all the possible distances between the C-C atoms and the
-            # non C-C atoms. Results are stored in two np.arrays of shape:
+            # Calculate all the possible distances between the C-C atoms and
+            # the non C-C atoms. Results are stored in two np.arrays of shape:
             # (traj_chunk.n_frames, c_atoms_residue1*c_atoms_residue2)
             # (traj_chunk.n_frames, non_c_atoms_residue1*non_c_atoms_residue2)
             c_atoms_dist = md.compute_distances(traj_chunk,
@@ -121,9 +165,6 @@ def cmap_Cheng(traj_generator, mask1, mask2, pairs):
     return(contact_frequency)
 
 
-# PLOTTING FUNCTIONS
-
-
 def renumber_mask(mask):
     """
     Renumbers the mask to match the correct sequence of each
@@ -131,7 +172,7 @@ def renumber_mask(mask):
     Python.
     """
     if max(mask) > 160 and max(mask) < 249:
-        # It's in cTnT
+            # It's in cTnT
         new_mask = [x + 51 for x in mask]
     elif max(mask) >= 249:
         # It's in cTnI
@@ -150,6 +191,7 @@ def plot_heatmap(contact_array, mask1, mask2, title=None, save=True,
     """
     Plot a single heatmap on a red color scale.
     """
+
     if std_array is not None:
         # Make figure bigger as the annotation takes a lot of space
         fig, ax = plt.subplots(figsize=(20, 20))
@@ -161,7 +203,7 @@ def plot_heatmap(contact_array, mask1, mask2, title=None, save=True,
 
     # Convert to a pd.DataFrame so sns.heatmap() can read it's
     # row/column labels properly
-    contact_df = pd.DataFrame(contact_array, index=new_mask2,
+    contact_df = pd.DataFrame(contact_array.T, index=new_mask2,
                               columns=new_mask1)
 
     if std_array is not None:
@@ -197,13 +239,14 @@ def plot_heatmap(contact_array, mask1, mask2, title=None, save=True,
         plt.ylabel(y_label)
     if save:
         if title is None:
-            raise ValueError("Need a title to save the figure.")
+            filename = datetime.date.today.isoformat()
         else:
             filename = title.replace(" ", "")
-            filename += ".pdf"
-            plt.savefig(filename, format='pdf')
+
+        filename += ".pdf"
+        plt.savefig(filename, format='pdf')
     else:
-        plt.show()
+        return ax
 
 
 def plot_diffmap(contact_array, mask1, mask2, title=None, save=True,
@@ -224,7 +267,7 @@ def plot_diffmap(contact_array, mask1, mask2, title=None, save=True,
     new_mask1 = renumber_mask(mask1)
     new_mask2 = renumber_mask(mask2)
 
-    contact_df = pd.DataFrame(contact_array, index=new_mask2,
+    contact_df = pd.DataFrame(contact_array.T, index=new_mask2,
                               columns=new_mask1)
 
     # Diverging palette with light colour on the middle
@@ -263,13 +306,14 @@ def plot_diffmap(contact_array, mask1, mask2, title=None, save=True,
         plt.ylabel(y_label)
     if save:
         if title is None:
-            raise ValueError("Need a title to save the figure.")
+            filename = datetime.date.today.isoformat()
         else:
             filename = title.replace(" ", "")
-            filename += ".pdf"
-            plt.savefig(filename, format='pdf')
+
+        filename += ".pdf"
+        plt.savefig(filename, format='pdf')
     else:
-        plt.show()
+        return ax
 
 
 def cartesianProduct(x, y):
@@ -278,9 +322,9 @@ def cartesianProduct(x, y):
     Parameters
     ----------
     x, y: np.array
+
     Returns
     -------
     np.array with cartesian product
-
     """
     return(np.transpose([np.tile(x, len(y)), np.repeat(y, len(x))]))
