@@ -13,11 +13,11 @@ trajs=$3
 cpptraj.OMP <<- EOF
     parm ${prmtop}
     trajin ${trajs} 1 last 10
-    rms first @CA,C,O,N,H
-    average crdset average_structure @CA,C,O,N,H
+    rms first @CA,C,O,N
+    average crdset average_structure @CA,C,O,N
     run
     # Step 2 - rms fit to average and calculate atomic flucts
-    rms ref average_structure @CA,C,O,N,H
-    atomicfluct out rmsf_${name}.dat @CA,C,O,N,H byres
+    rms ref average_structure @CA,C,O,N
+    atomicfluct out rmsf_${name}.dat @CA,C,O,N byres
     run
 EOF
