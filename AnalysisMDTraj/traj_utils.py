@@ -1,10 +1,10 @@
 import mdtraj
 import numpy as np
 from subprocess import call, PIPE
-import matplotlib.pyplot as plt
 
 
-def write_cpptraj_script(traj, top, frame1=1, frame2=1, outfile=None, write=True, run=False):
+def write_cpptraj_script(traj, top, frame1=1, frame2=1,
+                         outfile=None, write=True, run=False):
     """
     Create a cpptraj script to load specific range of frames from a trajectory and write them out to a file
 
@@ -94,7 +94,9 @@ def load_Trajs_generator(trajfiles_list, prmtop_file, stride, chunk):
     except OSError:
         # User passed a single long trajectory as a string
         # so there's no need to iterate through it.
-        for frag in mdtraj.iterload(trajfiles_list, chunk=chunk, top=prmtop_file,
+        for frag in mdtraj.iterload(trajfiles_list,
+                                    chunk=chunk,
+                                    top=prmtop_file,
                                     stride=stride):
             yield frag
 
@@ -133,7 +135,8 @@ def split_trajs_by_type(traj_dict, meta):
     return type_dict
 
 
-def trim_centers_by_region(clusterer, x1=None, x2=None, y1=None, y2=None, obs=(0, 1)):
+def trim_centers_by_region(clusterer, x1=None, x2=None,
+                           y1=None, y2=None, obs=(0, 1)):
     """
     Find the cluster centers that fall within a user-defined region.
 
@@ -169,12 +172,32 @@ def cartesian_product(x, y):
     return np.transpose([np.tile(x, len(y)), np.repeat(y, len(x))])
 
 
-def generate_traj_from_stateinds(inds, meta):
-    for state_i, state_inds in enumerate(inds):
-        traj = mdtraj.join(
-            mdtraj.load_frame(meta.loc[traj_i]['traj_fn'], index=frame_i, top=meta.loc[traj_i]['top_fn'])
-            for traj_i, frame_i in state_inds
+def generate_traj_from_stateinds(inds, meta, atom_selection='all'):
+    """
+    Concatenate several frames from different trajectories to create a new one.
+
+    Parameters
+    ----------
+    inds: list of tuples, Each element of the list has to be a 2D tuple of ints
+        (traj_index, frame_index)
+
+    meta: a metadata object
+    atom_selection: str, Which atoms to load
+
+    Returns
+    -------
+    traj: mdtraj.Trajectory
+    """
+    frame_list = []
+    for traj_i, frame_i in inds:
+        top = mdtraj.load_prmtop(meta.loc[traj_i]['top_fn'])
+        atoms = top.select(atom_selection)
+
+        frame_list.append(
+            mdtraj.load_frame(meta.loc[traj_i]['traj_fn'], atom_indices=atoms,
+                              index=frame_i, top=meta.loc[traj_i]['top_fn'])
         )
+    traj = mdtraj.join(frame_list, check_topology=False)
     traj.center_coordinates()
     traj.superpose(traj, 0)
     return traj

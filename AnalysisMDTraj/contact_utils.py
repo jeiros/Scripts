@@ -7,7 +7,6 @@ import mdtraj as md
 import itertools
 import seaborn as sns
 from matplotlib import pyplot as plt
-from tqdm import tqdm
 import pandas as pd
 import datetime
 
@@ -24,12 +23,12 @@ class Region:
 
     def __repr__(self):
         return """{name}
-------
+{underline}
 mask1: {mask1}
 mask2: {mask2}
-n_pairs : {n_pairs}
-        """.format(
+n_pairs : {n_pairs}\n""".format(
             name=self.dict['name'],
+            underline='-' * len(self.dict['name']),
             mask1=self.dict['mask1'],
             mask2=self.dict['mask2'],
             n_pairs=len(self.dict['pairs'])
@@ -130,7 +129,7 @@ def cmap_Cheng(traj_generator, mask1, mask2, pairs, topology):
     top = md.load_prmtop(topology)
     frequency = np.zeros(len(pairs))
     frame_count = 0
-    for traj_chunk in tqdm(traj_generator):
+    for traj_chunk in traj_generator:
         frame_count += traj_chunk.n_frames
         index = 0  # To iterate through the residue-residue pair list
         for residue_pair in pairs:
@@ -165,41 +164,49 @@ def cmap_Cheng(traj_generator, mask1, mask2, pairs, topology):
     return(contact_frequency)
 
 
-def renumber_mask(mask):
+def renumber_mask(mask, top_fn=None):
     """
     Renumbers the mask to match the correct sequence of each
     subunit. Also takes into account the 0-indexed lists of
     Python.
     """
+    if top_fn is not None:
+        top = md.load_prmtop(top_fn)
+    else:
+        top = None
     if max(mask) > 160 and max(mask) < 249:
-            # It's in cTnT
-        new_mask = [x + 51 for x in mask]
+        # It's in cTnT
+        if top is None:
+            new_mask = [x + 51 for x in mask]
+        else:
+            new_mask = ['{} {}'.format(top.residue(x).name, x + 51) for x in mask]
     elif max(mask) >= 249:
         # It's in cTnI
-        new_mask = [x - 247 for x in mask]
+        if top is None:
+            new_mask = [x - 247 for x in mask]
+        else:
+            new_mask = ['{} {}'.format(top.residue(x).name, x - 247) for x in mask]
     else:
         # It's in cTnC
-        new_mask = [x + 1 for x in mask]
+        if top is None:
+            new_mask = [x + 1 for x in mask]
+        else:
+            new_mask = ['{} {}'.format(top.residue(x).name, x + 1) for x in mask]
     return(new_mask)
 
 
-def plot_heatmap(contact_array, mask1, mask2, title=None, save=True,
+def plot_heatmap(contact_array, mask1, mask2, title=None, save=False,
                  x_label=None, y_label=None,
                  x_steps=True, y_steps=True,
                  min_value=0, max_value=1,
-                 std_array=None):
+                 std_array=None, top_fn=None):
     """
     Plot a single heatmap on a red color scale.
     """
-
-    if std_array is not None:
-        # Make figure bigger as the annotation takes a lot of space
-        fig, ax = plt.subplots(figsize=(20, 20))
-    else:
-        fig, ax = plt.subplots(figsize=(10, 10))
-    # Check what part of cTn mask1 is in and renumber accordingly
-    new_mask1 = renumber_mask(mask1)
-    new_mask2 = renumber_mask(mask2)
+    fig, ax = plt.subplots(figsize=figure_dims(2000))
+    # Check what part of cTn the masks are in and renumber accordingly
+    new_mask1 = renumber_mask(mask1, top_fn=top_fn)
+    new_mask2 = renumber_mask(mask2, top_fn=top_fn)
 
     # Convert to a pd.DataFrame so sns.heatmap() can read it's
     # row/column labels properly
@@ -207,28 +214,32 @@ def plot_heatmap(contact_array, mask1, mask2, title=None, save=True,
                               columns=new_mask1)
 
     if std_array is not None:
-        ax = sns.heatmap(contact_df,
-                         vmin=min_value,
-                         vmax=max_value,
-                         xticklabels=x_steps,
-                         yticklabels=y_steps,
-                         cmap='Reds',
-                         linewidths=.5,
-                         annot=std_array,
-                         fmt='.2f',
-                         annot_kws={'rotation': 'vertical'})
+        ax = sns.heatmap(
+            contact_df,
+            vmin=min_value,
+            vmax=max_value,
+            xticklabels=x_steps,
+            yticklabels=y_steps,
+            cmap='Reds',
+            linewidths=.5,
+            annot=std_array,
+            fmt='.2f',
+            annot_kws={'rotation': 'vertical'},
+            cbar_kws={'label': 'Contact frequency'}
+        )
     else:
-        ax = sns.heatmap(contact_df,
-                         vmin=min_value,
-                         vmax=max_value,
-                         xticklabels=x_steps,
-                         yticklabels=y_steps,
-                         cmap='Reds',
-                         linewidths=.5)
+        ax = sns.heatmap(
+            contact_df,
+            vmin=min_value,
+            vmax=max_value,
+            xticklabels=x_steps,
+            yticklabels=y_steps,
+            cmap='Reds',
+            linewidths=.5,
+            cbar_kws={'label': 'Contact frequency'}
+        )
 
-    plt.gca().invert_yaxis()
-
-    plt.xticks(rotation='vertical')
+    plt.xticks(rotation=45)
     plt.yticks(rotation='horizontal')
 
     if title is not None:
@@ -237,9 +248,11 @@ def plot_heatmap(contact_array, mask1, mask2, title=None, save=True,
         plt.xlabel(x_label)
     if y_label is not None:
         plt.ylabel(y_label)
+
+    fig.tight_layout()
     if save:
         if title is None:
-            filename = datetime.date.today.isoformat()
+            filename = datetime.date.today().isoformat()
         else:
             filename = title.replace(" ", "")
 
@@ -249,23 +262,19 @@ def plot_heatmap(contact_array, mask1, mask2, title=None, save=True,
         return ax
 
 
-def plot_diffmap(contact_array, mask1, mask2, title=None, save=True,
+def plot_diffmap(contact_array, mask1, mask2, title=None, save=False,
                  x_label=None, y_label=None,
                  x_steps=True, y_steps=True,
-                 std_array=None):
+                 top_fn=None, pval_arr=None):
     """
     Plots a difference heatmap with a blue-grey-red diverging
     color scale.
     """
-    if std_array is not None:
-        # Make figure bigger as the annotation takes a lot of space
-        fig, ax = plt.subplots(figsize=(20, 20))
-    else:
-        fig, ax = plt.subplots(figsize=(10, 10))
+    fig, ax = plt.subplots(figsize=figure_dims(2000))
 
-    # Check what part of cTn mask1 is in and renumber accordingly
-    new_mask1 = renumber_mask(mask1)
-    new_mask2 = renumber_mask(mask2)
+    # Check what part of cTn the masks are in and renumber accordingly
+    new_mask1 = renumber_mask(mask1, top_fn=top_fn)
+    new_mask2 = renumber_mask(mask2, top_fn=top_fn)
 
     contact_df = pd.DataFrame(contact_array.T, index=new_mask2,
                               columns=new_mask1)
@@ -273,29 +282,37 @@ def plot_diffmap(contact_array, mask1, mask2, title=None, save=True,
     # Diverging palette with light colour on the middle
     cmap = sns.diverging_palette(240, 10, as_cmap=True)
 
-    if std_array is not None:
-        ax = sns.heatmap(contact_df,
-                         vmin=contact_array.min(),
-                         vmax=contact_array.max(),
-                         xticklabels=x_steps,
-                         yticklabels=y_steps,
-                         annot=std_array,
-                         mask=std_array <= 0.01,  # Only values GE 0.01 will be displayed
-                         fmt='.2f',
-                         annot_kws={'rotation': 'vertical'},
-                         cmap=cmap,
-                         linewidths=.5)
-    else:
-        ax = sns.heatmap(contact_df,
-                         vmin=contact_array.min(),
-                         vmax=contact_array.max(),
-                         xticklabels=x_steps,
-                         yticklabels=y_steps,
-                         cmap=cmap,
-                         linewidths=.5)
+    maxval = max(abs(contact_array.min()), contact_array.max())
 
-    plt.gca().invert_yaxis()
-    plt.xticks(rotation='vertical')
+    if pval_arr is not None:
+        ax = sns.heatmap(
+            contact_df,
+            vmin=-maxval,
+            vmax=maxval,
+            xticklabels=x_steps,
+            yticklabels=y_steps,
+            annot=pval_arr.T,
+            annot_kws={'rotation': 'horizontal'},
+            fmt='.2f',
+            mask=pval_arr.T >= 0.01,
+
+            cmap=cmap,
+            linewidths=.5,
+            cbar_kws={'label': '$\Delta$ Contact frequency'}
+        )
+    else:
+        ax = sns.heatmap(
+            contact_df,
+            vmin=-maxval,
+            vmax=maxval,
+            xticklabels=x_steps,
+            yticklabels=y_steps,
+            cmap=cmap,
+            linewidths=.5,
+            cbar_kws={'label': '$\Delta$ Contact frequency'}
+        )
+
+    plt.xticks(rotation=45)
     plt.yticks(rotation='horizontal')
 
     if title is not None:
@@ -304,9 +321,11 @@ def plot_diffmap(contact_array, mask1, mask2, title=None, save=True,
         plt.xlabel(x_label)
     if y_label is not None:
         plt.ylabel(y_label)
+
+    fig.tight_layout()
     if save:
         if title is None:
-            filename = datetime.date.today.isoformat()
+            filename = datetime.date.today().isoformat()
         else:
             filename = title.replace(" ", "")
 

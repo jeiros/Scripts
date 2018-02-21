@@ -35,14 +35,27 @@ def get_diff_pkls(glob_expression):
         run_name = dir_path.split('/')[-3].split('_')[0]
         df['run'] = run_name
     # Recover the 'TOTAL' value, which we are interested in, and identify by the 'run' column
-    melted_dfs = [df.melt(id_vars='run', value_vars='TOTAL', value_name='MMGBSA (kcal/mol)')
-                  for df in df_list]
+    melt_dfs = [df.melt(id_vars='run', value_vars='TOTAL', value_name='MMGBSA (kcal/mol)')
+                for df in df_list]
+
+    # Build a list with the mean MMGBSA of each run
+    # Each element of this list is a tuple with the mean value and the name of the run
+    list_of_means = [(df.mean()[0], df['run'].unique()[0]) for df in melt_dfs]
+    # Now sort this list by mean value
+    sorted_means = sorted([(t[0], t[1]) for t in list_of_means])
+    # Finally, build the list of melt dfs that will be passed to the split function
+    melts_sorted = []
+    for mean, run in sorted_means:
+        for df in melt_dfs:
+            if df['run'].unique()[0] == run:
+                melts_sorted.append(df)
+
     # Split the list into four almost-equally-sized chunks, for later on plotting in a 4x4 plot
-    concat_split_melted_dfs = [pd.concat(x) for x in split(melted_dfs, 4)]
-    return concat_split_melted_dfs
+    concat_split_melt_dfs = [pd.concat(x) for x in split(melts_sorted, 4)]
+    return concat_split_melt_dfs
 
 
-def violin_plot_mmgbsa_results(ligand_data, figsize=(12, 12), title=None):
+def plot_box_mmgbsa_results(ligand_data, figsize=(12, 12), title=None):
     """
     Returns a 4x4 figure with the violin plot distributions of MMGBSA energy of every run
     :param ligand_data: list, A list with pd.DataFrames of the MMGBSA energies for each run
@@ -52,13 +65,19 @@ def violin_plot_mmgbsa_results(ligand_data, figsize=(12, 12), title=None):
     """
     if len(ligand_data) != 4:
         raise ValueError('ligand_data must be a list of length 4')
-    f, ((ax0, ax1), (ax2, ax3)) = pp.subplots(2, 2, figsize=figsize, sharey=False)
+
+    f, ((ax0, ax1), (ax2, ax3)) = pp.subplots(2, 2, figsize=figsize, sharey=True)
     for ax, df in zip((ax0, ax1, ax2, ax3), ligand_data):
-        sns.violinplot(x='run', y='MMGBSA (kcal/mol)', data=df, ax=ax)
-        ax.set_ylabel(ylabel=r'$\Delta$G binding (kcal/mol)', size=14)
-        ax.set_xlabel(xlabel='Run', size=14)
+        sns.boxplot(x='run', y='MMGBSA (kcal/mol)', data=df, ax=ax)
+        ax.set_xlabel('')
+        ax.xaxis.set_tick_params(rotation=70)
     if title is not None:
         f.suptitle(title, size=22)
+
+    ax0.set_ylabel(ylabel=r'$\Delta$G binding (kcal/mol)', size=14)
+    ax2.set_ylabel(ylabel=r'$\Delta$G binding (kcal/mol)', size=14)
+    ax1.set_ylabel('')
+    ax3.set_ylabel('')
     return f
 
 
@@ -429,30 +448,50 @@ def plot_efhand_dists_src_sinks(src_glob, sink_glob, title=None, ax=None):
     return ax
 
 
-def plot_cluster_centers(clusterer, centers, txx, ax=None, obs=(0, 1), from_clusterer=True, msm=None, add_bit=20):
+def plot_cluster_centers(clusterer, centers, txx, surface=True, ax=None,
+                         obs=(0, 1), from_clusterer=True, msm=None,
+                         add_bit=20, scatter_kwargs=None):
     """
-    Plots cluster centers as scatter points on top of a tICA landscape. Center IDs can be either in MSM labeling
+    Plots cluster centers as scatter points on top of a tICA landscape.
+    Center IDs can be either in MSM labeling
     or directly from the clustering labelling.
-    :param clusterer: a fit clusterer object, with .cluster_centers_ attribute
-    :param centers: list of ints, the IDs of the cluster centers to plot
-    :param txx: np.array of concatenated tIC trajs, shape = (n_frames, n_features)
-    :param ax: a matplotlib axes object (optional)
-    :param obs: tuple of ints, dimensions to plot (optional)
-    :param from_clusterer: bool, are the centers id in clusterer indexing or msm?
+
+    Parameters
+    ----------
+    clusterer: a fit clusterer object, with .cluster_centers_ attribute
+    centers: list of ints, the IDs of the cluster centers to plot
+    txx: np.array of concatenated tIC trajs, shape = (n_frames, n_features)
+    surface: bool, Control if energy surface is plotted or not
+    ax: a matplotlib axes object (optional)
+    obs: tuple of ints, dimensions to plot (optional)
+    from_clusterer: bool, are the centers id in clusterer
+    indexing or msm?
         default True means IDs are from clusterer
-    :param msm: a MarkovStateModel object which has been fit
-    :param add_bit: control size of scatter plots
-    :return ax: a matplotlib axes object
-    :raises ValueError: if we select from_clusterer=False it means that the center IDs are in MSM-internal labeling,
+    msm: a MarkovStateModel object which has been fit
+    add_bit: int, control size of scatter plots
+    scatter_kwargs: dict, Extra parameters to pass to scatter plot
+
+    Returns
+    -------
+    ax: a matplotlib axes object
+
+    Raises
+    ------
+    ValueError: if we select from_clusterer=False it means that
+    the center IDs are in MSM-internal labeling,
         so we need an MSM object to map those back to the clusterer naming
     """
     if ax is None:
-        pp.gca()
-    ax = msme.plot_free_energy(txx, obs=obs, n_samples=5000,
-                               gridsize=100, vmax=5.,
-                               n_levels=8, cut=5, xlabel='tIC1',
-                               ylabel='tIC2'
-                               )
+        ax = pp.gca()
+
+    if scatter_kwargs is None:
+        scatter_kwargs = {}
+    if surface:
+        ax = msme.plot_free_energy(txx, obs=obs, n_samples=5000,
+                                   gridsize=100, vmax=5.,
+                                   n_levels=8, cut=5, xlabel='tIC1',
+                                   ylabel='tIC2'
+                                   )
     prune = clusterer.cluster_centers_[:, obs]
     if from_clusterer:
         chosen_centers = prune[centers]
@@ -469,9 +508,11 @@ def plot_cluster_centers(clusterer, centers, txx, ax=None, obs=(0, 1), from_clus
 
             scale = 100 / np.max(msm.populations_)
             chosen_centers = prune[centers_in_clusterer]
-            ax.scatter(chosen_centers[:, 0], chosen_centers[:, 1],
-                       s=add_bit + (scale * msm.populations_),
-                       )
+            ax.scatter(
+                chosen_centers[:, 0], chosen_centers[:, 1],
+                s=add_bit + (scale * msm.populations_),
+                **scatter_kwargs
+            )
 
     return ax
 
@@ -509,4 +550,23 @@ def plot_tpt(msm, clusterer, txx, ev=1, ax=None, title=None, obs=(0, 1), num_pat
                           alpha=.9, edge_color='black', ax=ax, num_paths=num_paths)
     if title is not None:
         ax.set_title(title)
+    return ax
+
+
+def plot_tic_loadings(tica, ax=None, n_tics=3, alpha=1):
+    """
+    Plot the tICA weights on each feature
+    """
+    if ax is None:
+        ax = plt.gca()
+
+    for i in range(n_tics):
+        ax.plot(
+            tica.components_[i, :],
+            alpha=alpha,
+            label='tIC{}'.format(i + 1)
+        )
+
+    # ax.legend(loc='best')
+    ax.set(ylabel='tIC weight', xlabel='Feature index')
     return ax
