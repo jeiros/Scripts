@@ -53,7 +53,7 @@ echo "mol modselect 2 top resid 249 to 419" >> $tmpfile
 echo "mol modcolor 2 top  ColorID 1" >> $tmpfile
 echo "mol addrep top" >> $tmpfile
 echo "mol modselect 3 top not protein and not resname CAL" >> $tmpfile
-echo "mol modstyle 3 top Licorice" >> $tmpfile
+echo "mol modstyle 3 top VDW" >> $tmpfile
 echo "mol addrep top" >> $tmpfile
 echo "mol modselect 4 top resname CAL" >> $tmpfile
 echo "mol modstyle 4 top VDW" >> $tmpfile
