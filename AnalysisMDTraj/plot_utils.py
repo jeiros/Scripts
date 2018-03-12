@@ -10,6 +10,7 @@ import seaborn as sns
 from glob import glob
 from natsort import natsorted, order_by_index, index_natsorted
 import os
+from traj_utils import get_source_sink
 
 
 def split(a, n):
@@ -465,7 +466,7 @@ def plot_cluster_centers(clusterer, centers, txx, surface=True, ax=None,
     ax: a matplotlib axes object (optional)
     obs: tuple of ints, dimensions to plot (optional)
     from_clusterer: bool, are the centers id in clusterer
-    indexing or msm?
+        indexing or msm?
         default True means IDs are from clusterer
     msm: a MarkovStateModel object which has been fit
     add_bit: int, control size of scatter plots
@@ -517,13 +518,16 @@ def plot_cluster_centers(clusterer, centers, txx, surface=True, ax=None,
     return ax
 
 
-def plot_tpt(msm, clusterer, txx, ev=1, ax=None, title=None, obs=(0, 1), num_paths=1):
+def plot_tpt(msm, clusterer, txx, ev=1, ax=None, title=None,
+             obs=(0, 1), num_paths=1):
     """
-    Automatically plot a TPT plot of msmexplorer by selecting the microstates that have
+    Automatically plot a TPT plot of msmexplorer by selecting the microstates
+    that have
     lowest (source) and highest (sink) value of the provided eigenvector
     :param msm: an MSM object
     :param clusterer: a clusterer object
-    :param txx: np.array of concatenated tIC trajs, shape = (n_frames, n_features)
+    :param txx: np.array of concatenated tIC trajs,
+        shape = (n_frames, n_features)
     :param ev: int, the eigenvector to plot the transition for
     :param ax: a matplotlib axes object (optional)
     :param title: str, the title
@@ -546,8 +550,10 @@ def plot_tpt(msm, clusterer, txx, ev=1, ax=None, title=None, obs=(0, 1), num_pat
                                ylabel='tIC2', ax=ax)
 
     cmap = msme.utils.make_colormap(['rawdenim', 'lightgrey', 'pomegranate'])
-    ax = msme.plot_tpaths(msm, [src], [snk], pos=pos, node_color=cmap(w),
-                          alpha=.9, edge_color='black', ax=ax, num_paths=num_paths)
+    ax = msme.plot_tpaths(
+        msm, [src], [snk], pos=pos, node_color=cmap(w),
+        alpha=.9, edge_color='black', ax=ax, num_paths=num_paths
+    )
     if title is not None:
         ax.set_title(title)
     return ax
@@ -570,3 +576,99 @@ def plot_tic_loadings(tica, ax=None, n_tics=3, alpha=1):
     # ax.legend(loc='best')
     ax.set(ylabel='tIC weight', xlabel='Feature index')
     return ax
+
+
+# ----------
+# FOR GEPHI
+# ----------
+
+def add_colors(graph, color_arr):
+    """
+    Adds colors to the nodes in a graph
+
+    Parameters
+    ----------
+    graph: a networkx graph (directed or undirected)
+    color_arr: np.array, shape=(n_nodes, 4)
+        An RGBA in 255 scale, indicating the color for each node
+
+    Returns
+    -------
+    graph: the networkx graph
+
+    Example
+    -------
+    cmap = plt.cm.inferno
+    colors = np.asarray(cmap(pcca.microstate_mapping_ / pcca.microstate_mapping_.max())*255, dtype=int)
+    g = nx.DiGraph(tmat)
+    g = add_colors(g, colors)
+    """
+    for n in graph.nodes:
+        node = graph.nodes[n]
+        if 'viz' not in node:
+            node['viz'] = {}
+        node['viz']['color'] = {
+            'r': color_arr[n][0],
+            'g': color_arr[n][1],
+            'b': color_arr[n][2],
+            'a': int(color_arr[n][3] / 255)
+        }
+    return graph
+
+
+def add_counts(graph, count_matrix):
+    """
+    Adds a 'count' attribute to each node in the graph. Also, set the size
+    proportional to this count.
+
+    Parameters
+    ----------
+    graph: a networkx graph (directed or undirected)
+    count_matrix: np.array of shape=(n_nodes, ) indicating the count
+        or population as obtained from the stationary distribution of an msm
+        of each node
+
+    Returns
+    -------
+    graph: the networkx graph
+    """
+    count_matrix /= count_matrix.max()
+    for n in graph.nodes:
+        node = graph.nodes[n]
+        if 'viz' not in node:
+            node['viz'] = {}
+
+        node['viz']['size'] = float(count_matrix[n]) * 10
+
+        node['count'] = float(count_matrix[n])
+    return graph
+
+
+def add_positions(graph, position_matrix):
+    """
+    Set an xyz coordinate for each node in a graph
+
+    Parameters
+    ----------
+    graph: a networkx graph (directed or undirected)
+    position_matrix: a np.array of shape=(n_nodes, 2 or 3) indicating the xy(z)
+        coordinates for every node in the graph. If only 2 columns are passed,
+        the z coordinate is set to 0 for all the nodes.
+
+    Returns
+    -------
+    graph: the networkx graph
+    """
+    if position_matrix.shape[1] < 3:
+        zeros = np.zeros(shape=(len(position_matrix), 1))
+        position_matrix = np.hstack((position_matrix, zeros))
+    for n in graph.nodes:
+        node = graph.nodes[n]
+        if 'viz' not in node:
+            node['viz'] = {}
+        node['viz']['position'] = {
+            'x': float(position_matrix[n, 0]),
+            'y': float(position_matrix[n, 1]),
+            'z': float(position_matrix[n, 2])
+        }
+    return graph
