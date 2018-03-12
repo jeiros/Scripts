@@ -11,10 +11,11 @@ parser.add_argument("-w", "--width", help="The width of the filter", type=int,
                     default=10, required=False)
 parser.add_argument("-n", "--name", help="The name of the output smoothed trajectoryaj", type=str,
                     default="traj_smoothed.nc", required=False)
+parser.add_argument("-r", "--ref", help="A reference structure to superpose to", type=str,
+                    default=None, required=False)
 
 if __name__ == '__main__':
     import mdtraj
-    from traj_utils import load_Trajs
     import os
     args = parser.parse_args()
     print(args)
@@ -23,16 +24,26 @@ if __name__ == '__main__':
         print('Loading traj...')
         traj = mdtraj.load(args.traj[0], top=args.top)
         print('Superposing...')
-        traj.superpose(traj, 0)
-        print('Smoothing...')
-        smooth_traj = traj.smooth(args.width)
-        smooth_traj.save_netcdf(''.join([traj_name, '_smoothed.nc']))
+        if args.ref is None:
+            traj.superpose(traj, 0)
+        else:
+            ref = mdtraj.load(args.ref)
+            traj.superpose(ref, 0)
+        if args.width > 1:
+            print('Smoothing...')
+            traj.smooth(args.width, inplace=True)
+        traj.save_netcdf(''.join([traj_name, '_smoothed.nc']))
     elif len(args.traj) > 1:
         print('Loading {} trajs as one...'.format(len(args.traj)))
         traj = mdtraj.load(args.traj, top=args.top)
         print('Superposing...')
-        traj.superpose(traj, 0)
-        print('Smoothing...')
-        smooth_traj = traj.smooth(args.width)
-        smooth_traj.save_netcdf(args.name)
+        if args.ref is None:
+            traj.superpose(traj, 0)
+        else:
+            ref = mdtraj.load(args.ref)
+            traj.superpose(ref, 0)
+        if args.width > 1:
+            print('Smoothing...')
+            traj.smooth(args.width, inplace=True)
+        traj.save_netcdf(args.name)
     print('Done!')
