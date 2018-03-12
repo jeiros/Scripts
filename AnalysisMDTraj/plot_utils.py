@@ -672,3 +672,20 @@ def add_positions(graph, position_matrix):
             'z': float(position_matrix[n, 2])
         }
     return graph
+
+
+def rgba_colors_from_array(array, cmap):
+    """
+    Returns an RGBA array on a 255 scale mapped to an input array of scalars
+
+    Parameters
+    ----------
+    array: np.array, shape=(n,) scalars onto which we map cmap
+    cmap: mpl.cmap instance
+
+    Returns
+    -------
+    colors: np.array, shape=(n, 4), rgba colors on 255 scale
+    """
+    colors = np.asarray(cmap(array / array.max()) * 255, dtype=int)
+    return colors
