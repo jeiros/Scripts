@@ -24,7 +24,7 @@ class Simulation:
         Matches any occurence of the string e*s* where * can be any number of digits
         :return: list
         """
-        return re.findall(r'(e\d*s\d)', self.name)
+        return re.findall(r'(e\d*s\d*)', self.name)
 
     @property
     def node(self):
@@ -55,13 +55,20 @@ class Simulation:
         """
         return int(re.findall(r'[0-9]*', self.node)[1])
 
+    @property
+    def sim_number(self):
+        """
+        Find the simulation number this node is
+        """
+        return int(re.findall(r'[0-9]*', self.node)[3])
 
-def network_from_simulations(fnames, save=False, file_name='network.xml'):
+
+def network_from_simulations(fnames, save=False, file_name='network.gexf'):
     """
     Build a directed graph from the structure of any given number of simulation files named according to HTMD conventions
     :param fnames: str, a glob expression of trajectory files
     :param save: bool, opt (default: False) whether to save the graph as a file loadable with Cytoscape
-    :param file_name: str, opt (default: 'network.xml') filename of the graph file
+    :param file_name: str, opt (default: 'network.gexf') filename of the graph file
     :return G: networkx.classes.digraph.DiGraph
     """
     fnames = natsorted(glob(fnames))
@@ -71,11 +78,12 @@ def network_from_simulations(fnames, save=False, file_name='network.xml'):
     for sim in clean_fnames:
         sim = Simulation(sim)
         G.add_node(sim.node, epoch=sim.epoch)
+
         if sim.parent is not None:
             G.add_edge(sim.parent, sim.node)
 
     if save:
-        if not file_name.endswith('.xml'):
-            file_name += '.xml'
-        nx.write_graphml(G, path=file_name)
+        if not file_name.endswith('.gexf'):
+            file_name += '.gexf'
+        nx.write_gexf(G, path=file_name)
     return G
