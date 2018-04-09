@@ -239,7 +239,7 @@ def load_in_vmd(dirname, inds):
     return '\n'.join(templ)
 
 
-def get_source_sink(msm, clusterer, eigenvector):
+def get_source_sink(msm, clusterer, eigenvector, out_naming='msm'):
     """
     Get the source and sink of a given eigenvector, in cluster naming of clusterer object
     :param msm:
@@ -256,4 +256,9 @@ def get_source_sink(msm, clusterer, eigenvector):
     assert msm.mapping_[source_clusterer_naming] == source_msm_naming
     assert msm.mapping_[sink_clusterer_naming] == sink_msm_naming
 
-    return source_clusterer_naming, sink_clusterer_naming
+    if out_naming == 'msm':
+        return source_msm_naming, sink_msm_naming
+    elif out_naming == 'clusterer':
+        return source_clusterer_naming, sink_clusterer_naming
+    else:
+        raise ValueError('out_naming is not valid')
