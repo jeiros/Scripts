@@ -32,7 +32,7 @@ if __name__ == '__main__':
         if args.width > 1:
             print('Smoothing...')
             traj.smooth(args.width, inplace=True)
-        traj.save_netcdf(''.join([traj_name, '_smoothed.nc']))
+        traj.save_netcdf(''.join([traj_name, '_superposed.nc']))
     elif len(args.traj) > 1:
         print('Loading {} trajs as one...'.format(len(args.traj)))
         traj = mdtraj.load(args.traj, top=args.top)
