@@ -13,6 +13,15 @@ import os
 from traj_utils import get_source_sink
 
 
+def cleanup_top_right_axes(ax):
+    """
+    Removes the top and right axis lines of a matplotlib axis
+    """
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    return ax
+
+
 def split(a, n):
     """
     Splits a list into approximately equally sized n chunks
@@ -542,17 +551,21 @@ def plot_tpt(msm, clusterer, txx, ev=1, ax=None, title=None,
     pos = dict(zip(range(len(msm_states)), msm_states))
     w = (msm.left_eigenvectors_[:, ev] - msm.left_eigenvectors_[:, ev].min())
     w /= w.max()
-    src, snk = get_source_sink(msm, clusterer=clusterer, eigenvector=ev)
-    print('src', src, 'snk', snk)
-    ax = msme.plot_free_energy(txx, obs=obs, n_samples=10000,
-                               gridsize=100, vmax=5.,
-                               n_levels=8, cut=5, xlabel='tIC1',
-                               ylabel='tIC2', ax=ax)
+    src, snk = get_source_sink(
+        msm, clusterer=clusterer, eigenvector=ev, out_naming='msm'
+    )
+
+    ax.hexbin(txx[:, 0], txx[:, 1],
+              cmap='Greys',
+              mincnt=1,
+              bins='log',
+              )
 
     cmap = msme.utils.make_colormap(['rawdenim', 'lightgrey', 'pomegranate'])
     ax = msme.plot_tpaths(
         msm, [src], [snk], pos=pos, node_color=cmap(w),
-        alpha=.9, edge_color='black', ax=ax, num_paths=num_paths
+        alpha=.9, edge_color='black', ax=ax, num_paths=num_paths,
+        with_labels=False
     )
     if title is not None:
         ax.set_title(title)
@@ -564,7 +577,7 @@ def plot_tic_loadings(tica, ax=None, n_tics=3, alpha=1):
     Plot the tICA weights on each feature
     """
     if ax is None:
-        ax = plt.gca()
+        ax = pp.gca()
 
     for i in range(n_tics):
         ax.plot(
@@ -632,7 +645,7 @@ def add_counts(graph, count_matrix):
     -------
     graph: the networkx graph
     """
-    count_matrix /= count_matrix.max()
+    count_matrix = count_matrix / count_matrix.max()
     for n in graph.nodes:
         node = graph.nodes[n]
         if 'viz' not in node:
