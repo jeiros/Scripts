@@ -25,7 +25,7 @@ color red :6962-7171
 ribbon :7172-7332
 color blue :7172-7332
 
-# Troponin complex 1
+# Troponin complex 2
 # TnT
 ribbon :8016-8264
 color green :8016-8264

@@ -1,4 +1,5 @@
 ~disp
+colordef transwhite 1 1 1 .3
 color blue :1-161
 color green :162-248
 color red :249-419

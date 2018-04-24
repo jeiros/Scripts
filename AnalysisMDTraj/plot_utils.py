@@ -37,6 +37,9 @@ def get_diff_pkls(glob_expression):
     :return concat_split_melted_dfs: list, A list with 4 sublists, each with a pd.DataFrame with MMGBSA data
     """
     pickle_list = natsorted(glob(glob_expression))
+    if len(pickle_list) == 0:
+        print('Found no pkl files!')
+        return None
     # Load each pickle as a pd.DataFrame
     df_list = [pd.read_pickle(pkl) for pkl in pickle_list]
     # Add a column to the data frame that tells us which run this data belongs to

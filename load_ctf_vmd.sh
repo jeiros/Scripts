@@ -20,7 +20,7 @@ tmpfile=$(mktemp /tmp/vmd_readin.tcl)
 
 
 
-
+echo "rotate y by 90" >> $tmpfile
 echo "mol default material AOChalky" >> $tmpfile
 echo "mol default representation NewCartoon" >> $tmpfile
 echo "color Display {Background} white" >> $tmpfile
@@ -92,7 +92,7 @@ echo "mol addrep top" >> $tmpfile
 
 # ADPs
 echo "mol modselect 10 top resname ADP" >> $tmpfile
-echo "mol modstyle 10 top VDW" >> $tmpfile
+echo "mol modstyle 10 top Licorice" >> $tmpfile
 
 
 
