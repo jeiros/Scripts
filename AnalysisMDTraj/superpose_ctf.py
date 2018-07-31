@@ -7,7 +7,7 @@ parser = argparse.ArgumentParser(prog='smooth_traj.py',
 parser.add_argument("top", help="A prmtop file", type=str)
 parser.add_argument("traj", help="""A NetCDF MD trajectory""", nargs='+')
 parser.add_argument("-n", "--name", help="The name of the output smoothed trajectoryaj", type=str,
-                    default="traj_smoothed.nc", required=False)
+                    default="traj_superposed.nc", required=False)
 parser.add_argument("-r", "--ref", help="A reference structure to superpose to", type=str,
                     default=None, required=False)
 
@@ -29,7 +29,7 @@ if __name__ == '__main__':
         else:
             ref = mdtraj.load(args.ref)
             traj.superpose(ref, 0, atom_indices=atoms)
-        traj.save_netcdf(''.join([traj_name, '_smoothed.nc']))
+        traj.save_netcdf(''.join([traj_name, '_superposed.nc']))
     else:
         print('Loading {} trajs as one...'.format(len(args.traj)))
         traj = mdtraj.load(args.traj, top=args.top)

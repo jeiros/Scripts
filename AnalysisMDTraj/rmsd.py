@@ -3,10 +3,12 @@
 import mdtraj
 import argparse
 import msmexplorer as msme
+from cycler import cycler
+from itertools import cycle
 from matplotlib import pyplot as plt
 import numpy as np
 from matplotlib.ticker import FuncFormatter
-
+import seaborn as sns
 
 parser = argparse.ArgumentParser(prog='rmsd.py',
                                  formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -20,11 +22,8 @@ parser.add_argument('-o', '--out_file', type=str, required=False,
                     default='rmsd.pdf')
 
 
-palette = ["#c45ca2",
-           "#60a862",
-           "#777acd",
-           "#b4943e",
-           "#cb5a4c"]
+palette = cycler('color', sns.color_palette('colorblind', 10))
+palette_cycled = cycle(palette)
 
 
 def to_ns(x, pos):
@@ -38,14 +37,19 @@ def plot_rsmd(traj_list, fout=None):
 
     ax, side_ax = msme.plot_trace(rmsd_list[0], ylabel='RMSD (Å)', xlabel='Time (ns)',
                                   label=args.Trajectories[0][:-3],
-                                  color=palette[0])
+                                  **next(palette_cycled))
     formatter = FuncFormatter(to_ns)
     ax.xaxis.set_major_formatter(formatter)
     if len(rmsd_list) > 1:
         for i, rmsd in enumerate(rmsd_list[1:]):
-            msme.plot_trace(rmsd, ylabel='RMSD (Å)', xlabel='Time (ns)', ax=ax, side_ax=side_ax,
+            msme.plot_trace(rmsd, ylabel='RMSD (Å)', xlabel='Time (ns)', ax=ax,
+                            side_ax=side_ax,
                             label=args.Trajectories[i + 1][:-3],
-                            color=palette[i + 1])
+                            **next(palette_cycled))
+
+    if len(rmsd_list) > 5:
+        ax.legend_.remove()
+    sns.despine()
     f = plt.gcf()
     f.savefig(fout)
 

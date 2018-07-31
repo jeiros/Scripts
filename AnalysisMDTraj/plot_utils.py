@@ -2,7 +2,6 @@ import msmexplorer as msme
 from msmexplorer.utils import msme_colors
 from matplotlib.ticker import FuncFormatter
 from matplotlib import pyplot as pp
-from msmbuilder.io import load_meta
 from traj_utils import split_trajs_by_type
 import numpy as np
 import pandas as pd
@@ -10,7 +9,24 @@ import seaborn as sns
 from glob import glob
 from natsort import natsorted, order_by_index, index_natsorted
 import os
+from contact_utils import renumber_mask
 from traj_utils import get_source_sink
+
+
+def figure_dims(width_pt, factor=0.45):
+    """
+    I copied this from here:
+    https://www.archer.ac.uk/training/course-material/2014/07/SciPython_Cranfield/Slides/L04_matplotlib.pdf
+    """
+    WIDTH = width_pt  # Figure width in pt (usually from LaTeX)
+    FACTOR = factor  # Fraction of the width you'd like the figure to occupy
+    widthpt = WIDTH * FACTOR
+    inperpt = 1.0 / 72.27
+    golden_ratio = (np.sqrt(5) - 1.0) / 2.0  # because it looks good
+    widthin = widthpt * inperpt
+    heightin = widthin * golden_ratio
+    figdims = [widthin, heightin]  # Dimensions as list
+    return figdims
 
 
 def cleanup_top_right_axes(ax):
@@ -66,6 +82,99 @@ def get_diff_pkls(glob_expression):
     # Split the list into four almost-equally-sized chunks, for later on plotting in a 4x4 plot
     concat_split_melt_dfs = [pd.concat(x) for x in split(melts_sorted, 4)]
     return concat_split_melt_dfs
+
+
+def plot_dssp_results(dssp_array, mask, top_fn, ts=2, ylabel=None,
+                      cmap='viridis', simplified=True):
+    """
+    Plots the dssp assignments in dssp_array as a function of time.
+
+    Parameters
+    ----------
+    dssp_array: np.array of strings, DSSP assignment arrays as calculated from
+        mdtraj.compute_dssp
+    mask: list of ints, The list of residues that will be sliced from the dssp
+        array
+    top_fn: str, The path to the topology function belonging to the trajectory
+        the DSSP assignments have been computed from.
+    ts: float, Conversion factor between the frames in the trajectory and time
+        in nanoseconds
+    ylabel: str, Label of vertical axis
+    cmap: str, A matplotlib color map name
+    simplified: bool, Wether the dssp_array contains simplified DSSP codes or
+         not
+    Return
+    ------
+    ax: matplotlib axes
+    """
+    if simplified:
+        dssp_array[dssp_array == 'H'] = 0
+        dssp_array[dssp_array == 'E'] = 1
+        dssp_array[dssp_array == 'C'] = 2
+    else:
+        dssp_array[dssp_array == 'H'] = 0
+        dssp_array[dssp_array == 'B'] = 1
+        dssp_array[dssp_array == 'E'] = 2
+        dssp_array[dssp_array == 'G'] = 3
+        dssp_array[dssp_array == 'I'] = 4
+        dssp_array[dssp_array == 'T'] = 5
+        dssp_array[dssp_array == 'S'] = 6
+        dssp_array[dssp_array == ' '] = 7
+
+    dssp = dssp_array.astype(int)
+
+    mask1 = renumber_mask(mask, top_fn=top_fn)
+
+    if simplified:
+        n = 2
+    else:
+        n = 8
+
+    df = pd.DataFrame(
+        dssp[:, mask],
+        columns=mask1,
+        index=[int(x * ts) for x in range(len(dssp))]
+    )
+
+    fig, ax = pp.subplots(figsize=figure_dims(1400))
+
+    cmap = pp.cm.get_cmap(cmap, n)
+    # Get the middle position for the ticks in the colorbar
+    # If we split a segment of length n into n+1 chunks, the middle position
+    # between chunks is given by the following formula:
+    # (n / (2(n+1))) * (2i + 1) where i goes from 0 to n
+    tick_positions = [
+        (n / (2 * (n + 1))) * (2 * i + 1) for i in range(n + 1)
+    ]
+
+    sns.heatmap(
+        df.T,
+        cmap=cmap,
+        ax=ax,
+        linewidths=0,
+        cbar_kws={
+            'ticks': tick_positions,
+            'spacing': 'proportional'
+        }
+    )
+    cax = fig.axes[-1]
+    if simplified:
+        cax.set_yticklabels(['Helix', 'Strand', 'Coil'])
+    else:
+        cax.set_yticklabels([r'$\alpha$ helix',
+                             r'Isolated $\beta$-bridge',
+                             'Extended strand',
+                             r'$3_{10}$ helix',
+                             r'$\pi$ helix',
+                             'H-bonded turn',
+                             'Bend',
+                             'Coil'])
+    pp.xticks(rotation=75)
+    ax.set(xlabel='Time (ns)')
+    if ylabel is not None:
+        ax.set(ylabel=ylabel)
+    fig.tight_layout()
+    return fig, ax
 
 
 def plot_box_mmgbsa_results(ligand_data, figsize=(12, 12), title=None):
@@ -151,22 +260,6 @@ def bar_plot_mmgbsa_results(excel_file, sort=True, titles=None):
         f.tight_layout()
         f_list.append(f)
     return f_list
-
-
-def figure_dims(width_pt, factor=0.45):
-    """
-    I copied this from here:
-    https://www.archer.ac.uk/training/course-material/2014/07/SciPython_Cranfield/Slides/L04_matplotlib.pdf
-    """
-    WIDTH = width_pt  # Figure width in pt (usually from LaTeX)
-    FACTOR = factor  # Fraction of the width you'd like the figure to occupy
-    widthpt = WIDTH * FACTOR
-    inperpt = 1.0 / 72.27
-    golden_ratio = (np.sqrt(5) - 1.0) / 2.0  # because it looks good
-    widthin = widthpt * inperpt
-    heightin = widthin * golden_ratio
-    figdims = [widthin, heightin]  # Dimensions as list
-    return figdims
 
 
 @msme_colors

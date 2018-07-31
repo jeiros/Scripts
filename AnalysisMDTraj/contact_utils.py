@@ -11,6 +11,22 @@ import pandas as pd
 import datetime
 
 
+def figure_dims(width_pt, factor=0.45):
+    """
+    I copied this from here:
+    https://www.archer.ac.uk/training/course-material/2014/07/SciPython_Cranfield/Slides/L04_matplotlib.pdf
+    """
+    WIDTH = width_pt  # Figure width in pt (usually from LaTeX)
+    FACTOR = factor  # Fraction of the width you'd like the figure to occupy
+    widthpt = WIDTH * FACTOR
+    inperpt = 1.0 / 72.27
+    golden_ratio = (np.sqrt(5) - 1.0) / 2.0  # because it looks good
+    widthin = widthpt * inperpt
+    heightin = widthin * golden_ratio
+    figdims = [widthin, heightin]  # Dimensions as list
+    return figdims
+
+
 class Region:
 
     def __init__(self, mask1, mask2, pair_list, name):
@@ -33,6 +49,52 @@ n_pairs : {n_pairs}\n""".format(
             mask2=self.dict['mask2'],
             n_pairs=len(self.dict['pairs'])
         )
+
+
+def select_plotParams_fromTitle(title):
+    if title == 'CcTnT - inhibitory peptide':
+        y_step = True
+        x_step = True
+        y_lab = 'cTnI residue'
+        x_lab = 'cTnT residue'
+    if title == 'CcTnT - NcTnI':
+        y_step = 2
+        x_step = True
+        y_lab = 'cTnI residue'
+        x_lab = 'cTnT residue'
+    if title == 'NcTnC - NcTnI':
+        y_step = 2
+        x_step = 4
+        y_lab = 'cTnI residue'
+        x_lab = 'cTnC residue'
+    if title == 'NcTnC - switch peptide':
+        y_step = True
+        x_step = 4
+        y_lab = 'cTnI residue'
+        x_lab = 'cTnC residue'
+    if title == 'NcTnI - inhibitory peptide':
+        y_step = True
+        x_step = 2
+        y_lab = 'cTnI residue'
+        x_lab = 'cTnI residue'
+    if title == 'cTnC - inhibitory peptide':
+        y_step = True
+        x_step = 10
+        y_lab = 'cTnI residue'
+        x_lab = 'cTnC residue'
+    if title == 'cTnC A-B - switch peptide':
+        y_step = True
+        x_step = 1
+        y_lab = 'cTnI residue'
+        x_lab = 'cTnC residue'
+
+    return(y_step, x_step, y_lab, x_lab)
+
+
+def chunks(l, n):
+    """Yield successive n-sized chunks from l."""
+    for i in range(0, len(l), n):
+        yield l[i:i + n]
 
 
 def get_residuepairs(start1, end1, start2, end2):
@@ -199,7 +261,9 @@ def plot_heatmap(contact_array, mask1, mask2, title=None, save=False,
                  x_label=None, y_label=None,
                  x_steps=True, y_steps=True,
                  min_value=0, max_value=1,
-                 std_array=None, top_fn=None):
+                 std_array=None, top_fn=None,
+                 cbar_label='Contact frequency',
+                 cmap='Reds'):
     """
     Plot a single heatmap on a red color scale.
     """
@@ -220,12 +284,12 @@ def plot_heatmap(contact_array, mask1, mask2, title=None, save=False,
             vmax=max_value,
             xticklabels=x_steps,
             yticklabels=y_steps,
-            cmap='Reds',
+            cmap=cmap,
             linewidths=.5,
             annot=std_array,
             fmt='.2f',
             annot_kws={'rotation': 'vertical'},
-            cbar_kws={'label': 'Contact frequency'}
+            cbar_kws={'label': cbar_label}
         )
     else:
         ax = sns.heatmap(
@@ -234,9 +298,9 @@ def plot_heatmap(contact_array, mask1, mask2, title=None, save=False,
             vmax=max_value,
             xticklabels=x_steps,
             yticklabels=y_steps,
-            cmap='Reds',
+            cmap=cmap,
             linewidths=.5,
-            cbar_kws={'label': 'Contact frequency'}
+            cbar_kws={'label': cbar_label}
         )
 
     plt.xticks(rotation=45)
@@ -265,7 +329,8 @@ def plot_heatmap(contact_array, mask1, mask2, title=None, save=False,
 def plot_diffmap(contact_array, mask1, mask2, title=None, save=False,
                  x_label=None, y_label=None,
                  x_steps=True, y_steps=True,
-                 top_fn=None, pval_arr=None):
+                 top_fn=None, pval_arr=None,
+                 cbar_label='$\Delta$ Contact frequency'):
     """
     Plots a difference heatmap with a blue-grey-red diverging
     color scale.
@@ -298,7 +363,7 @@ def plot_diffmap(contact_array, mask1, mask2, title=None, save=False,
 
             cmap=cmap,
             linewidths=.5,
-            cbar_kws={'label': '$\Delta$ Contact frequency'}
+            cbar_kws={'label': cbar_label}
         )
     else:
         ax = sns.heatmap(
@@ -309,7 +374,7 @@ def plot_diffmap(contact_array, mask1, mask2, title=None, save=False,
             yticklabels=y_steps,
             cmap=cmap,
             linewidths=.5,
-            cbar_kws={'label': '$\Delta$ Contact frequency'}
+            cbar_kws={'label': cbar_label}
         )
 
     plt.xticks(rotation=45)
