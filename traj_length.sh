@@ -15,9 +15,11 @@ trajs=$3
 # Prints to stdout
 # Frames: XXXX
 # Use cut -d " " -f 2 to get only the number after the space
-FRAMES=$(/usr/local/amber16/bin/cpptraj -p ${topology} -y ${trajs} -tl | cut -d " " -f 2 | bc)
+FRAMES=$(cpptraj -p ${topology} -y ${trajs} -tl | cut -d " " -f 2 | bc)
 # Use bc to multiply by the timestep
 TIME=$(echo "${FRAMES}*${timestep}" | bc)
-
-
 echo $TIME" ns"
+if [ -f "cpptraj.log" ]
+then
+	rm cpptraj.log
+fi
