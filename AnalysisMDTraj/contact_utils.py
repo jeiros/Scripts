@@ -9,7 +9,7 @@ import seaborn as sns
 from matplotlib import pyplot as plt
 import pandas as pd
 import datetime
-
+import uncertainties.unumpy as unumpy
 
 def figure_dims(width_pt, factor=0.45):
     """
@@ -74,12 +74,12 @@ def select_plotParams_fromTitle(title):
         x_lab = 'cTnC residue'
     if title == 'NcTnI - inhibitory peptide':
         y_step = True
-        x_step = 2
+        x_step = 1
         y_lab = 'cTnI residue'
         x_lab = 'cTnI residue'
     if title == 'cTnC - inhibitory peptide':
         y_step = True
-        x_step = 10
+        x_step = 5
         y_lab = 'cTnI residue'
         x_lab = 'cTnC residue'
     if title == 'cTnC A-B - switch peptide':
@@ -87,7 +87,11 @@ def select_plotParams_fromTitle(title):
         x_step = 1
         y_lab = 'cTnI residue'
         x_lab = 'cTnC residue'
-
+    if title == 'NcTnC - NcTnC':
+        y_step = 2
+        x_step = 2
+        y_lab = 'cTnC residue'
+        x_lab = y_lab
     return(y_step, x_step, y_lab, x_lab)
 
 
@@ -95,6 +99,29 @@ def chunks(l, n):
     """Yield successive n-sized chunks from l."""
     for i in range(0, len(l), n):
         yield l[i:i + n]
+
+
+def getError_diffPlot(wt_maps_list, s1p_maps_list, sep_maps_list):
+    """
+    Use the uncertainties package to calculate the error
+    propagation in the operations (averaging of the 
+    two types of phosphorylated systems, and the substraction
+    to get the difference plot.)
+    """
+    WT = np.dstack(wt_maps_list)
+    S1P = np.dstack(s1p_maps_list)
+    SEP = np.dstack(sep_maps_list)
+
+    WT_uarray = unumpy.uarray((WT.mean(2), WT.std(2)))
+    S1P_uarray = unumpy.uarray((S1P.mean(2), S1P.std(2)))
+    SEP_uarray = unumpy.uarray((SEP.mean(2), SEP.std(2)))
+
+    diff_uarray = ((S1P_uarray + SEP_uarray) / 2) - WT_uarray
+
+    diff_val = unumpy.nominal_values(diff_uarray)
+    diff_std = unumpy.std_devs(diff_uarray)
+
+    return(diff_val, diff_std)
 
 
 def get_residuepairs(start1, end1, start2, end2):
@@ -150,7 +177,8 @@ def cmap_MDtraj(traj_generator, mask1, mask2, pairs, distance_cutoff=7,
         input by the sns.heatmap() function.
     """
 
-    frequency = np.zeros((len(mask1), len(mask2)))  # store the partial sum of contacts
+    # store the partial sum of contacts
+    frequency = np.zeros((len(mask1), len(mask2)))
     frame_count = 0
     for traj_chunk in traj_generator:
         frame_count += traj_chunk.n_frames
@@ -220,9 +248,11 @@ def cmap_Cheng(traj_generator, mask1, mask2, pairs, topology):
                     ((not_c_atoms_dist <= 4.6).sum(1).any() > 0)):
                 frequency[index] += 1
             index += 1
-    contact_frequency = (frequency / frame_count).reshape(len(mask1), len(mask2))
+    contact_frequency = (
+        frequency / frame_count).reshape(len(mask1), len(mask2))
     print('Number of analyzed frames: %d\n' % frame_count)
-    print('Aggregate simulation time: %2.f ns\n' % (frame_count * 0.02 * args.stride))
+    print('Aggregate simulation time: %2.f ns\n' %
+          (frame_count * 0.02 * args.stride))
     return(contact_frequency)
 
 
@@ -241,19 +271,22 @@ def renumber_mask(mask, top_fn=None):
         if top is None:
             new_mask = [x + 51 for x in mask]
         else:
-            new_mask = ['{} {}'.format(top.residue(x).name, x + 51) for x in mask]
+            new_mask = ['{} {}'.format(
+                top.residue(x).name, x + 51) for x in mask]
     elif max(mask) >= 249:
         # It's in cTnI
         if top is None:
             new_mask = [x - 247 for x in mask]
         else:
-            new_mask = ['{} {}'.format(top.residue(x).name, x - 247) for x in mask]
+            new_mask = ['{} {}'.format(
+                top.residue(x).name, x - 247) for x in mask]
     else:
         # It's in cTnC
         if top is None:
             new_mask = [x + 1 for x in mask]
         else:
-            new_mask = ['{} {}'.format(top.residue(x).name, x + 1) for x in mask]
+            new_mask = ['{} {}'.format(
+                top.residue(x).name, x + 1) for x in mask]
     return(new_mask)
 
 
@@ -306,8 +339,8 @@ def plot_heatmap(contact_array, mask1, mask2, title=None, save=False,
     plt.xticks(rotation=45)
     plt.yticks(rotation='horizontal')
 
-    if title is not None:
-        plt.title(title)
+    # if title is not None:
+        # plt.title(title)
     if x_label is not None:
         plt.xlabel(x_label)
     if y_label is not None:
@@ -330,6 +363,8 @@ def plot_diffmap(contact_array, mask1, mask2, title=None, save=False,
                  x_label=None, y_label=None,
                  x_steps=True, y_steps=True,
                  top_fn=None, pval_arr=None,
+                 pval_threshold=0.05,
+                 annot_pvals=True,
                  cbar_label='$\Delta$ Contact frequency'):
     """
     Plots a difference heatmap with a blue-grey-red diverging
@@ -350,21 +385,33 @@ def plot_diffmap(contact_array, mask1, mask2, title=None, save=False,
     maxval = max(abs(contact_array.min()), contact_array.max())
 
     if pval_arr is not None:
-        ax = sns.heatmap(
-            contact_df,
-            vmin=-maxval,
-            vmax=maxval,
-            xticklabels=x_steps,
-            yticklabels=y_steps,
-            annot=pval_arr.T,
-            annot_kws={'rotation': 'horizontal'},
-            fmt='.2f',
-            mask=pval_arr.T >= 0.01,
-
-            cmap=cmap,
-            linewidths=.5,
-            cbar_kws={'label': cbar_label}
-        )
+        if annot_pvals:
+            ax = sns.heatmap(
+                contact_df,
+                vmin=-maxval,
+                vmax=maxval,
+                xticklabels=x_steps,
+                yticklabels=y_steps,
+                annot=pval_arr.T,
+                annot_kws={'rotation': 'vertical'},
+                fmt='.3f',
+                mask=pval_arr.T >= pval_threshold,
+                cmap=cmap,
+                linewidths=.5,
+                cbar_kws={'label': cbar_label}
+            )
+        else:
+            ax = sns.heatmap(
+                contact_df,
+                vmin=-maxval,
+                vmax=maxval,
+                xticklabels=x_steps,
+                yticklabels=y_steps,
+                mask=pval_arr.T >= pval_threshold,
+                cmap=cmap,
+                linewidths=.5,
+                cbar_kws={'label': cbar_label}
+            )
     else:
         ax = sns.heatmap(
             contact_df,
@@ -380,8 +427,8 @@ def plot_diffmap(contact_array, mask1, mask2, title=None, save=False,
     plt.xticks(rotation=45)
     plt.yticks(rotation='horizontal')
 
-    if title is not None:
-        plt.title(title)
+    # if title is not None:
+        # plt.title(title)
     if x_label is not None:
         plt.xlabel(x_label)
     if y_label is not None:

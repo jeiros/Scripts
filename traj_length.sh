@@ -1,5 +1,4 @@
 #!/bin/bash
-
 if [[ $# -lt 3 ]]; then
     printf "Please provide at least three arguments (timestep, top and traj files)\n"
     printf "Usage: traj_length.sh 0.02 topology.prmtop 'trajectories*.nc'\n"
@@ -21,5 +20,5 @@ TIME=$(echo "${FRAMES}*${timestep}" | bc)
 echo $TIME" ns"
 if [ -f "cpptraj.log" ]
 then
-	rm cpptraj.log
+    rm cpptraj.log
 fi
