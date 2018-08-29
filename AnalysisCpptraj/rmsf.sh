@@ -10,7 +10,7 @@ prmtop=$2
 trajs=$3
 
 
-cpptraj.OMP <<- EOF
+cpptraj <<- EOF
     parm ${prmtop}
     trajin ${trajs} 1 last 10
     rms first @CA,C,O,N

@@ -452,7 +452,7 @@ def plot_microstates(msm, txx, clusterer, obs=(0, 1), eigenvector=1, ax=None,
               )
 
     scale = 100 / np.max(msm.populations_)
-    add_a_bit = 2
+    add_a_bit = 5
     prune = clusterer.cluster_centers_[:, obs]
     c = ax.scatter(prune[msm.state_labels_, 0],
                    prune[msm.state_labels_, 1],
@@ -492,6 +492,7 @@ def plot_src_sink(msm, clusterer, ev, txx, src, sink, clabel=None, title='', ax=
         marker='D',
         color='red',
         s=200,
+        zorder=10
     )
     # sink
     ax.scatter(
@@ -500,6 +501,7 @@ def plot_src_sink(msm, clusterer, ev, txx, src, sink, clabel=None, title='', ax=
         marker='D',
         color='blue',
         s=200,
+        zorder=10
     )
     return ax
 
@@ -651,16 +653,16 @@ def plot_tpt(msm, clusterer, txx, ev=1, ax=None, title=None,
         msm, clusterer=clusterer, eigenvector=ev, out_naming='msm'
     )
 
-    ax.hexbin(txx[:, 0], txx[:, 1],
-              cmap='Greys',
-              mincnt=1,
-              bins='log',
-              )
+    # ax.hexbin(txx[:, 0], txx[:, 1],
+    #           cmap='Greys',
+    #           mincnt=1,
+    #           bins='log',
+    #           )
 
-    cmap = msme.utils.make_colormap(['rawdenim', 'lightgrey', 'pomegranate'])
+    cmap = msme.utils.make_colormap(['pomegranate', 'lightgrey', 'rawdenim'])
     ax = msme.plot_tpaths(
         msm, [src], [snk], pos=pos, node_color=cmap(w),
-        alpha=.9, edge_color='black', ax=ax, num_paths=num_paths,
+        alpha=1, edge_color='black', ax=ax, num_paths=num_paths,
         with_labels=False
     )
     if title is not None:
