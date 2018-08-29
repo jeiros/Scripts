@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 import argparse
+from msmbuilder.io import backup
+import mdtraj
+import os
 parser = argparse.ArgumentParser(prog='smooth_traj.py',
                                  formatter_class=argparse.RawDescriptionHelpFormatter,
                                  description='''version1''')
@@ -15,8 +18,6 @@ parser.add_argument("-r", "--ref", help="A reference structure to superpose to",
                     default=None, required=False)
 
 if __name__ == '__main__':
-    import mdtraj
-    import os
     args = parser.parse_args()
     print(args)
     if len(args.traj) == 1:
@@ -33,7 +34,8 @@ if __name__ == '__main__':
         if args.width > 1:
             print('Smoothing...')
             traj.smooth(args.width, inplace=True)
-        traj.save_netcdf(''.join([traj_name, '_superposed.nc']))
+        backup(args.name)
+        traj.save_netcdf(args.name)
     elif len(args.traj) > 1:
         print('Loading {} trajs as one...'.format(len(args.traj)))
         traj = mdtraj.load(args.traj, top=args.top)
@@ -47,5 +49,6 @@ if __name__ == '__main__':
         if args.width > 1:
             print('Smoothing...')
             traj.smooth(args.width, inplace=True)
+        backup(args.name)
         traj.save_netcdf(args.name)
     print('Done!')
