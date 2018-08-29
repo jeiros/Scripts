@@ -6,7 +6,59 @@
 # red_label should match file1.dat
 # blue_label should match file2.dat
 
+
+
+
 library(ggplot2)
+
+
+# Multiple plot function
+#
+# ggplot objects can be passed in ..., or to plotlist (as a list of ggplot objects)
+# - cols:   Number of columns in layout
+# - layout: A matrix specifying the layout. If present, 'cols' is ignored.
+#
+# If the layout is something like matrix(c(1,2,3,3), nrow=2, byrow=TRUE),
+# then plot 1 will go in the upper left, 2 will go in the upper right, and
+# 3 will go all the way across the bottom.
+#
+multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
+  library(grid)
+
+  # Make a list from the ... arguments and plotlist
+  plots <- c(list(...), plotlist)
+
+  numPlots = length(plots)
+
+  # If layout is NULL, then use 'cols' to determine layout
+  if (is.null(layout)) {
+    # Make the panel
+    # ncol: Number of columns of plots
+    # nrow: Number of rows needed, calculated from # of cols
+    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
+                    ncol = cols, nrow = ceiling(numPlots/cols))
+  }
+
+ if (numPlots==1) {
+    print(plots[[1]])
+
+  } else {
+    # Set up the page
+    grid.newpage()
+    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
+
+    # Make each plot, in the correct location
+    for (i in 1:numPlots) {
+      # Get the i,j matrix positions of the regions that contain this subplot
+      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+
+      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
+                                      layout.pos.col = matchidx$col))
+    }
+  }
+}
+
+
 
 rmsfs_averaging <- function(data){
   # Input is the rmsf raw data
@@ -159,7 +211,7 @@ rmsf_comparison_plot <- function(d1, d2, red_label, blue_label) {
   tni_plot <- doplot(TnI, "cTnI", red_label, blue_label) +
               scale_y_continuous(limits=c(min_y, max_y))
 
-  source("/Users/je714/Scripts/Rplots/Multiple_plot_function.R")
+
   return(multiplot(tnc_plot, tnt_plot, tni_plot))
 }
 
@@ -179,7 +231,6 @@ pvalue_comparison_plot <- function(df) {
   tnt_plot <- pvalue_plotter(TnT) + ggtitle("cTnT")
   tni_plot <- pvalue_plotter(TnI) + ggtitle("cTnI")
 
-  source("/Users/je714/Scripts/Rplots/Multiple_plot_function.R")
   return(multiplot(tnc_plot, tnt_plot, tni_plot))
 }
 
