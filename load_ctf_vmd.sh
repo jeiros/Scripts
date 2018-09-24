@@ -40,7 +40,8 @@ done
 # F-actin
 echo "mol modselect 0 top resid 1 to 6016" >> $tmpfile
 echo "mol modcolor 0 top ColorID 8" >> $tmpfile
-echo "mol modmaterial 0 top Transparent" >> $tmpfile
+echo "mol modmaterial 0 top HardPlastic" >> $tmpfile
+echo "mol modstyle 0 top QuickSurf" >> $tmpfile
 echo "mol addrep top" >> $tmpfile
 
 
@@ -89,11 +90,6 @@ echo "mol modselect 9 top resname CAL" >> $tmpfile
 echo "mol modstyle 9 top VDW" >> $tmpfile
 echo "mol modcolor 9 top ColorID 2" >> $tmpfile
 echo "mol addrep top" >> $tmpfile
-
-# ADPs
-echo "mol modselect 10 top resname ADP" >> $tmpfile
-echo "mol modstyle 10 top Licorice" >> $tmpfile
-
 
 
 # REPLACE THE PATH TO YOUR VMD EXECUTABLE!

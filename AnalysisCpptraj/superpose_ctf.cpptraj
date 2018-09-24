@@ -1,0 +1,3 @@
+rms first :1-6016@CA  # superpose on the alpha carbons of actin
+createcrd sup  # create a coordinate set
+run

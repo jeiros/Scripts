@@ -7,11 +7,18 @@ color transwhite :1-6016
 
 # Tropomyosin coil n1
 ribbon :6033-6712
-color purple :6033-6712
+color tan :6033-6260
+color sky blue :6261-6488
+color plum :6489-6600
+color light green :6601-6712
+
 
 # Tropomyosin coil n2
 ribbon :7336-8015
-color purple :7336-8015
+color salmon :7336-7563
+color purple :7564-7791
+color magenta :7792-7904
+color gold :7905-8015
 
 
 # Troponin complex 1
@@ -36,12 +43,7 @@ color red :8265-8474
 ribbon :8475-8635
 color blue :8475-8635
 
-
 # CALCIUMS
 disp :CAL
 repr sphere :CAL
 color silver :CAL
-
-# ADPs
-disp :ADP
-repr sphere :ADP

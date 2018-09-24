@@ -7,7 +7,18 @@ color transwhite :1-6016
 
 # Tropomyosin coil n1
 ribbon :6033-6712
-color purple :6033-6712
+color tan :6033-6260
+color sky blue :6261-6488
+color plum :6489-6600
+color light green :6601-6712
+
+
+# Tropomyosin coil n2
+ribbon :7335-8014
+color salmon :7335-7562
+color purple :7563-7790
+color magenta :7791-7903
+color gold :7904-8014
 
 # Tropomyosin coil n2
 ribbon :7335-8014
